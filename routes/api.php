@@ -13,3 +13,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::resource('settings',SettingsController::class);
     Route::resource('currencies',CurrencyController::class);
 });
+
+
+require __DIR__.'/auth.php';
