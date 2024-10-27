@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Transaction;
 use App\Services\TransactionService;
 use Illuminate\Http\Request;
 
@@ -45,5 +46,31 @@ class TransactionController extends Controller
         $transaction = $this->transactionService->createTransaction($validated);
 
         return response()->json(['data' => $transaction], 201);
+    }
+
+    public function update(Transaction $transaction, Request $request)
+    {
+        $validated = $request->validate([
+            'type' => 'required|in:expense,income',
+            'amount' => 'required|numeric|min:0',
+            'note' => 'nullable|string',
+            'id' => 'exists:transactions,id'
+        ]);
+        $transaction->type = $validated['type'];
+        $transaction->amount = $validated['amount'];
+        $transaction->note = $validated['note'];
+        $transaction->save();
+
+        // Clear the cache
+        $this->transactionService->clearUserTransactionCache($transaction->user_id);
+
+        return response()->json(['data' => $transaction], status: 201);
+    }
+
+    public function destroy(Transaction $transaction)
+    {
+        $transaction->delete();
+        $this->transactionService->clearUserTransactionCache($transaction->user_id);
+        return response()->json(['data' => $transaction], 200);
     }
 }

@@ -66,7 +66,7 @@ class TransactionService
     /**
      * Clear user's transaction cache
      */
-    private function clearUserTransactionCache($userId)
+    public function clearUserTransactionCache($userId)
     {
         Cache::forget("transactions_user_{$userId}_" . date('m') . "_" . date('Y'));
         Cache::forget("transaction_summary_user_{$userId}_" . date('Y_m'));
