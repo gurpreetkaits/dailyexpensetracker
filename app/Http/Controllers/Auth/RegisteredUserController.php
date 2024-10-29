@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
@@ -42,6 +43,11 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
+        Setting::create([
+            'user_id' => $user->id,
+            'currency_code' => 'USD',
+            'reminders' => 0,
+        ]);
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
