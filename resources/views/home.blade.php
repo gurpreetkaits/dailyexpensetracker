@@ -26,15 +26,13 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16 items-center">
                 <a href="/" class="flex items-center gap-2">
-                    <img src="{{ asset('images/dailyexpensetracker.png') }}" class="h-8 w-8" alt="Logo"/>
-                    <span class="text-xl font-semibold text-gray-900">Daily Expense Tracker</span>
+                    <img src="{{ asset('images/dailyexpensetracker.png') }}" class="h-9 w-9 rounded-lg" alt="Logo"/>
+                    <span class="text-xl font-semibold text-gray-900 hidden sm:block">Daily Expense Tracker</span>
                 </a>
                 <div class="flex items-center gap-4">
                     <a href="{{ config('app.frontend_url') }}/login" 
-                       class="text-gray-600 hover:text-gray-900">Login</a>
-                    <a href="{{ config('app.frontend_url') }}/register" 
                        class="bg-emerald-500 text-white px-4 py-2 rounded-lg hover:bg-emerald-600 transition-colors">
-                        Get Started
+                        Login
                     </a>
                 </div>
             </div>
@@ -108,7 +106,21 @@
             </div>
         </div>
     </div>
-
+    <!-- Builder Section - New Addition -->
+    <div class="bg-gray-50 py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <a href="https://gurpreetkait-in.vercel.app/" target="_blank">
+                <div class="flex flex-col items-center text-center">
+                    <img src="{{ asset('images/guru.jpeg') }}" alt="Creator" class="w-24 h-24 rounded-full mb-4 shadow-lg"/>
+                    <h3 class="text-xl font-semibold text-gray-900">👋 Hey, I'm Gurpreet</h3>
+                    <p class="text-gray-600 mt-2 max-w-md">
+                        I built Daily Expense Tracker as a side project to solve my own expense tracking problems. No groups,
+                        No team - just me coding away on weekends ⌨️
+                    </p>
+                </div>
+            </a>
+        </div>
+    </div>
     <!-- Footer -->
     <footer class="bg-gray-50 py-8">
         <div class="text-center text-gray-600">
