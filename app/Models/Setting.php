@@ -11,4 +11,8 @@ class Setting extends Model
         "reminders",
         "currency_code"
     ];
+
+    public function currency(){
+         return $this->belongsTo(Currency::class,'currency_code','code');
+    }
 }

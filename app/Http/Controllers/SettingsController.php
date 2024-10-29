@@ -10,7 +10,7 @@ class SettingsController extends Controller
 {
     public function index()
     {
-        $settings = Setting::where('user_id', auth()->id())->get();
+        $settings = Setting::with('currency')->where('user_id', auth()->id())->get();
         return response()->json(SettingsResource::collection($settings));
     }
 
