@@ -30,14 +30,8 @@ class AuthenticatedSessionController extends Controller
      * Handle an incoming authentication request.
      */
 
-    public function store(Request $request): JsonResponse
+    public function store(LoginRequest $request): JsonResponse
     {
-        // Validate request
-        $request->validate([
-            'email' => 'required|email',
-            'google_id' => 'nullable|string'  // Add this for Google login
-        ]);
-
         try {
             if ($request->sub) {
                 // Handle Google login
@@ -55,7 +49,6 @@ class AuthenticatedSessionController extends Controller
                 }
             } else {
                 // Regular login
-                $request->validate(['password' => 'required']);
                 $request->authenticate();
                 $user = Auth::user();
             }
