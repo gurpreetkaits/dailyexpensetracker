@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -28,19 +29,53 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-    public function store(LoginRequest $request): JsonResponse
+
+    public function store(Request $request): JsonResponse
     {
-        $request->authenticate();
-
-        $user = Auth::user();
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        return response()->json([
-            'user' => $user,
-            'token' => $token,
-            'message' => 'Login successful'
+        // Validate request
+        $request->validate([
+            'email' => 'required|email',
+            'google_id' => 'nullable|string'  // Add this for Google login
         ]);
+
+        try {
+            if ($request->sub) {
+                // Handle Google login
+                $user = User::where('email', $request->email)->first();
+
+                if (!$user) {
+                    // Create new user
+                    $user = User::create([
+                        'name' => $request->name,
+                        'email' => $request->email,
+                        'google_id' => $request->sub,
+                        'avatar' => $request->picture ?? null,
+                        'email_verified_at' => now()
+                    ]);
+                }
+            } else {
+                // Regular login
+                $request->validate(['password' => 'required']);
+                $request->authenticate();
+                $user = Auth::user();
+            }
+
+            $token = $user->createToken('auth_token')->plainTextToken;
+
+            return response()->json([
+                'user' => $user,
+                'token' => $token,
+                'message' => 'Login successful'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Login failed',
+                'error' => $e->getMessage()
+            ], 422);
+        }
     }
+
 
     /**
      * Destroy an authenticated session.

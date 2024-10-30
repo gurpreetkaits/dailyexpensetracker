@@ -29,6 +29,8 @@ class LoginRequest extends FormRequest
         return [
             'email' => ['required', 'string', 'email'],
             'password' => ['required', 'string'],
+            'google_id' => ['nullable'],
+            'avatar' => ['nullable']
         ];
     }
 
