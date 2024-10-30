@@ -1,0 +1,52 @@
+name: Deploy to Production
+
+on:
+  workflow_run:
+    workflows: ["Laravel CI"]  # Your existing laravel.yml workflow name
+    types:
+      - completed
+    branches:
+      - main
+
+jobs:
+  deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          
+      - name: Install Dependencies
+        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+          
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          known_hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
+          
+      - name: Deploy to production
+        env:
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+        run: |
+          zip -r deployment.zip .
+          scp deployment.zip $DEPLOY_USER@$DEPLOY_HOST:/tmp/
+          
+          ssh $DEPLOY_USER@$DEPLOY_HOST << 'ENDSSH'
+            cd $DEPLOY_PATH
+            unzip -o /tmp/deployment.zip -d ./
+            composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
+            php artisan migrate --force
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+            chmod -R 775 storage bootstrap/cache
+            rm /tmp/deployment.zip
+          ENDSSH
