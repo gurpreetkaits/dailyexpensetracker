@@ -60,7 +60,7 @@
                 <div class="flex-1 flex justify-center">
                     <img src="{{ asset('images/dailyexpensetracker-mobile.png') }}" 
                          alt="Dashboard Preview" 
-                         class="max-w-sm w-full object-contain rounded-lg shadow-lg"/>
+                         class="max-w-sm w-full object-contain rounded-lg"/>
                 </div>
             </div>
         </div>
