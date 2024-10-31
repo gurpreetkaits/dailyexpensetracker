@@ -76,6 +76,9 @@ class TransactionController extends Controller
 
     public function destroy(Transaction $transaction)
     {
+        if ($transaction->user_id !== auth()->id()) {
+            abort(403, 'unauthorized');
+        }
         $transaction->delete();
         $this->transactionService->clearUserTransactionCache($transaction->user_id);
         return response()->json(['data' => $transaction], 200);
