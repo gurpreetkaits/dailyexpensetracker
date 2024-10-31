@@ -56,10 +56,14 @@ class AuthenticatedSessionController extends Controller
 
             $token = $user->createToken('auth_token')->plainTextToken;
 
-            Setting::updateOrCreate(['user_id' => $user->id], [
-                'currency_code' => 'USD',
-                'reminders' => 0,
-            ]);
+            if (Setting::where('user_id', $user->id)->doesntExist()) {
+                Setting::create([
+                    'user_id' => $user->id,
+                    'currency_code' => 'USD',
+                    'reminders' => 0,
+                ]);
+            }
+
             return response()->json([
                 'user' => $user,
                 'token' => $token,
