@@ -11,7 +11,7 @@ class Transaction extends Model
         'type',
         'amount',
         'note',
-        'category',
+        'category_id',
         'transaction_date'
     ];
 
@@ -27,6 +27,6 @@ class Transaction extends Model
 
     public function category()
     {
-        return $this->belongsTo(Category::class, 'category', 'name');
+        return $this->belongsTo(Category::class, 'category_id', 'id');
     }
 }

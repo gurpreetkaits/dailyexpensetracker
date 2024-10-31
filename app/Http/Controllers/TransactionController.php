@@ -36,11 +36,12 @@ class TransactionController extends Controller
 
     public function store(Request $request)
     {
+        // TODO: check category_id is from categories table
         $validated = $request->validate([
             'type' => 'required|in:expense,income',
             'amount' => 'required|numeric|min:0',
             'note' => 'nullable|string',
-            'category' => 'nullable',
+            'category_id' => 'nullable|int',
             'transaction_date' => 'nullable|date'
         ]);
 
@@ -52,19 +53,22 @@ class TransactionController extends Controller
 
     public function update(Transaction $transaction, Request $request)
     {
+        if ($transaction->user_id !== auth()->id()) {
+            abort(403, 'unauthorized');
+        }
         $validated = $request->validate([
             'type' => 'required|in:expense,income',
             'amount' => 'required|numeric|min:0',
             'note' => 'nullable|string',
             'transaction_date' => 'nullable|date',
-            'category' => 'nullable|string',
+            'category_id' => 'nullable|int',
             'id' => 'exists:transactions,id'
         ]);
         $transaction->type = $validated['type'];
         $transaction->amount = $validated['amount'];
         $transaction->note = $validated['note'];
         $transaction->note = $validated['note'];
-        $transaction->category = $validated['category'];
+        $transaction->category_id = $validated['category_id'];
         $transaction->transaction_date = $validated['transaction_date'];
         $transaction->save();
 
