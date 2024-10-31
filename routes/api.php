@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\StatsController;
 use App\Http\Controllers\TransactionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -18,9 +19,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::resource('currencies', CurrencyController::class);
     Route::resource('transactions', TransactionController::class);
     Route::get('categories', [CategoryController::class, 'index']);
+    Route::get('stats', [StatsController::class, 'index']);
 });
 
 Route::post('register', [RegisteredUserController::class, 'store']);
 Route::post('login', [AuthenticatedSessionController::class, 'store']);
 
-require __DIR__ . '/auth.php';

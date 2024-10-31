@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -55,6 +56,10 @@ class AuthenticatedSessionController extends Controller
 
             $token = $user->createToken('auth_token')->plainTextToken;
 
+            Setting::updateOrCreate(['user_id' => $user->id], [
+                'currency_code' => 'USD',
+                'reminders' => 0,
+            ]);
             return response()->json([
                 'user' => $user,
                 'token' => $token,
