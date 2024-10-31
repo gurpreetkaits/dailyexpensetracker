@@ -40,6 +40,8 @@ class TransactionController extends Controller
             'type' => 'required|in:expense,income',
             'amount' => 'required|numeric|min:0',
             'note' => 'nullable|string',
+            'category' => 'nullable',
+            'transaction_date' => 'nullable|date'
         ]);
 
         $validated['user_id'] = auth()->id();
@@ -54,11 +56,16 @@ class TransactionController extends Controller
             'type' => 'required|in:expense,income',
             'amount' => 'required|numeric|min:0',
             'note' => 'nullable|string',
+            'transaction_date' => 'nullable|date',
+            'category' => 'nullable|string',
             'id' => 'exists:transactions,id'
         ]);
         $transaction->type = $validated['type'];
         $transaction->amount = $validated['amount'];
         $transaction->note = $validated['note'];
+        $transaction->note = $validated['note'];
+        $transaction->category = $validated['category'];
+        $transaction->transaction_date = $validated['transaction_date'];
         $transaction->save();
 
         // Clear the cache
@@ -72,5 +79,10 @@ class TransactionController extends Controller
         $transaction->delete();
         $this->transactionService->clearUserTransactionCache($transaction->user_id);
         return response()->json(['data' => $transaction], 200);
+    }
+
+    public function show($id)
+    {
+        return Transaction::with('category')->findOrFail($id);
     }
 }

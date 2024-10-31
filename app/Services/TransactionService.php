@@ -19,7 +19,7 @@ class TransactionService
         $cacheKey = "transactions_user_{$userId}_" . ($month ?? date('m')) . "_" . ($year ?? date('Y'));
 
         return Cache::remember($cacheKey, $this->cacheTimeout, function () use ($userId, $month, $year) {
-            $query = Transaction::where('user_id', $userId);
+            $query = Transaction::with('category')->where('user_id', $userId);
 
             if ($month && $year) {
                 $query->whereYear('transaction_date', $year)
