@@ -4,7 +4,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <!-- SEO Meta Tags -->
     <title>Daily Expense Tracker - Manage Your Money Effectively | dailyexpensetracker.in</title>
     <meta name="description"
