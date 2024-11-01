@@ -92,4 +92,13 @@ class TransactionController extends Controller
     {
         return Transaction::with('category')->findOrFail($id);
     }
+
+    public function showStats(Request $request)
+    {
+        $validated = $request->validate([
+            'type' => ['required', 'in:day,week,month,year,custom'],
+            'startDate' => ['nullable|required_if:type,custom'],
+            'endDate' => ['nullable|required_if:type,custom']
+        ]);
+    }
 }

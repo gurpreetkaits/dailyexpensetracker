@@ -15,6 +15,8 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::middleware('auth:sanctum')->group(function () {
+    //Load Stats
+    Route::get('transactions/stats', [StatsController::class, 'showStats']);
     Route::resource('settings', SettingsController::class);
     Route::resource('currencies', CurrencyController::class);
     Route::resource('transactions', TransactionController::class);
