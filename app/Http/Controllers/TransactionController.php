@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Transaction;
 use App\Services\TransactionService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class TransactionController extends Controller
 {
@@ -88,9 +89,9 @@ class TransactionController extends Controller
         return response()->json(['data' => $transaction], 200);
     }
 
-    public function show($id)
+    public function show($id,$userId)
     {
-        return Transaction::with('category')->findOrFail($id);
+        return Transaction::with('category')->where('user_id',Auth::id())->findOrFail($id);
     }
 
     public function showStats(Request $request)
