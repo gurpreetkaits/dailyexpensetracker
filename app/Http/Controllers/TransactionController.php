@@ -89,7 +89,7 @@ class TransactionController extends Controller
         return response()->json(['data' => $transaction], 200);
     }
 
-    public function show($id,$userId)
+    public function show($id)
     {
         return Transaction::with('category')->where('user_id',Auth::id())->findOrFail($id);
     }
