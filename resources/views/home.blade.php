@@ -19,11 +19,6 @@
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Daily Expense Tracker">
     <script src="https://cdn.tailwindcss.com"></script>
-    <meta name="theme-color" content="#10B981">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <link rel="manifest" href="{{ asset('pwa/manifest.json') }}">
-    <link rel="apple-touch-icon" href="{{ asset('pwa/icon512_rounded.png') }}">
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="{{ asset('images/dailyexpensetracker.png') }}">
@@ -65,13 +60,6 @@
                         class="inline-block bg-emerald-500 text-white px-8 py-3 rounded-lg hover:bg-emerald-600 transition-colors">
                         Start Tracking Free
                     </a>
-                    <button id="installBtn" class="btn btn-primary" style="display: none;">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2" style="margin-right: 8px;">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />
-                        </svg>
-                        Install App
-                    </button>
                 </div>
                 <div class="flex-1 flex justify-center">
                     <img src="{{ asset('images/dailyexpensetracker-mobile.png') }}" alt="Dashboard Preview"
@@ -225,46 +213,6 @@
             © 2024 Daily Expense Tracker. All rights reserved.
         </div>
     </footer>
-    <script>
-        let deferredPrompt;
-        const installBtn = document.getElementById('installBtn');
-
-        window.addEventListener('beforeinstallprompt', (e) => {
-            // Prevent Chrome 67 and earlier from automatically showing the prompt
-            e.preventDefault();
-            // Stash the event so it can be triggered later
-            deferredPrompt = e;
-            // Show the install button
-            installBtn.style.display = 'inline-flex';
-            installBtn.style.alignItems = 'center';
-        });
-
-        installBtn.addEventListener('click', async () => {
-            if (deferredPrompt) {
-                // Show the install prompt
-                deferredPrompt.prompt();
-                // Wait for the user to respond to the prompt
-                const { outcome } = await deferredPrompt.userChoice;
-                // We no longer need the prompt
-                deferredPrompt = null;
-                // Hide the install button
-                installBtn.style.display = 'none';
-            }
-        });
-
-        // Hide button if app is already installed
-        window.addEventListener('appinstalled', () => {
-            installBtn.style.display = 'none';
-        });
-
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/pwa/sw.js')
-                    .then(registration => console.log('ServiceWorker registered'))
-                    .catch(err => console.log('ServiceWorker registration failed:', err));
-            });
-        }
-    </script>
 </body>
 
 </html>
