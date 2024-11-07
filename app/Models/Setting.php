@@ -15,4 +15,7 @@ class Setting extends Model
     public function currency(){
          return $this->belongsTo(Currency::class,'currency_code','code');
     }
+    public function user(){
+        return $this->belongsTo(User::class,'user_id','id');
+    }
 }

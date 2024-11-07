@@ -39,8 +39,4 @@ class Goal extends Model
         return $this->target - $this->saved;
     }
 
-    // public function getMonthsRemainingAttribute(): int
-    // {
-    //     return ceil($this->remaining_amount / $this->monthly_contribution);
-    // }
 }

@@ -22,10 +22,10 @@ class GoalRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:255'],
-            'target' => ['required', 'numeric', 'min:0'],
+            'name' => ['nullable', 'string', 'max:255'],
+            'target' => ['nullable', 'numeric', 'min:0'],
             'saved' => ['sometimes', 'numeric', 'min:0'],
-            'target_date' => ['required', 'date', 'after:today'],
+            'target_date' => ['nullable', 'date', 'after:today'],
         ];
     }
 }

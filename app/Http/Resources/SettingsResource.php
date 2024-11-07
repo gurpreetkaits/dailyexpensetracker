@@ -16,7 +16,8 @@ class SettingsResource extends JsonResource
     {
         return [
             'reminders' => $this->reminders,
-            'currency' => $this->currency
+            'currency' => $this->currency,
+            'income' => $this->user->income,
         ];
     }
 }
