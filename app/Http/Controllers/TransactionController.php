@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Transaction;
 use App\Services\TransactionService;
+use App\Enum\TransactionFilterEnum;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -18,13 +19,12 @@ class TransactionController extends Controller
 
     public function index(Request $request)
     {
-        $month = $request->get('month');
-        $year = $request->get('year');
-
+        $validated = $request->validate([
+            'filter' => ['nullable', 'in:today,monthly,yearly,all,weekly']
+        ]);
         $transactions = $this->transactionService->getUserTransactions(
             auth()->id(),
-            $month,
-            $year
+            $validated['filter'] ?? 'today'
         );
 
         $summary = $this->transactionService->getTransactionSummary(auth()->id());
@@ -91,7 +91,7 @@ class TransactionController extends Controller
 
     public function show($id)
     {
-        return Transaction::with('category')->where('user_id',Auth::id())->findOrFail($id);
+        return Transaction::with('category')->where('user_id', Auth::id())->findOrFail($id);
     }
 
     public function showStats(Request $request)

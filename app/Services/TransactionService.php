@@ -2,32 +2,57 @@
 
 namespace App\Services;
 
+use App\Enum\TransactionFilterEnum;
 use App\Models\Transaction;
 use Illuminate\Support\Facades\Cache;
 use Carbon\Carbon;
 
 class TransactionService
 {
-    private $cacheTimeout = 3600; // 1 hour cache
+    private $cacheTimeout = 2; // 1 hour cache
 
     /**
      * Get user's transactions with caching
      * Paginated and filtered by date range
      */
-    public function getUserTransactions($userId, $month = null, $year = null)
+    public function getUserTransactions($userId, $filter)
     {
-        $cacheKey = "transactions_user_{$userId}_" . ($month ?? date('m')) . "_" . ($year ?? date('Y'));
+        $cacheKey = "transactions_user_{$userId}_" . time();
 
-        return Cache::remember($cacheKey, $this->cacheTimeout, function () use ($userId, $month, $year) {
+        return Cache::remember($cacheKey, $this->cacheTimeout, function () use ($userId, $filter) {
             $query = Transaction::with('category')->where('user_id', $userId);
 
-            if ($month && $year) {
-                $query->whereYear('transaction_date', $year)
-                      ->whereMonth('transaction_date', $month);
+            if ($filter) {
+                $dateArr = match ($filter) {
+                    TransactionFilterEnum::TODAY => [
+                        'start' => now()->startOfDay(),
+                        'end' => now()->endOfDay(),
+                    ],
+                    TransactionFilterEnum::MONTHLY => [
+                        'start' => now()->startOfMonth(),
+                        'end' => now()->endOfMonth(),
+                    ],
+                    TransactionFilterEnum::WEEKLY => [
+                        'start' => now()->startOfWeek(),
+                        'end' => now()->endOfWeek(),
+                    ],
+                    TransactionFilterEnum::YEARLY => [
+                        'start' => now()->startOfYear(),
+                        'end' => now()->endOfYear(),
+                    ],
+                    TransactionFilterEnum::ALL => null,
+                    default => null
+                };
+                if ($dateArr) {
+                    $query->whereBetween('transaction_date', [
+                        $dateArr['start'],
+                        $dateArr['end']
+                    ]);
+                }
             }
 
             return $query->latest('created_at')
-                        ->get();
+                ->get();
         });
     }
 
@@ -40,7 +65,7 @@ class TransactionService
 
         return Cache::remember($cacheKey, $this->cacheTimeout, function () use ($userId) {
             $currentMonth = Carbon::now();
-            
+
             return [
                 'day' => $this->getDaySummary($userId),
                 'week' => $this->getWeekSummary($userId),
@@ -56,10 +81,10 @@ class TransactionService
     public function createTransaction($data)
     {
         $transaction = Transaction::create($data);
-        
+
         // Clear related caches
         $this->clearUserTransactionCache($data['user_id']);
-        
+
         return $transaction;
     }
 
