@@ -17,35 +17,33 @@ class TransactionControllerTest extends TestCase
         $this->user=  User::factory()->create();
         $this->actingAs($this->user);
     }
-    // public function test_it_can_get_transactions_with_today_filter(): void
-    // {
-    //     // Create transactions for today
-    //     $todayTransactions = Transaction::factory()->count(3)->create([
-    //         'user_id' => $this->user->id,
-    //         'category_id' =>'',
-    //         'transaction_date' => now(),
-    //         'created_at' => now(),
-    //     ]);
+    public function test_it_can_get_transactions_with_today_filter(): void
+    {
+        $todayTransactions = Transaction::factory()->count(3)->create([
+            'user_id' => $this->user->id,
+            'category_id' =>'',
+            'transaction_date' => now(),
+            'created_at' => now(),
+        ]);
 
-    //     // Create transactions for yesterday
-    //     $yesterdayTransactions = Transaction::factory()->count(2)->create([
-    //         'user_id' => $this->user->id,
-    //         'category_id' => '',
-    //         'transaction_date' => now()->subDay(),
-    //         'created_at' => now()->subDay(),
-    //     ]);
+        $yesterdayTransactions = Transaction::factory()->count(2)->create([
+            'user_id' => $this->user->id,
+            'category_id' => '',
+            'transaction_date' => now()->subDay(),
+            'created_at' => now()->subDay(),
+        ]);
+        
+        $response = $this->actingAs($this->user)
+            ->getJson('/api/transactions?filter=today');
 
-    //     $response = $this->actingAs($this->user)
-    //         ->getJson('/api/transactions?filter=today');
+        $response->assertStatus(200)
+            ->assertJsonCount(3, 'data');
 
-    //     $response->assertStatus(200)
-    //         ->assertJsonCount(3, 'data');
-
-    //     // Verify only today's transactions are returned
-    //     $transactionIds = collect($response->json('data'))->pluck('id');
-    //     $this->assertEquals(
-    //         $todayTransactions->pluck('id')->sort()->values(),
-    //         $transactionIds->sort()->values()
-    //     );
-    // }
+        // Verify only today's transactions are returned
+        $transactionIds = collect($response->json('data'))->pluck('id');
+        $this->assertEquals(
+            $todayTransactions->pluck('id')->sort()->values(),
+            $transactionIds->sort()->values()
+        );
+    }
 }

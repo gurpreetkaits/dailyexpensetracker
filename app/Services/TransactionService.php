@@ -44,7 +44,7 @@ class TransactionService
                     default => null
                 };
                 if ($dateArr) {
-                    $query->whereBetween('transaction_date', [
+                    $query->whereBetween('created_at', [
                         $dateArr['start'],
                         $dateArr['end']
                     ]);
