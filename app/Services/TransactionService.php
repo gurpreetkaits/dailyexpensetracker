@@ -23,26 +23,7 @@ class TransactionService
             $query = Transaction::with('category')->where('user_id', $userId);
 
             if ($filter) {
-                $dateArr = match ($filter) {
-                    TransactionFilterEnum::TODAY => [
-                        'start' => now()->startOfDay(),
-                        'end' => now()->endOfDay(),
-                    ],
-                    TransactionFilterEnum::MONTHLY => [
-                        'start' => now()->startOfMonth(),
-                        'end' => now()->endOfMonth(),
-                    ],
-                    TransactionFilterEnum::WEEKLY => [
-                        'start' => now()->startOfWeek(),
-                        'end' => now()->endOfWeek(),
-                    ],
-                    TransactionFilterEnum::YEARLY => [
-                        'start' => now()->startOfYear(),
-                        'end' => now()->endOfYear(),
-                    ],
-                    TransactionFilterEnum::ALL => null,
-                    default => null
-                };
+                $dateArr = $this->getFromFilter($filter);
                 if ($dateArr) {
                     $query->whereBetween('created_at', [
                         $dateArr['start'],
@@ -55,21 +36,44 @@ class TransactionService
                 ->get();
         });
     }
-
+    private function getFromFilter(string $filter): array
+    {
+        return match ($filter) {
+            TransactionFilterEnum::TODAY->value => [
+                'start' => now()->startOfDay(),
+                'end' => now()->endOfDay(),
+            ],
+            TransactionFilterEnum::MONTHLY->value => [
+                'start' => now()->startOfMonth(),
+                'end' => now()->endOfMonth(),
+            ],
+            TransactionFilterEnum::WEEKLY->value => [
+                'start' => now()->startOfWeek(),
+                'end' => now()->endOfWeek(),
+            ],
+            TransactionFilterEnum::YEARLY->value => [
+                'start' => now()->startOfYear(),
+                'end' => now()->endOfYear(),
+            ],
+            default => [
+                'start' => auth()->user()->created_at,
+                'end' => now()->endOfDay(),
+            ]
+        };
+    }
     /**
      * Get transaction summary (totals by type)
      */
-    public function getTransactionSummary($userId)
+    public function getTransactionSummary($userId, $filter)
     {
         $cacheKey = "transaction_summary_user_{$userId}_" . date('Y_m');
 
-        return Cache::remember($cacheKey, $this->cacheTimeout, function () use ($userId) {
-            $currentMonth = Carbon::now();
-
+        return Cache::remember($cacheKey, $this->cacheTimeout, function () use ($userId, $filter) {
+            $dateRange = $this->getFromFilter($filter);
             return [
-                'day' => $this->getDaySummary($userId),
-                'week' => $this->getWeekSummary($userId),
-                'month' => $this->getMonthSummary($userId),
+                'day' => $this->getDaySummary($userId, $dateRange),
+                'week' => $this->getWeekSummary($userId, $dateRange),
+                'month' => $this->getMonthSummary($userId, $dateRange),
                 'categories' => $this->getCategorySummary($userId)
             ];
         });
@@ -100,22 +104,29 @@ class TransactionService
     /**
      * Get daily summary
      */
-    private function getDaySummary($userId)
+    private function getDaySummary($userId, $dateRange)
     {
         return Transaction::where('user_id', $userId)
-            ->whereDate('transaction_date', Carbon::today())
+            ->whereBetween('created_at', [
+                $dateRange['start'],
+                $dateRange['end']
+            ])
+            // ->whereDate('transaction_date', Carbon::today())
             ->selectRaw('SUM(CASE WHEN type = "expense" THEN amount ELSE 0 END) as expense_total')
-            ->selectRaw('SUM(CASE WHEN type = "income" THEN amount ELSE 0 END) as income_total')
+            ->selectRaw(expression: 'SUM(CASE WHEN type = "income" THEN amount ELSE 0 END) as income_total')
             ->first();
     }
 
     /**
      * Get weekly summary
      */
-    private function getWeekSummary($userId)
+    private function getWeekSummary($userId, $dateRange)
     {
         return Transaction::where('user_id', $userId)
-            ->whereBetween('transaction_date', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
+            ->whereBetween('created_at', [
+                $dateRange['start'],
+                $dateRange['end']
+            ])
             ->selectRaw('SUM(CASE WHEN type = "expense" THEN amount ELSE 0 END) as expense_total')
             ->selectRaw('SUM(CASE WHEN type = "income" THEN amount ELSE 0 END) as income_total')
             ->first();
@@ -124,11 +135,13 @@ class TransactionService
     /**
      * Get monthly summary
      */
-    private function getMonthSummary($userId)
+    private function getMonthSummary($userId,$dateRange)
     {
         return Transaction::where('user_id', $userId)
-            ->whereYear('transaction_date', Carbon::now()->year)
-            ->whereMonth('transaction_date', Carbon::now()->month)
+            ->whereBetween('created_at', [
+                $dateRange['start'],
+                $dateRange['end']
+            ])
             ->selectRaw('SUM(CASE WHEN type = "expense" THEN amount ELSE 0 END) as expense_total')
             ->selectRaw('SUM(CASE WHEN type = "income" THEN amount ELSE 0 END) as income_total')
             ->first();

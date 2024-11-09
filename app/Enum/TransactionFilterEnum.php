@@ -4,11 +4,11 @@ namespace App\Enum;
 
 enum TransactionFilterEnum: string
 {
-    const TODAY = 'today';
-    const MONTHLY = 'monthly';
-    const WEEKLY = 'weekly';
-    const YEARLY = 'yearly';
-    const ALL = 'all';
+    case TODAY = 'today';
+    case MONTHLY = 'monthly';
+    case WEEKLY = 'weekly';
+    case YEARLY = 'yearly';
+    case ALL = 'all';
 
     public static function values(): string
     {

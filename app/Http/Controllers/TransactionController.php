@@ -27,7 +27,7 @@ class TransactionController extends Controller
             $validated['filter'] ?? 'today'
         );
 
-        $summary = $this->transactionService->getTransactionSummary(auth()->id());
+        $summary = $this->transactionService->getTransactionSummary(auth()->id(),$validated['filter'] ?? 'today');
 
         return response()->json([
             'transactions' => $transactions,
