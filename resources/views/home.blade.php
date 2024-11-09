@@ -1,47 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- SEO Meta Tags -->
-    <title>Daily Expense Tracker - Manage Your Money Effectively | dailyexpensetracker.in</title>
-    <meta name="description"
-        content="Take control of your finances with Daily Expense Tracker. Simple, intuitive expense tracking for better money management and financial insights.">
-    <meta name="keywords"
-        content="expense tracker, money management, budget tracking, personal finance, daily expenses">
-
-    <!-- Open Graph Tags -->
-    <meta property="og:title" content="Daily Expense Tracker - Smart Money Management">
-    <meta property="og:description"
-        content="Simple and effective way to track your daily expenses and understand your spending habits.">
-    <meta property="og:url" content="https://dailyexpensetracker.in">
-    <meta property="og:type" content="website">
-    <meta property="og:site_name" content="Daily Expense Tracker">
-    <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="{{ asset('images/dailyexpensetracker.png') }}">
-</head>
-
-<body class="bg-gray-50">
-    <!-- Navigation -->
-    <nav class="sticky top-0 z-50 bg-white shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16 items-center">
-                <a href="/" class="flex items-center gap-2">
-                    <img src="{{ asset('images/dailyexpensetracker.png') }}" class="h-9 w-9 rounded-lg" alt="Logo" />
-                    <span class="text-xl font-semibold text-gray-900 hidden sm:block">Daily Expense Tracker</span>
-                </a>
-                <div class="flex items-center gap-4">
-                    <a href="{{ config('app.frontend_url') }}/login"
-                        class="bg-emerald-500 text-white px-4 py-2 rounded-lg hover:bg-emerald-600 transition-colors">
-                        Login
-                    </a>
-                </div>
-            </div>
-        </div>
-    </nav>
+@extends('layouts.app')
+@section('content')
 
     <!-- Hero Section -->
     <div class="min-h-[calc(100vh-4rem)] flex items-center">
@@ -207,12 +165,4 @@
             </a>
         </div>
     </div>
-    <!-- Footer -->
-    <footer class="bg-gray-50 py-8">
-        <div class="text-center text-gray-600">
-            © 2024 Daily Expense Tracker. All rights reserved.
-        </div>
-    </footer>
-</body>
-
-</html>
+@endsection
