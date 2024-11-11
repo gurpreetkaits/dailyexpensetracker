@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enum\TransactionFilterEnum;
+use App\Enums\TransactionTypeEnum;
 use App\Models\Transaction;
 use Illuminate\Support\Facades\Cache;
 use Carbon\Carbon;
@@ -71,9 +72,9 @@ class TransactionService
         return Cache::remember($cacheKey, $this->cacheTimeout, function () use ($userId, $filter) {
             $dateRange = $this->getFromFilter($filter);
             return [
-                'day' => $this->getDaySummary($userId, $dateRange),
-                'week' => $this->getWeekSummary($userId, $dateRange),
-                'month' => $this->getMonthSummary($userId, $dateRange),
+                'filteredSummary' => $this->getSummary($userId, $dateRange),
+                'totalIncome' => $this->getTotalIncome($userId),
+                'totalExpense' => $this->getTotalExpenses($userId),
                 'categories' => $this->getCategorySummary($userId)
             ];
         });
@@ -104,7 +105,7 @@ class TransactionService
     /**
      * Get daily summary
      */
-    private function getDaySummary($userId, $dateRange)
+    private function getSummary($userId, $dateRange)
     {
         return Transaction::where('user_id', $userId)
             ->whereBetween('created_at', [
@@ -114,36 +115,6 @@ class TransactionService
             // ->whereDate('transaction_date', Carbon::today())
             ->selectRaw('SUM(CASE WHEN type = "expense" THEN amount ELSE 0 END) as expense_total')
             ->selectRaw(expression: 'SUM(CASE WHEN type = "income" THEN amount ELSE 0 END) as income_total')
-            ->first();
-    }
-
-    /**
-     * Get weekly summary
-     */
-    private function getWeekSummary($userId, $dateRange)
-    {
-        return Transaction::where('user_id', $userId)
-            ->whereBetween('created_at', [
-                $dateRange['start'],
-                $dateRange['end']
-            ])
-            ->selectRaw('SUM(CASE WHEN type = "expense" THEN amount ELSE 0 END) as expense_total')
-            ->selectRaw('SUM(CASE WHEN type = "income" THEN amount ELSE 0 END) as income_total')
-            ->first();
-    }
-
-    /**
-     * Get monthly summary
-     */
-    private function getMonthSummary($userId,$dateRange)
-    {
-        return Transaction::where('user_id', $userId)
-            ->whereBetween('created_at', [
-                $dateRange['start'],
-                $dateRange['end']
-            ])
-            ->selectRaw('SUM(CASE WHEN type = "expense" THEN amount ELSE 0 END) as expense_total')
-            ->selectRaw('SUM(CASE WHEN type = "income" THEN amount ELSE 0 END) as income_total')
             ->first();
     }
 
@@ -158,5 +129,28 @@ class TransactionService
             ->selectRaw('category, SUM(amount) as total, COUNT(*) as count')
             ->groupBy('category')
             ->get();
+    }
+
+    private function getBalance(int $userId)    
+    {
+        $totalExpense = $this->getTotalExpenses($userId);
+        $totalIncome = $this->getTotalIncome($userId);
+        return $totalIncome - $totalExpense;
+    }
+
+    private function getTotalExpenses($userId):float 
+    {
+        return Transaction::where([
+            'user_id' => $userId,
+            'type' => TransactionTypeEnum::EXPENSE->value
+        ])->sum('amount');
+    }
+
+    private function getTotalIncome($userId):float
+    {
+        return Transaction::where([
+            'user_id' => $userId,
+            'type' => TransactionTypeEnum::INCOME->value
+        ])->sum('amount');
     }
 }
