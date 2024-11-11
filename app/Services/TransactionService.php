@@ -108,7 +108,7 @@ class TransactionService
     private function getSummary($userId, $dateRange)
     {
         return Transaction::where('user_id', $userId)
-            ->whereBetween('created_at', [
+            ->whereBetween('transaction_date', [
                 $dateRange['start'],
                 $dateRange['end']
             ])
