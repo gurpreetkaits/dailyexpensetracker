@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\GoalsController;
+use App\Http\Controllers\RecurringExpenseController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\StatsController;
 use App\Http\Controllers\TransactionController;
@@ -21,6 +22,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::resource('settings', SettingsController::class);
     Route::resource('currencies', CurrencyController::class);
     Route::resource('transactions', TransactionController::class);
+    Route::resource('recurring-expenses', RecurringExpenseController::class);
     Route::get('categories', [CategoryController::class, 'index']);
     Route::get('stats', [StatsController::class, 'index']);
     Route::resource('goals', GoalsController::class);

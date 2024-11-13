@@ -67,4 +67,8 @@ class User extends Authenticatable implements AuthMustVerifyEmail
     {
         return $this->hasMany(Goal::class);
     }
+
+    public function recurringExpenses(){
+        return $this->hasMany(RecurringExpense::class);
+    }
 }
