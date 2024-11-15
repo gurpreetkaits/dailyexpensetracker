@@ -21,7 +21,7 @@
                 </div>
                 <div class="flex-1 flex justify-center">
                     <img src="{{ asset('images/dailyexpensetracker-mobile.png') }}" alt="Dashboard Preview"
-                        class="max-w-sm object-contain rounded-lg w-100 h-85" />
+                        class=" object-contain rounded-lg sm:w-64 lg:w-full h-85" />
                 </div>
             </div>
         </div>
