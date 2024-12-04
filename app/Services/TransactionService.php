@@ -56,6 +56,10 @@ class TransactionService
                 'start' => now()->startOfYear(),
                 'end' => now()->endOfYear(),
             ],
+            TransactionFilterEnum::YESTERDAY->value => [
+                'start' => now()->subDay()->startOfDay(),
+                'end' => now()->subDay()->endOfDay(),
+            ],
             default => [
                 'start' => auth()->user()->created_at,
                 'end' => now()->endOfDay(),
@@ -131,14 +135,14 @@ class TransactionService
             ->get();
     }
 
-    private function getBalance(int $userId)    
+    private function getBalance(int $userId)
     {
         $totalExpense = $this->getTotalExpenses($userId);
         $totalIncome = $this->getTotalIncome($userId);
         return $totalIncome - $totalExpense;
     }
 
-    private function getTotalExpenses($userId):float 
+    private function getTotalExpenses($userId):float
     {
         return Transaction::where([
             'user_id' => $userId,

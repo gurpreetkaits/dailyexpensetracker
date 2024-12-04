@@ -20,7 +20,7 @@ class TransactionController extends Controller
     public function index(Request $request)
     {
         $validated = $request->validate([
-            'filter' => ['nullable', 'in:today,monthly,yearly,all,weekly']
+            'filter' => ['nullable', 'in:today,monthly,yearly,all,weekly,yesterday']
         ]);
         $transactions = $this->transactionService->getUserTransactions(
             auth()->id(),
