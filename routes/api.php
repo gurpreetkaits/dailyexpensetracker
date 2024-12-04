@@ -19,6 +19,7 @@ Route::get('/user', function (Request $request) {
 Route::middleware('auth:sanctum')->group(function () {
     //Load Stats
     Route::get('transactions/stats', [StatsController::class, 'showStats']);
+    Route::delete('user-setttings/transactions/reset', [SettingsController::class, 'deleteTransactions']);
     Route::resource('settings', SettingsController::class);
     Route::resource('currencies', CurrencyController::class);
     Route::resource('transactions', TransactionController::class);
