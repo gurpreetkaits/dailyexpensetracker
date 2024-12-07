@@ -25,13 +25,14 @@
 </head>
 <body class="bg-gray-50">
     @include('components.nav')
-    
+
     @yield('content')
-    
+
     <footer class="bg-gray-50 py-8">
         <div class="text-center text-gray-600">
             © 2024 Daily Expense Tracker. All rights reserved.
         </div>
     </footer>
+    @stack('scripts')
 </body>
 </html>

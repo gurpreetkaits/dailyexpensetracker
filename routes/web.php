@@ -12,5 +12,7 @@ Route::get('posts', [BlogController::class, 'index'])->name('posts');
 Route::get('post/{slug}', [BlogController::class, 'show']);
 
 Route::controller(ToolsController::class)->prefix('tools')->group(function () {
-    Route::get('/simple-interest-calculator', 'index');
+    Route::get('/', 'index')->name('tools.index');
+    Route::get('/simple-interest-calculator', 'simpleInterestCalculator')->name('tools.simple-interest-calculator');
+    Route::get('sip-calculator', 'sipCalculator')->name('tools.sip-calculator');
 });
