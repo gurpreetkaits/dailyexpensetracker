@@ -58,7 +58,7 @@ jobs:
         DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
         DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
       run: |
-        echo "Deployment Path: $DEPLOY_PATH on $DEPLOY_USER@$DEPLOY_HOST"
+        echo "Deployment Path: $DEPLOY_PATH"
         ssh -o StrictHostKeyChecking=no $DEPLOY_USER@$DEPLOY_HOST << 'EOF'
           cd $DEPLOY_PATH
           git pull origin main
