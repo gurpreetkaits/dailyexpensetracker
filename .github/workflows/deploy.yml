@@ -54,13 +54,12 @@ jobs:
 
     - name: Deploy to Production
       env:
-        DEPLOY_PATH: /var/www/html/dailyexpensetracker/backend
+        DEPLOY_PATH: /home/robin/code/dailexpensetracker/backend
         DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
         DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
       run: |
         ssh -o StrictHostKeyChecking=no $DEPLOY_USER@$DEPLOY_HOST << 'EOF'
-          su robin
-          cd /var/www/html/dailyexpensetracker/backend
+          cd $DEPLOY_PATH
           git pull origin main
           composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
           php artisan migrate --force
