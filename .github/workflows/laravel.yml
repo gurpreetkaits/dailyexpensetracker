@@ -20,7 +20,10 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
-          
+
+      - name: Add server to known_hosts
+        run: ssh-keyscan -H ${{ secrets.DEPLOY_HOST }} >> ~/.ssh/known_hosts
+
       - name: Install Dependencies
         run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
           
