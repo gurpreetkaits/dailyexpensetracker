@@ -45,8 +45,8 @@ jobs:
       with:
         php-version: '8.2'
 
-    - name: Add server to known_hosts
-      run: ssh-keyscan -H ${{ secrets.DEPLOY_HOST }} >> ~/.ssh/known_hosts
+    # - name: Add server to known_hosts
+    #   run: ssh-keyscan -H ${{ secrets.DEPLOY_HOST }} >> ~/.ssh/known_hosts
 
     - name: Install SSH Key
       uses: shimataro/ssh-key-action@v2
