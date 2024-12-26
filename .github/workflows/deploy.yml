@@ -23,7 +23,13 @@ jobs:
       run: composer install --no-ansi --no-interaction --prefer-dist
 
     - name: Run Tests
-      run: php artisan test
+      run: |
+        if [ -d "tests/Unit" ]; then
+          php artisan test --testsuite=Unit;
+        fi
+        if [ -d "tests/Feature" ]; then
+          php artisan test --testsuite=Feature;
+        fi
 
   deploy:
     needs: test
