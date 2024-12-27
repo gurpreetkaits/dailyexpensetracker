@@ -1,4 +1,4 @@
-name: Laravel Deploy
+name: Deploy to Server
 
 on:
   push:
@@ -6,67 +6,32 @@ on:
       - main
 
 jobs:
-  tests:
-    name: Run Tests
-    runs-on: ubuntu-latest
-    
-    steps:
-    - uses: actions/checkout@v3
-    
-    - name: Setup PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: '8.2'
-        extensions: mbstring, dom, fileinfo, mysql
-        coverage: xdebug
-    
-    - name: Copy .env
-      run: php -r "file_exists('.env') || copy('.env.example', '.env');"
-    
-    - name: Install Dependencies
-      run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
-    
-    - name: Generate key
-      run: php artisan key:generate
-    
-    - name: Set Directory Permissions
-      run: chmod -R 777 storage bootstrap/cache
-    
-    - name: Create Database
-      run: |
-        mkdir -p database
-        touch database/database.sqlite
-    
-    - name: Execute tests via PHPUnit
-      env:
-        DB_CONNECTION: sqlite
-        DB_DATABASE: database/database.sqlite
-      run: vendor/bin/phpunit
-
   deploy:
-    name: Deploy to Production
-    needs: tests
     runs-on: ubuntu-latest
-    
+
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Configure SSH
-      run: |
-        mkdir -p ~/.ssh/
-        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
-        echo "${{ secrets.SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
-    
-    - name: Deploy to Production
-      run: |
-        ssh root@${{ secrets.DEPLOY_HOST }} '
-          cd /var/www/html/dailyexpensetracker/backend && \
-          git pull origin main && \
-          composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev && \
-          php artisan migrate --force && \
-          php artisan config:cache && \
-          php artisan route:cache && \
-          php artisan view:cache && \
-          echo "Deployment completed successfully"
-        '
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Deploy to Server
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: robin
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            cd /var/www/html/dailyexpensetracker/backend
+            git pull origin main
+            # Example: Restart a service
+            sudo systemctl restart apache2
+            # Example: Run migrations
+            php artisan migrate
+            # Example: Clear cache
+            php artisan cache:clear
+            # Example: Install dependencies
+            composer install
+            # Example: Generate assets
+            cd /var/www/html/dailyexpensetracker/frontend
+            npm install
+            npm run build
