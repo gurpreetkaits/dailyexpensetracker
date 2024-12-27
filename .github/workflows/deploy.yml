@@ -32,6 +32,6 @@ jobs:
             # Example: Install dependencies
             composer install
             # Example: Generate assets
-            cd /var/www/html/dailyexpensetracker/frontend
+            cd /var/www/html/dailyexpensetracker/backend/frontend
             npm install
             npm run build
