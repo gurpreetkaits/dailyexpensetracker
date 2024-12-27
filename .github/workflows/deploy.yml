@@ -33,6 +33,6 @@ jobs:
             npm install
             composer install
             # Example: Generate assets
-            cd /var/www/html/dailyexpensetracker/backend/frontend
+            # cd /var/www/html/dailyexpensetracker/backend/frontend
             npm install
             npm run build
