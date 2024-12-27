@@ -1,70 +1,72 @@
-name: Deploy to Production
+name: Laravel Deploy
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
 
 jobs:
-  test:
+  tests:
+    name: Run Tests
     runs-on: ubuntu-latest
-
+    
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
+    - uses: actions/checkout@v3
+    
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
         php-version: '8.2'
-        extensions: mbstring, xml, bcmath, curl
-        ini-values: post_max_size=256M, max_execution_time=300
-
+        extensions: mbstring, dom, fileinfo, mysql
+        coverage: xdebug
+    
+    - name: Copy .env
+      run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+    
     - name: Install Dependencies
-      run: composer install --no-ansi --no-interaction --prefer-dist
-
-    - name: Run Tests
+      run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+    
+    - name: Generate key
+      run: php artisan key:generate
+    
+    - name: Set Directory Permissions
+      run: chmod -R 777 storage bootstrap/cache
+    
+    - name: Create Database
       run: |
-        if [ -d "tests/Unit" ]; then
-          php artisan test --testsuite=Unit;
-        fi
-        if [ -d "tests/Feature" ]; then
-          php artisan test --testsuite=Feature;
-        fi
+        mkdir -p database
+        touch database/database.sqlite
+    
+    - name: Execute tests via PHPUnit
+      env:
+        DB_CONNECTION: sqlite
+        DB_DATABASE: database/database.sqlite
+      run: vendor/bin/phpunit
 
   deploy:
-    needs: test
-    if: ${{ success() }}
+    name: Deploy to Production
+    needs: tests
     runs-on: ubuntu-latest
-
+    
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Setup PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: '8.2'
-
-    - name: Setup SSH
+    - uses: actions/checkout@v3
+    
+    - name: Configure SSH
       run: |
-        mkdir -p ~/.ssh
+        mkdir -p ~/.ssh/
         echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan -H ${{ secrets.DEPLOY_HOST }} >> ~/.ssh/known_hosts
-
+        echo "${{ secrets.SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+    
     - name: Deploy to Production
-      env:
-        DEPLOY_PATH: /home/robin/code/dailexpensetracker/backend
-        DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
-        DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
       run: |
-        ssh -o StrictHostKeyChecking=no $DEPLOY_USER@$DEPLOY_HOST << 'EOF'
-          cd $DEPLOY_PATH
-          git pull origin main
-          composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
-          php artisan migrate --force
-          php artisan config:cache
-          php artisan route:cache
-          php artisan view:cache
-          chmod -R 775 storage bootstrap/cache
-        EOF
+        ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} '
+          cd /var/www/html/dailyexpensetracker/backend && \
+          git pull origin main && \
+          composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev && \
+          php artisan migrate --force && \
+          php artisan config:cache && \
+          php artisan route:cache && \
+          php artisan view:cache && \
+          echo "Deployment completed successfully"
+        '
