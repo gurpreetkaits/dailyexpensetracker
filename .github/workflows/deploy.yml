@@ -29,9 +29,10 @@ jobs:
             php artisan migrate
             # Example: Clear cache
             php artisan cache:clear
-            # Example: Install dependencies
-            npm install
-            composer install
+            # Ensure correct permissions
+            chmod -R 775 /var/www/html/dailyexpensetracker
+            # Install PHP dependencies
+            composer install --no-dev --optimize-autoloader
             # Example: Generate assets
             # cd /var/www/html/dailyexpensetracker/frontend
             npm install
