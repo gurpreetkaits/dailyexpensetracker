@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('recurring_expenses', function (Blueprint $table) {
             $table->dateTime('first_payment_date')->nullable()->change();
-            $table->string('manual_amount')->nullable()->change();
+            $table->string('manual_amount')->nullable();
         });
     }
 };
