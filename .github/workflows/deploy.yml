@@ -21,7 +21,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
           script: |
-            cd /var/www/html/dailyexpensetracker/backend
+            cd /var/www/html/dailyexpensetracker
             git pull origin main
             # Example: Restart a service
             sudo systemctl restart apache2
@@ -33,6 +33,6 @@ jobs:
             npm install
             composer install
             # Example: Generate assets
-            # cd /var/www/html/dailyexpensetracker/backend/frontend
+            # cd /var/www/html/dailyexpensetracker/frontend
             npm install
             npm run build
