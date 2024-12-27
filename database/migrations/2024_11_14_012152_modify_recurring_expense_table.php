@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('recurring_expenses', function (Blueprint $table) {
-            $table->dateTime('first_payment_date')->nullable();
-            $table->string('manual_amount')->nullable();
+            $table->dateTime('first_payment_date')->nullable()->change();
+            $table->string('manual_amount')->nullable()->change();
         });
     }
 };
