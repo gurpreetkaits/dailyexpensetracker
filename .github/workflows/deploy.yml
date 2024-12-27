@@ -60,7 +60,7 @@ jobs:
     
     - name: Deploy to Production
       run: |
-        ssh robin@${{ secrets.DEPLOY_HOST }} '
+        ssh root@${{ secrets.DEPLOY_HOST }} '
           cd /var/www/html/dailyexpensetracker/backend && \
           git pull origin main && \
           composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev && \
