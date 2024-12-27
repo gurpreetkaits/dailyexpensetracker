@@ -30,6 +30,7 @@ jobs:
             # Example: Clear cache
             php artisan cache:clear
             # Example: Install dependencies
+            npm install
             composer install
             # Example: Generate assets
             cd /var/www/html/dailyexpensetracker/backend/frontend
