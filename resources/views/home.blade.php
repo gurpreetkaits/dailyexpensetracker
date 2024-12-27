@@ -12,7 +12,7 @@
                     </h1>
                     <p class="text-lg text-gray-600 mb-8 max-w-2xl">
                         Effortlessly track your expenses, understand your spending patterns,
-                        and make better financial decisions!
+                        and make better financial decisions
                     </p>
                     <a href="{{ config('app.frontend_url') }}/login"
                         class="inline-block bg-emerald-500 text-white px-8 py-3 rounded-lg hover:bg-emerald-600 transition-colors">
