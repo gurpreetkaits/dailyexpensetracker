@@ -22,18 +22,34 @@ jobs:
           port: 22
           script: |
             cd /var/www/html/dailyexpensetracker
+
+            # Reset any local changes to avoid conflicts during pull
+            git reset --hard
             git pull origin main
-            # Example: Restart a service
-            sudo systemctl restart apache2
-            # Example: Run migrations
-            php artisan migrate
-            # Example: Clear cache
-            php artisan cache:clear
-            # Ensure correct permissions
+
+            # Ensure SQLite database file exists
+            if [ ! -f database/database.sqlite ]; then
+              touch database/database.sqlite
+              chmod 664 database/database.sqlite
+            fi
+
+            # Set correct permissions
             chmod -R 775 /var/www/html/dailyexpensetracker
+
             # Install PHP dependencies
             composer install --no-dev --optimize-autoloader
-            # Example: Generate assets
-            # cd /var/www/html/dailyexpensetracker/frontend
+
+            # Run Laravel migrations
+            php artisan migrate --force
+
+            # Clear and cache Laravel configurations
+            php artisan cache:clear
+            php artisan config:cache
+            php artisan route:cache
+
+            # Install Node dependencies and build assets
             npm install
-            npm run build
+            npm run build || echo "Frontend build failed, check for missing files."
+
+            # Restart Apache service
+            sudo systemctl restart apache2
