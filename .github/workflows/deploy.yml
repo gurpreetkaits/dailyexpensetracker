@@ -48,6 +48,7 @@ jobs:
             php artisan route:cache
 
             # Install Node dependencies and build assets
+            cd /var/www/html/dailyexpensetracker/frontend
             npm install
             npm run build || echo "Frontend build failed, check for missing files."
 
