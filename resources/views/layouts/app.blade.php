@@ -19,7 +19,15 @@
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Daily Expense Tracker">
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-C9H1620LRF"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
 
+    gtag('config', 'G-C9H1620LRF');
+    </script>
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="{{ asset('images/dailyexpensetracker.png') }}">
 </head>
