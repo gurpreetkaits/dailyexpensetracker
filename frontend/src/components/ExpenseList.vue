@@ -2,10 +2,36 @@
   <div class="space-y-4 relative pb-24 m-3">
     <!-- Start New Overview Card -->
     <template v-if="getActiveTab === 'daily'">
-      <div class="bg-white rounded-xl shadow-sm p-4">
+      <div class="bg-white rounded-xl shadow-sm p-4"><!-- Search Toggle Button / Input -->
+
         <div>
-          <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center justify-end mb-3">
             <h2 class="text-sm font-medium text-gray-700"></h2>
+              <div class="relative">
+                  <template v-if="showSearch">
+                      <div class="flex items-center bg-gray-50 border border-gray-100 rounded-lg">
+                          <input
+                              v-model="searchQuery"
+                              type="text"
+                              placeholder="Search by note..."
+                              class="text-xs px-2 py-1 bg-transparent outline-none w-40 rounded-md"
+                          />
+                          <button
+                              @click="showSearch = false; searchQuery = ''"
+                              class="p-1 text-gray-400 hover:text-gray-600"
+                          >
+                              <CircleX class="h-4 w-4" />
+                          </button>
+                      </div>
+                  </template>
+                  <button
+                      v-else
+                      @click="showSearch = true"
+                      class="p-1 text-gray-500 hover:text-gray-700"
+                  >
+                      <SearchIcon class="h-4 w-4" />
+                  </button>
+              </div>
             <select v-model="dateFilter"
               class="text-xs bg-gray-50 border border-gray-100 rounded-lg px-2 py-1 text-gray-600">
               <option value="Today">Today</option>
@@ -334,7 +360,7 @@ import {
   Citrus, ShoppingBag, House, Receipt, Clapperboard, Plane, Contact,
   Cross, ShoppingCart, Book, BriefcaseBusiness, BadgeDollarSign,
   Dumbbell,
-  Sparkle,
+  Sparkle,SearchIcon,
   CircleDot, CircleX, TrendingUp, TrendingDown, ArrowUpCircle, ArrowDownCircle, PiggyBank, CalendarClock, RepeatIcon
 } from 'lucide-vue-next'
 import BottomSheet from './BottomSheet.vue'
@@ -351,11 +377,11 @@ export default {
   name: 'ExpenseList',
   mixins: [numberMixin],
   components: {
-    Calendar, Trash2, Plus, ShoppingBag, Car, ReceiptIcon, Video, BriefcaseMedical, Gift, Circle, CircleEllipsis, Pizza, CircleDollarSign,
+    Calendar, Trash2, Plus, ShoppingBag, ReceiptIcon, Video, BriefcaseMedical, Gift, Circle, CircleEllipsis, Pizza, CircleDollarSign,
     BottomSheet,
     AddTransaction, HandCoins, Wallet, ChartCandlestick, Landmark,
-    Citrus, ShoppingBag, House, Receipt, Clapperboard, Plane, Contact,
-    Cross, ShoppingCart, Book, Gift, BriefcaseBusiness, BadgeDollarSign, Car,
+    Citrus, House, Receipt, Clapperboard, Plane, Contact,
+    Cross, ShoppingCart, Book, BriefcaseBusiness, BadgeDollarSign, Car,SearchIcon,
     Dumbbell,
     Sparkle,
     CircleDot, CircleX, TrendingUp,
@@ -369,6 +395,8 @@ export default {
     return {
       showAddModal: false,
       showDesktopModal: false,
+      searchQuery: '',
+      showSearch: false,
       saving: false,
       activeFilter: '',
       dateFilter: 'Today',
@@ -385,12 +413,12 @@ export default {
     ...mapState(useTransactionStore, ['transactions', 'getBalance', 'getSavingRate', 'getFilteredIncome', 'getFilteredExpenses']),
     ...mapState(useSettingsStore, ['currencySymbol', 'currencyCode', 'categories']),
 
-    // Recurring Expense 
+    // Recurring Expense
     ...mapState(useRecurringExpenseStore, ['recurringExpenses']),
     getActiveTab() {
       return this.activeTab.toLowerCase()
     },
-    // End Recurring Expense 
+    // End Recurring Expense
     filteredTransactions() {
       return this.transactions
     },
@@ -538,7 +566,7 @@ export default {
 
       return nextPayment
     },
-    // End Recurring Expense 
+    // End Recurring Expense
     async removeItem(id) {
       try {
         if (!confirm('Sure You want to delete?')) {
