@@ -157,4 +157,33 @@ class TransactionService
             'type' => TransactionTypeEnum::INCOME->value
         ])->sum('amount');
     }
+
+    public function searchTransaction($dateFilter, $query)
+    {
+        // Get the base query builder
+        $transactions = Transaction::with('category')
+            ->where('user_id', auth()->id());
+
+        // Apply date filter if provided
+        if ($dateFilter) {
+            $dateRange = $this->getFromFilter($dateFilter);
+            $transactions->whereBetween('transaction_date', [
+                $dateRange['start'],
+                $dateRange['end']
+            ]);
+        }
+
+        // Apply search query if provided
+        if ($query) {
+            $transactions->where(function ($q) use ($query) {
+                $q->where('note', 'LIKE', "%{$query}%")
+                    ->orWhereHas('category', function ($categoryQuery) use ($query) {
+                        $categoryQuery->where('name', 'LIKE', "%{$query}%");
+                    });
+            });
+        }
+
+        // Return results ordered by latest first
+        return $transactions->latest('transaction_date')->get();
+    }
 }

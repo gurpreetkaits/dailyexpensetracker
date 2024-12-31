@@ -31,6 +31,23 @@ export const getTransactionStats = async (filters) => {
   return data;
 };
 
+export const searchTransactions = async (query, dateFilter) => {
+    try {
+        const response = await axiosConf.get(
+            `/api/transactions/search?query=${encodeURIComponent(query)}&date=${encodeURIComponent(dateFilter)}`,
+        )
+
+        if (!response.ok) {
+            throw new Error('Search request failed');
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error searching transactions:', error);
+        throw error;
+    }
+};
+
 function objectToQueryString(obj) {
   return Object.keys(obj)
     .filter((key) => obj[key] !== null && obj[key] !== undefined) // Remove null/undefined

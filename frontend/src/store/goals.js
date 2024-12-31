@@ -1,14 +1,7 @@
 // src/store/goal.js
-import { defineStore } from "pinia";
-import { useTransactionStore } from "./transaction";
-import {
-  getGoals,
-  getGoalById,
-  createGoal,
-  updateGoal,
-  deleteGoal,
-} from "../services/GoalService";
-import { useSettingsStore } from "./settings";
+import {defineStore} from "pinia";
+import {useTransactionStore} from "./transaction";
+import {createGoal, deleteGoal, getGoalById, getGoals, updateGoal,} from "../services/GoalService";
 
 export const useGoalStore = defineStore("goals", {
   state: () => ({
@@ -138,6 +131,7 @@ export const useGoalStore = defineStore("goals", {
       } finally {
         this.loading = false;
       }
-    }
+    },
+
   },
 });

@@ -6,6 +6,7 @@ import {
   saveTransaction,
   updateTransaction,
   getTransactionStats,
+searchTransactions
 } from "../services/TransactionService";
 
 export const useTransactionStore = defineStore("transaction", {
@@ -106,5 +107,13 @@ export const useTransactionStore = defineStore("transaction", {
     removeTransaction(id) {
       this.transactions = this.transactions.filter((t) => t.id !== id);
     },
+      async searchTransactions(query, dateFilter) {
+          try {
+              this.transactions = await searchTransactions(query, dateFilter);
+          } catch (error) {
+              console.error('Error in search transactions:', error);
+              throw error;
+          }
+      },
   },
 });

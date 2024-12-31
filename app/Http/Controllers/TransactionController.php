@@ -17,6 +17,18 @@ class TransactionController extends Controller
         $this->transactionService = $transactionService;
     }
 
+    public function search(Request $request)
+    {
+        $dateFilter = $request->date;
+        $query = $request->query;
+
+        $transactions = $this->transactionService->searchTransaction($dateFilter, $query);
+        return response()->json([
+            'transactions' => $transactions,
+            'summary' => []
+        ]);
+    }
+
     public function index(Request $request)
     {
         $validated = $request->validate([

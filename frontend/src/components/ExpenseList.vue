@@ -407,6 +407,7 @@ export default {
       editingGoal: false,
       nextMonthPayable: 0,
       totalPaidTillNow: 0,
+        searchTimeout: null,
     }
   },
   computed: {
@@ -487,7 +488,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions(useTransactionStore, ['addTransaction', 'fetchTransactions', 'updateTransaction', 'removeTransaction']),
+    ...mapActions(useTransactionStore, ['addTransaction', 'fetchTransactions', 'updateTransaction', 'removeTransaction','searchTransactions' ]),
     ...mapActions(useSettingsStore, ['fetchSettings', 'fetchCategories']),
     // Recurring Expense
     ...mapActions(useRecurringExpenseStore, [
@@ -658,7 +659,37 @@ export default {
       const yearsDiff = endDate.getFullYear() - startDate.getFullYear();
       const monthsDiff = endDate.getMonth() - startDate.getMonth();
       return yearsDiff * 12 + monthsDiff;
-    }
+    },
+      async handleSearch() {
+          // Clear any existing timeout
+          if (this.searchTimeout) {
+              clearTimeout(this.searchTimeout);
+          }
+
+          // Set a new timeout to debounce the search
+          this.searchTimeout = setTimeout(async () => {
+              try {
+                  this.saving = true;
+
+                  if (this.searchQuery.trim()) {
+                      await this.searchTransactions(this.searchQuery, this.dateFilter);
+                  } else {
+                      // If search is empty, fetch normal transactions
+                      await this.fetchTransactions(this.dateFilter);
+                  }
+              } catch (error) {
+                  console.error('Search failed:', error);
+              } finally {
+                  this.saving = false;
+              }
+          }, 300); // 300ms debounce
+      },
+
+      clearSearch() {
+          this.searchQuery = '';
+          this.showSearch = false;
+          this.fetchTransactions(this.dateFilter);
+      },
   },
   async created() {
     try {
