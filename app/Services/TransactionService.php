@@ -176,10 +176,7 @@ class TransactionService
         // Apply search query if provided
         if ($query) {
             $transactions->where(function ($q) use ($query) {
-                $q->where('note', 'LIKE', "%{$query}%")
-                    ->orWhereHas('category', function ($categoryQuery) use ($query) {
-                        $categoryQuery->where('name', 'LIKE', "%{$query}%");
-                    });
+                $q->where('note', 'LIKE', "%{$query}%");
             });
         }
 
