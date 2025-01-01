@@ -34,7 +34,7 @@ export const getTransactionStats = async (filters) => {
 export const searchTransactions = async (query, dateFilter) => {
     try {
         const response = await axiosConf.get(
-            `/api/transactions/search?query=${encodeURIComponent(query)}&date=${encodeURIComponent(dateFilter)}`,
+            `/api/transactions/search?query=${encodeURIComponent(query)}`,
         )
 
         if (!response.ok) {

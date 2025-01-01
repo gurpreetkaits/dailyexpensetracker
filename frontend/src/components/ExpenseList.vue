@@ -7,12 +7,13 @@
         <div>
           <div class="flex items-center justify-end mb-3">
             <h2 class="text-sm font-medium text-gray-700"></h2>
-              <div class="relative">
+              <div class="relative mr-2">
                   <template v-if="showSearch">
                       <div class="flex items-center bg-gray-50 border border-gray-100 rounded-lg">
                           <input
                               v-model="searchQuery"
                               type="text"
+                              @keydown="handleSearch"
                               placeholder="Search by note..."
                               class="text-xs px-2 py-1 bg-transparent outline-none w-40 rounded-md"
                           />
@@ -411,7 +412,7 @@ export default {
     }
   },
   computed: {
-    ...mapState(useTransactionStore, ['transactions', 'getBalance', 'getSavingRate', 'getFilteredIncome', 'getFilteredExpenses']),
+    ...mapState(useTransactionStore, ['transactions', 'getBalance', 'getSavingRate', 'getFilteredIncome', 'getFilteredExpenses','searchTransactions']),
     ...mapState(useSettingsStore, ['currencySymbol', 'currencyCode', 'categories']),
 
     // Recurring Expense
