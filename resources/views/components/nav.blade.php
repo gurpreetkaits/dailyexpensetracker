@@ -20,7 +20,12 @@
                 </a>
                 <a href="{{ config('app.frontend_url') }}/login"
                     class="bg-emerald-500 text-white px-4 py-2 rounded-lg hover:bg-emerald-600 transition-colors">
-                    Login
+                    @guest
+                        Login
+                    @else
+                        Overview
+                    @endguest
+
                 </a>
             </div>
         </div>
