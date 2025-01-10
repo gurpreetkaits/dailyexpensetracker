@@ -22,9 +22,10 @@ class TransactionController extends Controller
         $dateFilter = $request->date;
         $query = $request->query;
 
-        $transactions = $this->transactionService->searchTransaction($dateFilter, $query);
+        $results = $this->transactionService->searchTransaction($dateFilter, $query);
+
         return response()->json([
-            'transactions' => $transactions,
+            'transactions' => $results->count() ? $results : [],
             'summary' => []
         ]);
     }

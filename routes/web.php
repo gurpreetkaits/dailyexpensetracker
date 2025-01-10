@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\BlogController;
+use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\ToolsController;
 use Illuminate\Support\Facades\Route;
 

@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CurrencyController;
+use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\GoalsController;
 use App\Http\Controllers\RecurringExpenseController;
 use App\Http\Controllers\SettingsController;
@@ -31,6 +32,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('stats', [StatsController::class, 'index']);
     Route::resource('goals', GoalsController::class);
     Route::patch('goals/{goal}/progress', [GoalsController::class, 'updateProgress']);
+    Route::post('feedback', [FeedbackController::class, 'store'])->name('feedback.store');
 });
 
 Route::post('register', [RegisteredUserController::class, 'store']);

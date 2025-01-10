@@ -23,7 +23,7 @@ export default {
     Header,
     Footer
   },
-    
+
   methods: {
     ...mapActions(useSettingsStore, ['fetchSettings'])
   },

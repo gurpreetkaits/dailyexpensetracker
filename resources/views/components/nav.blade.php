@@ -6,6 +6,10 @@
                 <span class="text-xl font-semibold text-gray-900 hidden sm:block">Daily Expense Tracker</span>
             </a>
             <div class="flex items-center gap-4">
+                <a href="/#installation"
+                   class="px-4 py-2 rounded-lg text-emerald-600 transition-colors">
+                    Install the App
+                </a>
                 <a href="{{ route('tools.index') }}"
                    class="px-4 py-2 rounded-lg text-emerald-600 transition-colors">
                     Tools
