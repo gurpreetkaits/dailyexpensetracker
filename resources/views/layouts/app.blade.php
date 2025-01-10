@@ -38,7 +38,7 @@
 
     <footer class="bg-gray-50 py-8">
         <div class="text-center text-gray-600">
-            © 2024 Daily Expense Tracker. All rights reserved.
+            © {{date('Y')}} Daily Expense Tracker. All rights reserved.
         </div>
     </footer>
     @stack('scripts')
