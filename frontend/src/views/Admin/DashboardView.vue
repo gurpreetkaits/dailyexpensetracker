@@ -17,7 +17,7 @@
             <div class="divide-y" v-if="users">
                 <div v-for="user in users" :key="user.id" class="ps-1 flex justify-between items-center">
                     <img :src="user.avatar" class="rounded-full object-cover object-cover rounded-full w-6 h-6" />
-                    <div>
+                    <div class="flex justify-start">
                         <p class="font-medium">{{ user.name }}</p>
                         <p class="text-sm text-gray-500">{{ user.email }}</p>
                     </div>
