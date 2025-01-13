@@ -1,6 +1,11 @@
 import axios from '../config/axiosConf.js'
-export const getRecurringExpenses = () => {
-    return axios.get('/api/recurring-expenses')
+export const getRecurringExpenses = async () => {
+    try {
+       const {data} = await axios.get('/api/recurring-expenses')
+        return data
+    }catch (error) {
+      throw error
+    }
 }
 
 export const getRecurringExpenseById = (id) => {

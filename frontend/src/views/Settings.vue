@@ -188,6 +188,7 @@ export default {
     try {
       this.loading = true
       this.currencies = await fetchCurrencies()
+        console.log(this.currencies)
       await this.fetchSettings()
       this.selectedCurrency = this.currency
       this.reminder = Boolean(this.billReminders)

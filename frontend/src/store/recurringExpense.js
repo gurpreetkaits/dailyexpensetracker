@@ -11,6 +11,14 @@ export const useRecurringExpenseStore = defineStore("recurringExpense", {
     recurringExpenses: [],
     loading: false,
     error: null,
+  summary: {
+      monthly_payment_total: 0,
+      total_amount_paid: 0,
+      total_interest_paid: 0,
+      total_pending_payments: 0,
+      total_remaining_balance: 0,
+      upcoming_payments: []
+  }
   }),
 
   actions: {
@@ -18,7 +26,10 @@ export const useRecurringExpenseStore = defineStore("recurringExpense", {
       this.loading = true;
       try {
         const response = await getRecurringExpenses();
-        this.recurringExpenses = response.data;
+        console.log('response',response)
+        this.recurringExpenses = response.data.recurring_expenses;
+        this.summary = response.data.total;
+        console.log('this.details',this.details)
       } catch (error) {
         this.error = error.message;
         throw error;

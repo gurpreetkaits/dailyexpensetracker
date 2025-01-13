@@ -66,26 +66,82 @@
         </div>
       </div>
     </template>
-    <template v-else>
-      <div class="bg-white rounded-xl shadow-sm p-4">
-        <div>
-          <div class="bg-gray-50 rounded-lg p-3">
-            <div class="flex justify-between mb-2">
-              <span class="text-xs font-medium text-gray-700">Total Monthly Payable</span>
-              <p class="text-sm font-medium text-red-700">
-                {{ formatCurrency(nextMonthPayable, currencyCode) }}
-              </p>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-xs font-medium text-gray-700">Total Paid Till Now</span>
-              <p class="text-sm font-medium text-green-700">
-                {{ formatCurrency(totalPaidTillNow, currencyCode) }}
-              </p>
-            </div>
+      <template v-else>
+          <div class="bg-white rounded-xl shadow-sm p-4">
+              <div>
+                  <div class="bg-gray-50 rounded-lg p-3 space-y-3">
+                      <!-- Total Monthly Payable -->
+                      <div class="flex justify-between mb-2">
+                          <span class="text-xs font-medium text-gray-700">Total Monthly Payable</span>
+                          <p class="text-sm font-medium text-red-700">
+                              {{ formatCurrency(nextMonthPayable, currencyCode) }}
+                          </p>
+                      </div>
+
+                      <!-- EMI Details - Show only if there are EMI type expenses -->
+                      <template v-if="hasEMIExpenses">
+                          <hr class="border-gray-200">
+                          <div class="space-y-2">
+                              <h4 class="text-xs font-medium text-gray-700">EMI Summary</h4>
+
+                              <div class="grid grid-cols-2 gap-2 text-sm">
+                                  <!-- Interest Paid -->
+                                  <div class="bg-white p-2 rounded-lg">
+                                      <p class="text-xs text-gray-500">Interest Paid</p>
+                                      <p class="font-medium text-blue-600">
+                                          {{ formatCurrency(getTotalInterestPaid, currencyCode) }}
+                                      </p>
+                                  </div>
+
+                                  <!-- Remaining Balance -->
+                                  <div class="bg-white p-2 rounded-lg">
+                                      <p class="text-xs text-gray-500">Remaining Balance</p>
+                                      <p class="font-medium text-blue-600">
+                                          {{ formatCurrency(getTotalRemainingBalance, currencyCode) }}
+                                      </p>
+                                  </div>
+                              </div>
+                          </div>
+                      </template>
+
+                      <hr class="border-gray-200">
+
+                      <!-- Total Paid -->
+                      <div class="flex justify-between">
+                          <span class="text-xs font-medium text-gray-700">Total Paid Till Now</span>
+                          <p class="text-sm font-medium text-green-700">
+                              {{ formatCurrency(totalPaidTillNow, currencyCode) }}
+                          </p>
+                      </div>
+
+                      <!-- Pending Payments -->
+                      <div class="flex justify-between">
+                          <span class="text-xs font-medium text-gray-700">Pending Payments</span>
+                          <p class="text-sm font-medium text-yellow-600">
+                              {{ formatCurrency(getTotalPendingPayments, currencyCode) }}
+                          </p>
+                      </div>
+
+                      <!-- Upcoming Payments Preview -->
+                      <template v-if="getUpcomingPayments.length">
+                          <hr class="border-gray-200">
+                          <div class="space-y-2">
+                              <h4 class="text-xs font-medium text-gray-700">Upcoming Payments</h4>
+                              <div class="space-y-1">
+                                  <div v-for="payment in getUpcomingPayments.slice(0, 3)" :key="payment.date"
+                                       class="flex justify-between text-sm">
+                                      <span class="text-gray-500">{{ formatDate(payment.date) }}</span>
+                                      <span class="font-medium text-gray-700">
+                  {{ formatCurrency(payment.amount, currencyCode) }}
+                </span>
+                                  </div>
+                              </div>
+                          </div>
+                      </template>
+                  </div>
+              </div>
           </div>
-        </div>
-      </div>
-    </template>
+      </template>
     <!-- End New Overview Card -->
 
     <!-- Switch -->
@@ -416,7 +472,7 @@ export default {
     ...mapState(useSettingsStore, ['currencySymbol', 'currencyCode', 'categories']),
 
     // Recurring Expense
-    ...mapState(useRecurringExpenseStore, ['recurringExpenses']),
+    ...mapState(useRecurringExpenseStore, ['recurringExpenses','summary']),
     getActiveTab() {
       return this.activeTab.toLowerCase()
     },
@@ -456,6 +512,35 @@ export default {
         .map((value) => Number(value.amount))
         .reduce((sum, amount) => sum + amount, 0)
     },
+
+      // Recurring Expenses
+      nextMonthPayable() {
+          return this.summary.monthly_payment_total || 0
+      },
+
+      totalPaidTillNow() {
+          return this.summary.total_amount_paid || 0
+      },
+
+      getTotalInterestPaid() {
+          return this.summary.total_interest_paid || 0
+      },
+
+      getTotalRemainingBalance() {
+          return this.summary.total_remaining_balance || 0
+      },
+
+      getTotalPendingPayments() {
+          return this.summary.total_pending_payments || 0
+      },
+
+      getUpcomingPayments() {
+          return this.summary.upcoming_payments || []
+      },
+
+      hasEMIExpenses() {
+          return this.recurringExpenses.some(expense => expense.type === 'emi')
+      }
   },
   watch: {
     currencySymbol: {
@@ -633,27 +718,6 @@ export default {
         day: 'numeric'
       })
     },
-    setRecurringSummary() {
-      this.nextMonthPayable =0
-      this.totalPaidTillNow= 0
-      this.recurringExpenses.forEach((value) => {
-        const firstPaymentDate = new Date(value.first_payment_date);
-        const currentDate = new Date();
-        const nextPaymentMonth = new Date(firstPaymentDate);
-        nextPaymentMonth.setMonth(nextPaymentMonth.getMonth()); // Payment starts the month after first_payment_date
-        // Calculate how many months have passed since the next scheduled payment
-        const monthsPassed = this.getMonthsBetween(nextPaymentMonth, currentDate);
-        // Calculate payments made till now based on the number of months that have passed
-        const paymentsMadeTillNow = monthsPassed > 0 ? monthsPassed * parseFloat(value.amount) : 0;
-        // Add the current month's payable if the expense is active and the first payment is in the past
-        if (nextPaymentMonth <= currentDate && value.is_active) {
-          this.nextMonthPayable += parseFloat(value.amount); // Monthly recurring, same amount each month
-        }
-        // Add payments made till now to the total
-        this.totalPaidTillNow += paymentsMadeTillNow;
-
-      });
-    },
 
     // Helper function to calculate months between two dates
     getMonthsBetween(startDate, endDate) {
@@ -691,6 +755,23 @@ export default {
           this.showSearch = false;
           this.fetchTransactions(this.dateFilter);
       },
+      async setRecurringSummary() {
+          try {
+              await this.fetchRecurringExpenses();
+
+              // Set the monthly payable from the current expense
+              if (this.details?.expense) {
+                  const expense = this.recurringExpenses.find(e => e.id === this.details.expense.id);
+                  this.nextMonthPayable = expense?.is_active ? parseFloat(expense.amount) : 0;
+              }
+
+              // Set total paid from details
+              this.totalPaidTillNow = this.details?.total_paid || 0;
+
+          } catch (error) {
+              console.error('Error setting recurring summary:', error);
+          }
+      }
   },
   async created() {
     try {

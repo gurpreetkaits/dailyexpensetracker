@@ -10,7 +10,7 @@
             </button>
         </div>
 
-        <form @submit.prevent="handleSubmit" class="space-y-3 lg:grid lg:grid-cols-2 lg:px-2 lg:py-3 lg:gap-4">
+        <form @submit.prevent="handleSubmit" class="grid grid-cols-2 gap-4 lg:px-2 lg:py-3">
             <!-- Expense Type -->
             <div>
                 <label class="block text-xs font-medium text-gray-700 mb-1">
@@ -21,7 +21,7 @@
                                border border-transparent rounded-md focus:bg-white
                                text-sm focus:ring-0 transition-colors" required>
                         <option value="subscription">Subscription</option>
-                        <!-- <option value="emi">EMI/Loan</option> -->
+                        <option value="emi">EMI/Loan</option>
                         <option value="bill">Bill</option>
                         <option value="other">Other</option>
                     </select>
@@ -37,7 +37,7 @@
                     <input v-model="form.name" type="text" class="w-full px-3 py-1 bg-transparent text-gray-800
                                border border-transparent rounded-md focus:bg-white
                                text-sm focus:ring-0 transition-colors"
-                        :placeholder="form.type === 'emi' ? 'e.g., Car Loan' : 'e.g., Netflix'" required />
+                           :placeholder="form.type === 'emi' ? 'e.g., Car Loan' : 'e.g., Netflix'" required />
                 </div>
             </div>
 
@@ -79,6 +79,7 @@
                     </div>
                 </div>
             </template>
+
             <!-- Common Fields -->
             <div>
                 <label class="block text-xs font-medium text-gray-700 mb-1">
@@ -87,7 +88,7 @@
                 <div class="border border-gray-100 rounded-md hover:bg-gray-50">
                     <div class="flex items-center">
                         <span class="text-sm px-2 text-gray-400">{{ currencySymbol }}</span>
-                        <input v-model.number="form.amount" type="number" class="w-full py-1 px-2 bg-transparent text-gray-800
+                        <input v-model.number="form.amount" type="text" class="w-full py-1 px-2 bg-transparent text-gray-800
                                    border border-transparent rounded-md focus:bg-white
                                    text-sm focus:ring-0 transition-colors" placeholder="0.00" required />
                     </div>
@@ -121,7 +122,7 @@
                 </div>
             </div>
 
-            <div>
+            <div class="">
                 <label class="block text-xs font-medium text-gray-700 mb-1">
                     Recurrence
                 </label>
@@ -130,14 +131,13 @@
                                border border-transparent rounded-md focus:bg-white
                                text-sm focus:ring-0 transition-colors" :disabled="form.type === 'emi'" required>
                         <option value="monthly">Monthly</option>
-                        <!-- <option value="quarterly">Quarterly</option>
-                        <option value="yearly">Yearly</option> -->
                     </select>
                 </div>
             </div>
+
             <!-- Submit Button -->
-            <button type="submit" :disabled="loading" class="w-full bg-blue-100 text-blue-600 py-2 px-3 rounded-md 
-                       hover:bg-gray-200 transition-colors text-sm 
+            <button type="submit" :disabled="loading" class="w-full col-span-2 bg-blue-100 text-blue-600 py-2 px-3 rounded-md
+                       hover:bg-gray-200 transition-colors text-sm
                        disabled:opacity-50 disabled:cursor-not-allowed">
                 <span v-if="!loading">
                     {{ editingExpense ? 'Update' : 'Create' }} {{ form.type === 'emi' ? 'EMI' : 'Expense' }}
@@ -145,16 +145,17 @@
                 <span v-else class="flex items-center justify-center">
                     <svg class="animate-spin h-4 w-4 mr-2" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"
-                            fill="none" />
+                                fill="none" />
                         <path class="opacity-75" fill="currentColor"
-                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                     </svg>
                     Processing...
                 </span>
             </button>
-            <button type="button" :disabled="loading" @click="$emit('delete')" class="w-full border  py-2 px-3 rounded-md 
-                       bg-red-50 text-red-500 border-red-100
-                       transition-colors text-sm disabled:opacity-50">
+
+            <button v-if="editingExpense" type="button" :disabled="loading" @click="$emit('delete')"
+                    class="col-span-2 w-full border py-2 px-3 rounded-md bg-red-50 text-red-500 border-red-100
+                           transition-colors text-sm disabled:opacity-50">
                 Delete Expense
             </button>
         </form>
@@ -167,6 +168,10 @@ import { X } from 'lucide-vue-next';
 import dayjs from 'dayjs';
 
 export default {
+    name: 'ExpenseForm',
+    components: {
+        X
+    },
     props: {
         editingExpense: {
             type: Object,
@@ -175,11 +180,13 @@ export default {
         loading: {
             type: Boolean,
             default: false
+        },
+        currencySymbol: {
+            type: String,
+            default: '$'
         }
     },
-    components: {
-        X
-    },
+    emits: ['save', 'delete', 'cancel'],
     data() {
         return {
             form: {
@@ -191,23 +198,25 @@ export default {
                 recurrence: 'monthly',
                 principal_amount: null,
                 interest_rate: null,
-                tenure_months: null
+                tenure_months: null,
+                totalInterest: null,
             },
             tomorrow: this.getTomorrow(),
-            emiDetails: null,
-            currencySymbol: '$'
+            emiDetails: null
         };
     },
     watch: {
-        'form.type'(newType) {
-            if (newType !== 'emi') {
-                this.form.principal_amount = null;
-                this.form.interest_rate = null;
-                this.form.tenure_months = null;
-                this.form.amount = '';
-            }
-            if (newType === 'emi') {
-                this.form.recurrence = 'monthly';
+        'form.type': {
+            handler(newType) {
+                if (newType !== 'emi') {
+                    this.form.principal_amount = null;
+                    this.form.interest_rate = null;
+                    this.form.tenure_months = null;
+                    this.form.amount = '';
+                }
+                if (newType === 'emi') {
+                    this.form.recurrence = 'monthly';
+                }
             }
         },
         editingExpense: {
@@ -215,21 +224,28 @@ export default {
                 if (newExpense) {
                     this.form = {
                         type: newExpense.type || 'subscription',
-                        name: newExpense.name,
-                        amount: parseFloat(newExpense.amount),
-                        payment_day: newExpense.payment_day,
-                        first_payment_date: dayjs(newExpense.first_payment_date).format('YYYY-MM-DD'),
+                        name: newExpense.name || '',
+                        amount: newExpense.amount ? parseFloat(newExpense.amount) : '',
+                        payment_day: newExpense.payment_day || '',
+                        first_payment_date: newExpense.first_payment_date ?
+                            dayjs(newExpense.first_payment_date).format('YYYY-MM-DD') : '',
                         recurrence: newExpense.recurrence || 'monthly',
-                        principal_amount: newExpense.principal_amount ? parseFloat(newExpense.principal_amount) : null,
-                        interest_rate: newExpense.interest_rate ? parseFloat(newExpense.interest_rate) : null,
-                        tenure_months: newExpense.tenure_months || null
+                        principal_amount: newExpense.principal_amount ?
+                            parseFloat(newExpense.principal_amount) : null,
+                        interest_rate: newExpense.interest_rate ?
+                            parseFloat(newExpense.interest_rate) : null,
+                        tenure_months: newExpense.tenure_months || null,
+                        totalInterest: newExpense.total_interest || null
                     };
                 } else {
                     this.resetForm();
                 }
             },
             immediate: true
-        }
+        },
+        'form.principal_amount': 'calculateEMI',
+        'form.interest_rate': 'calculateEMI',
+        'form.tenure_months': 'calculateEMI'
     },
     methods: {
         getTomorrow() {
@@ -238,7 +254,10 @@ export default {
             return date.toISOString().split('T')[0];
         },
         calculateEMI() {
-            if (this.form.type !== 'emi' || !this.form.principal_amount || !this.form.interest_rate || !this.form.tenure_months) {
+            if (this.form.type !== 'emi' ||
+                !this.form.principal_amount ||
+                !this.form.interest_rate ||
+                !this.form.tenure_months) {
                 this.emiDetails = null;
                 return;
             }
@@ -279,9 +298,8 @@ export default {
                 amount: parseFloat(this.form.amount)
             };
 
-            if (this.form.type === 'emi') {
-                const emi = this.emiDetails;
-                expenseData.total_interest = emi.totalInterest;
+            if (this.form.type === 'emi' && this.emiDetails) {
+                expenseData.total_interest = this.emiDetails.totalInterest;
                 expenseData.end_date = dayjs(this.form.first_payment_date)
                     .add(this.form.tenure_months, 'month')
                     .format('YYYY-MM-DD');
@@ -299,19 +317,13 @@ export default {
                 recurrence: 'monthly',
                 principal_amount: null,
                 interest_rate: null,
-                tenure_months: null
+                tenure_months: null,
+                totalInterest: null
             };
-        }
-    },
-    computed: {
-        getEmiDetails() {
-            this.calculateEMI();
-            return this.emiDetails;
         }
     }
 };
 </script>
-
 
 <style scoped>
 /* Remove spinners from number input */

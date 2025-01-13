@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
+use App\Http\Controllers\RecurringExpenseController;
 use Illuminate\Auth\MustVerifyEmail;
 use Illuminate\Contracts\Auth\MustVerifyEmail as AuthMustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -70,5 +71,40 @@ class User extends Authenticatable implements AuthMustVerifyEmail
 
     public function recurringExpenses(){
         return $this->hasMany(RecurringExpense::class);
+    }
+
+    public function getTotalExpenseDetails(): array
+    {
+        $expenses = RecurringExpense::where('user_id', $this->id)
+            ->where('is_active', true)
+            ->get();
+
+        $totalInterestPaid = 0;
+        $totalAmountPaid = 0;
+        $totalPendingPayments = 0;
+        $totalRemainingBalance = 0;
+        $allUpcomingPayments = [];
+
+        foreach ($expenses as $expense) {
+            $totalInterestPaid += $expense->interest_paid_till_date;
+            $totalAmountPaid += $expense->total_amount_paid;
+            $totalPendingPayments += $expense->pending_payments;
+            $totalRemainingBalance += $expense->remaining_balance;
+            $allUpcomingPayments = array_merge($allUpcomingPayments, $expense->getUpcomingPayments(3));
+        }
+
+        // Sort upcoming payments by date
+        usort($allUpcomingPayments, function($a, $b) {
+            return strtotime($a['date']) - strtotime($b['date']);
+        });
+
+        return [
+            'total_interest_paid' => round($totalInterestPaid, 2),
+            'total_amount_paid' => round($totalAmountPaid, 2),
+            'total_pending_payments' => round($totalPendingPayments, 2),
+            'total_remaining_balance' => round($totalRemainingBalance, 2),
+            'upcoming_payments' => array_slice($allUpcomingPayments, 0, 3), // Only return next 3 payments
+            'monthly_payment_total' => round($expenses->sum('amount'), 2)
+        ];
     }
 }
