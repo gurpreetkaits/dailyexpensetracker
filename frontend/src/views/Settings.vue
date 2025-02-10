@@ -94,6 +94,7 @@
 <!--        </div>-->
 <!--      </div>-->
       <div class="flex justify-start">
+          <small>Send me a mail at: gurpreetkait.codes@gmail.com for feedback or anything that we can add to make it more useful.</small>
         <button @click="handleSaveSettings"
           class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg flex items-center gap-2 disabled:opacity-50"
           :disabled="isSaving">
@@ -101,6 +102,7 @@
             class="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
           {{ isSaving ? 'Saving...' : 'Save' }}
         </button>
+
       </div>
       <div v-if="isStats">
         <DashboardView :key="stats[1]?.current_page" :stats="getStats" @load-stats="fetchStats" />
