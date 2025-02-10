@@ -48,7 +48,7 @@
         </div>
         <div class="p-4">
             <p class="text-gray-600">I would love to hear your feedback. Please send me an email at <a
-                href="mailto:gurpreetkait.codes@gmail.com">gurpreetkait.codes@gmail.com</a></p>
+                href="mailto:gurpreetkait.codes@gmail.com" class="text-blue-600">gurpreetkait.codes@gmail.com</a></p>
         </div>
     </div>
       <div class="bg-white rounded-lg shadow mb-6">
