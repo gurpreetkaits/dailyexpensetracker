@@ -42,6 +42,15 @@
           </div>
         </div>
       </div>
+    <div class="bg-white rounded-lg shadow mb-6">
+        <div class="p-4 border-b">
+            <h2 class="text-lg font-semibold ">Feedback</h2>
+        </div>
+        <div class="p-4">
+            <p class="text-gray-600">I would love to hear your feedback. Please send me an email at <a
+                href="mailto:gurpreetkait.codes@gmail.com">gurpreetkait.codes@gmail.com</a></p>
+        </div>
+    </div>
       <div class="bg-white rounded-lg shadow mb-6">
         <div class="p-4 border-b">
           <h2 class="text-lg font-semibold text-red-600">Danger Zone</h2>
@@ -72,6 +81,7 @@
           </div>
         </div>
       </div>
+
 <!--      <div class="bg-white rounded-lg shadow mb-6">-->
 <!--        <div class="p-4 border-b">-->
 <!--          <h2 class="text-lg font-semibold">Notifications</h2>-->
@@ -94,7 +104,6 @@
 <!--        </div>-->
 <!--      </div>-->
       <div class="flex justify-start">
-          <small>Send me a mail at: gurpreetkait.codes@gmail.com for feedback or anything that we can add to make it more useful.</small>
         <button @click="handleSaveSettings"
           class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg flex items-center gap-2 disabled:opacity-50"
           :disabled="isSaving">
