@@ -66,6 +66,15 @@
                     </svg>
                     Continue with Google
                 </button>
+                <!-- Apple Login Button -->
+                <button @click="appleLogin" type="button"
+                        class="w-full flex items-center mt-2 justify-center gap-2 border border-gray-300 p-2 rounded hover:bg-gray-50"
+                        :disabled="loading">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none">
+                        <path d="M17.569 12.6254C17.597 15.652 20.2179 16.6592 20.247 16.672C20.2248 16.7419 19.8282 18.0987 18.8699 19.5043C18.0266 20.7124 17.1481 21.9124 15.7995 21.9392C14.4805 21.9661 14.0466 21.1766 12.5263 21.1766C11.0061 21.1766 10.5228 21.9124 9.27796 21.9661C7.97582 22.0199 6.97418 20.6641 6.12328 19.4639C4.37257 16.9884 3.0577 12.4031 4.85793 9.31684C5.75115 7.78859 7.38897 6.80686 9.17663 6.78006C10.4384 6.75327 11.6296 7.62507 12.4234 7.62507C13.2173 7.62507 14.6497 6.59239 16.1749 6.75327C16.9223 6.78006 18.8774 7.03857 20.1476 8.83455C20.0518 8.89921 17.5468 10.4543 17.569 12.6254ZM15.0744 5.09197C15.7995 4.21432 16.2973 2.98243 16.1651 1.76147C15.1121 1.80973 13.8345 2.47646 13.0853 3.35411C12.4164 4.13995 11.8252 5.39862 11.9869 6.59239C13.1634 6.6884 14.3493 5.96963 15.0744 5.09197Z" fill="black"/>
+                    </svg>
+                    Continue with Apple
+                </button>
                 <!-- <GoogleLogin :callback="callback">
                 </GoogleLogin> -->
             </form>
@@ -144,7 +153,23 @@ export default {
                     });
                 }
             }
-        }
+        },
+        async appleLogin() {
+            try {
+                // Initialize Apple SignIn
+                const data = await window.AppleID.auth.signIn()
+
+                // Get user info from your backend
+                const userObj = await getAppleUserInfo(data.authorization.code)
+                const response = await login(userObj)
+
+                // Set authentication and redirect
+                this.authStore.setAuth(response.token, response.user)
+                this.router.push('/overview')
+            } catch (error) {
+                this.handleError(error)
+            }
+        },
     }
 }
 </script>
