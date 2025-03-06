@@ -35,7 +35,7 @@
                     <div class="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mb-4">
                         <span class="text-emerald-600 text-xl font-bold">1</span>
                     </div>
-                    <h3 class="text-lg font-semibold mb-2">Install the PWA App</h3>
+                    <h3 class="text-lg font-semibold mb-2">Install , PWA App</h3>
                     <p class="text-gray-600">Add to your home screen for the best experience</p>
                 </div>
 
