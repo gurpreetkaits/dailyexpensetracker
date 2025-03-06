@@ -7,6 +7,16 @@
     </div>
 
     <template v-else>
+        <div class="grid grid-cols-1 gap-4 p-4">
+            <div class="pt-[14px]">
+                <button @click="handleLogout"
+                        class="w-full flex items-center justify-between px-4 py-3 text-sm text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors">
+                    <div class="flex items-center space-x-3">
+                        <span>Log Out</span>
+                    </div>
+                </button>
+            </div>
+        </div>
       <div class="bg-white rounded-lg shadow mb-6">
         <div class="p-4 border-b">
           <h2 class="text-lg font-semibold">General Settings</h2>
@@ -21,7 +31,7 @@
                 <p class="text-sm text-gray-500">Select your preferred currency</p>
               </div>
               <div class="ml-4 w-full max-w-sm">
-                <select v-model="selectedCurrency" @change="updateCurrency"
+                <select v-model="selectedCurrency"
                   class="rounded-md border border-gray-300 p-2 w-full">
                   <option v-for="curr in currencies" :key="curr.code" :value="curr.code">
                     {{ curr.code }} - {{ curr.name }} ({{ curr.symbol }})
@@ -42,13 +52,13 @@
           </div>
         </div>
       </div>
-    <div class="bg-white rounded-lg shadow mb-6">
+      <div class="bg-white rounded-lg shadow mb-6">
         <div class="p-4 border-b">
             <h2 class="text-lg font-semibold ">Feedback</h2>
         </div>
         <div class="p-4">
-            <p class="text-gray-600">I would love to hear your feedback. Please send me an email at <a
-                href="mailto:gurpreetkait.codes@gmail.com" class="text-blue-600">gurpreetkait.codes@gmail.com</a></p>
+            <p class="text-gray-600">I would love to hear your feedback.<a
+                href="https://forms.gle/FL7JWeyq22qajjyX9" class="text-blue-600">Feedback Form</a></p>
         </div>
     </div>
       <div class="bg-white rounded-lg shadow mb-6">
@@ -81,28 +91,6 @@
           </div>
         </div>
       </div>
-
-<!--      <div class="bg-white rounded-lg shadow mb-6">-->
-<!--        <div class="p-4 border-b">-->
-<!--          <h2 class="text-lg font-semibold">Notifications</h2>-->
-<!--        </div>-->
-
-<!--        <div class="p-4 space-y-4">-->
-<!--          <div class="flex items-center justify-between">-->
-<!--            <div>-->
-<!--              <label class="block text-sm font-medium text-gray-700">Bill Reminders</label>-->
-<!--              <p class="text-sm text-gray-500">Remind me about upcoming bills</p>-->
-<!--            </div>-->
-<!--            <label class="relative inline-flex items-center cursor-pointer">-->
-<!--              <input type="checkbox" v-model="reminder" class="sr-only peer">-->
-<!--              <div-->
-<!--                class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600">-->
-<!--              </div>-->
-<!--            </label>-->
-
-<!--          </div>-->
-<!--        </div>-->
-<!--      </div>-->
       <div class="flex justify-start">
         <button @click="handleSaveSettings"
           class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg flex items-center gap-2 disabled:opacity-50"
@@ -127,6 +115,7 @@ import {fetchCurrencies, resetUserTransactions} from '../services/SettingsServic
 import { useSettingsStore } from '../store/settings';
 import { LogOut, ChevronRight } from 'lucide-vue-next';
 import DashboardView from './Admin/DashboardView.vue'
+import {useAuthStore} from "../store/auth.js";
 
 export default {
   name: 'Settings',
@@ -165,6 +154,7 @@ export default {
   },
   methods: {
     ...mapActions(useSettingsStore, ['addSettings', 'fetchSettings', 'loadStats']),
+  ...mapActions(useAuthStore, ['getAuth', 'clearAuth']),
     async handleReset() {
       this.loading = true
       try {
@@ -176,6 +166,17 @@ export default {
         this.loading= false
       }
     },
+      handleLogout() {
+          if (!confirm('Sure!! you want to logout?')) {
+              return
+          }
+          try {
+              this.clearAuth()
+              this.$router.push('/login')
+          } catch (error) {
+              console.error('Logout failed:', error)
+          }
+      },
     async handleSaveSettings() {
       try {
         this.isSaving = true
