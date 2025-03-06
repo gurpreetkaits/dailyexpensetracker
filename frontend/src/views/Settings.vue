@@ -7,16 +7,6 @@
     </div>
 
     <template v-else>
-        <div class="grid grid-cols-1 gap-4 p-4">
-            <div class="pt-[14px]">
-                <button @click="handleLogout"
-                        class="w-full flex items-center justify-between px-4 py-3 text-sm text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors">
-                    <div class="flex items-center space-x-3">
-                        <span>Log Out</span>
-                    </div>
-                </button>
-            </div>
-        </div>
       <div class="bg-white rounded-lg shadow mb-6">
         <div class="p-4 border-b">
           <h2 class="text-lg font-semibold">General Settings</h2>
