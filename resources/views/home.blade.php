@@ -33,8 +33,8 @@
                                 
                                 @foreach($recentUsers as $user)
                                     <div class="inline-block h-8 w-8 rounded-full ring-2 ring-white bg-emerald-100 text-emerald-800 flex items-center justify-center">
-                                        @if(isset($user->profile_photo_path))
-                                            <img class="h-8 w-8 rounded-full object-cover" src="{{ asset($user->profile_photo_path) }}" alt="{{ $user->name }}">
+                                        @if(isset($user->avatar))
+                                            <img class="h-8 w-8 rounded-full object-cover" src="{{ $user->avatar }}" alt="{{ $user->name }}">
                                         @else
                                             <span class="text-xs font-medium">{{ strtoupper(substr($user->name, 0, 2)) }}</span>
                                         @endif
