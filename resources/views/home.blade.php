@@ -18,6 +18,36 @@
                         class="inline-block bg-emerald-500 text-white px-8 py-3 rounded-lg hover:bg-emerald-600 transition-colors">
                         Start Tracking Free
                     </a>
+                    
+                    <!-- Recent Users Section -->
+                    <div class="mt-8">
+                        <p class="text-sm text-gray-500 mb-2">Joined by people who care about their finances</p>
+                        <div class="flex items-center">
+                            <!-- User Profile Photos -->
+                            <div class="flex -space-x-2 overflow-hidden">
+                                @php
+                                    $recentUsers = \App\Models\User::latest()->take(5)->get();
+                                    $totalUsers = \App\Models\User::count();
+                                    $remainingUsers = $totalUsers > 5 ? $totalUsers - 5 : 0;
+                                @endphp
+                                
+                                @foreach($recentUsers as $user)
+                                    <div class="inline-block h-8 w-8 rounded-full ring-2 ring-white bg-emerald-100 text-emerald-800 flex items-center justify-center">
+                                        @if(isset($user->profile_photo_path))
+                                            <img class="h-8 w-8 rounded-full object-cover" src="{{ asset($user->profile_photo_path) }}" alt="{{ $user->name }}">
+                                        @else
+                                            <span class="text-xs font-medium">{{ strtoupper(substr($user->name, 0, 2)) }}</span>
+                                        @endif
+                                    </div>
+                                @endforeach
+                                
+                                @if($remainingUsers > 0)
+                                    <span class="flex items-center justify-center h-8 w-8 rounded-full bg-emerald-100 text-emerald-800 text-xs font-medium ring-2 ring-white">{{ $remainingUsers }}+</span>
+                                @endif
+                            </div>
+                            <span class="ml-2 text-sm text-gray-500">active users</span>
+                        </div>
+                    </div>
                 </div>
                 <div class="flex-1 flex justify-center">
                     <img src="{{ asset('images/dailyexpensetracker-mobile.png') }}" alt="Dashboard Preview"
