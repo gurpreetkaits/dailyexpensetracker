@@ -1,18 +1,20 @@
 <template>
-  <div class="min-h-screen bg-gray-100">
-    <Header />
-    <main>
-      <router-view>
-      </router-view>
-    </main>
-    <Footer v-if="showFooter" />
-  </div>
+    <div class="min-h-screen bg-gray-100">
+        <Header />
+        <DesktopNav v-if="showFooter" />
+        <main>
+            <router-view />
+        </main>
+        <MobileNav v-if="showFooter" />
+    </div>
 </template>
 
 <script>
 import { verifyToken } from './services/AuthService';
 import { useAuthStore } from './store/auth'
 import Header from './components/Layout/Header.vue';
+import DesktopNav from './components/Layout/DesktopNav.vue';
+import MobileNav from './components/Layout/MobileNav.vue';
 import Footer from './components/Layout/Footer.vue';
 import { mapActions } from 'pinia';
 import { useSettingsStore } from './store/settings';
@@ -21,7 +23,7 @@ export default {
   name: 'App',
   components: {
     Header,
-    Footer
+    MobileNav, DesktopNav
   },
 
   methods: {
