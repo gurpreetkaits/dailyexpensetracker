@@ -45,3 +45,12 @@ export const getStats = async (page) => {
 export const resetUserTransactions = async () => {
   return await axiosConf.delete('/api/user-setttings/transactions/reset');
 };
+
+export const storeFeedback = async (params) => {
+  try {
+    const { data } = await axiosConf.post("api/feedback", params);
+    return data;
+  } catch (e) {
+    return Promise.reject(e);
+  }
+}

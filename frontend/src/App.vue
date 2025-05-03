@@ -1,5 +1,6 @@
 <template>
     <div class="min-h-screen bg-gray-100">
+    <NotificationContainer />
         <Header />
         <DesktopNav v-if="showFooter" />
         <main>
@@ -15,14 +16,14 @@ import { useAuthStore } from './store/auth'
 import Header from './components/Layout/Header.vue';
 import DesktopNav from './components/Layout/DesktopNav.vue';
 import MobileNav from './components/Layout/MobileNav.vue';
-import Footer from './components/Layout/Footer.vue';
 import { mapActions } from 'pinia';
 import { useSettingsStore } from './store/settings';
+import NotificationContainer from './components/Global/NotificationContainer.vue';
 
 export default {
   name: 'App',
   components: {
-    Header,
+    Header,NotificationContainer,
     MobileNav, DesktopNav
   },
 

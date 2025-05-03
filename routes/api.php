@@ -32,7 +32,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('stats', [StatsController::class, 'index']);
     Route::resource('goals', GoalsController::class);
     Route::patch('goals/{goal}/progress', [GoalsController::class, 'updateProgress']);
-    Route::post('feedback', [FeedbackController::class, 'store'])->name('feedback.store');
+    Route::resource('feedback', FeedbackController::class);
 });
 
 Route::post('register', [RegisteredUserController::class, 'store']);
