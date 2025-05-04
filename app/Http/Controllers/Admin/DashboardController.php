@@ -42,6 +42,7 @@ class DashboardController extends Controller
             ->get()
             ->map(fn ($t) => [
                 'id'     => $t->id,
+                'type' => $t->type,
                 'user'   => $t->user->name ?? '—',
                 'amount' => $t->amount,
                 'date'   => $t->created_at->toIso8601String(),

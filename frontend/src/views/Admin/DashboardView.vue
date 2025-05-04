@@ -55,6 +55,7 @@
                 <tr>
                     <th class="px-6 py-3">#</th>
                     <th class="px-6 py-3">User</th>
+                    <th class="px-6 py-3">Type</th>
                     <th class="px-6 py-3">Amount</th>
                     <th class="px-6 py-3">Date</th>
                 </tr>
@@ -62,6 +63,7 @@
                 <tbody class="divide-y">
                 <tr v-for="t in recentTx" :key="t.id">
                     <td class="px-6 py-3 font-mono text-gray-500">{{ t.id }}</td>
+                    <td class="px-6 py-3 font-mono text-gray-500">{{ t.type }}</td>
                     <td class="px-6 py-3">{{ t.user }}</td>
                     <td class="px-6 py-3 font-semibold">{{ fmtCur(t.amount) }}</td>
                     <td class="px-6 py-3 text-gray-500">{{ ago(t.date) }}</td>
