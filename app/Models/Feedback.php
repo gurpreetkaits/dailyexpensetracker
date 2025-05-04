@@ -10,8 +10,6 @@ class Feedback extends Model
     protected $fillable = [
         'user_id',
         'feedback',
-        'created_at',
-        'updated_at',
     ];
 
     public function user(): BelongsTo
