@@ -28,6 +28,7 @@ export const verifyToken = async () => {
       name: data.name,
       email: data.email,
       since: data.created_at,
+        is_admin: data.is_admin,
     })
   );
   return data;

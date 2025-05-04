@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\CategoryController;
@@ -33,6 +34,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::resource('goals', GoalsController::class);
     Route::patch('goals/{goal}/progress', [GoalsController::class, 'updateProgress']);
     Route::resource('feedback', FeedbackController::class);
+
+    Route::get('dashboard',DashboardController::class)->name('dashboard');
 });
 
 Route::post('register', [RegisteredUserController::class, 'store']);

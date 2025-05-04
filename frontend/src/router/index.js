@@ -1,6 +1,10 @@
+
+//TODO: Only enable admin routes available after on check of admin _ROLE
+
 import { createRouter, createWebHistory } from "vue-router";
-import { requireAuth, requireGuest } from "./auth-guard";
+import {requireAuth, requireGuest} from "./auth-guard";
 import { useTransactionStore } from "../store/transaction";
+import {useAuthStore} from "../store/auth.js";
 const routes = [
   {
     path: "/",
@@ -43,6 +47,22 @@ const routes = [
     component: () => import("../views/GoalsView.vue"),
     beforeEnter: requireAuth,
   },
+    {
+        path: "/dashboard",
+        component: () => import("../views/Admin/DashboardView.vue"),
+        beforeEnter: requireAuth,
+        meta: {
+            adminOnly: true
+        }
+    },
+    {
+        path: "/feedbacks",
+        component: () => import("../views/Admin/FeedbackView.vue"),
+        beforeEnter: requireAuth,
+        meta: {
+            adminOnly: true
+        }
+    },
   {
     path: "/:pathMatch(.*)*",
     component: () => import("../views/NotFoundView.vue"),
@@ -57,9 +77,15 @@ export const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   if (to.matched.some(record => record.meta.requiresTransactions)) {
     const transactionStore = useTransactionStore()
+      const authStore = useAuthStore()
     if (transactionStore.transactions.length === 0) {
       await transactionStore.fetchTransactions()
     }
+    // if(to.meta.adminOnly){
+    //     const { user } = await authStore.getAuth()
+    //     console.log('adminOLhyu',user)
+    // }
+
     next()
   } else {
     next()

@@ -3,7 +3,7 @@ import { useAuthStore } from '../store/auth'
 
 export const requireAuth = (to, from, next) => {
   const authStore = useAuthStore()
-  
+
   if (!authStore.isAuthenticated) {
     next('/login')
   } else {
@@ -13,7 +13,7 @@ export const requireAuth = (to, from, next) => {
 
 export const requireGuest = (to, from, next) => {
   const authStore = useAuthStore()
-  
+
   if (authStore.isAuthenticated) {
     next('/overview')
   } else {

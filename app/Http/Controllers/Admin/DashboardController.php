@@ -7,11 +7,14 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
     public function __invoke(Request $request): \Illuminate\Http\JsonResponse
     {
+
+        abort_if(!Auth::user()->is_admin,403);
         // ── numbers ──────────────────────────────────────────────
         $totalUsers       = User::count();
         $activeUsersCount = User::where('last_seen_at', '>=', now()->subMinutes(15))->count();
