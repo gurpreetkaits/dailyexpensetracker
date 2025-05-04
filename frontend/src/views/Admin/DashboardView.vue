@@ -87,17 +87,11 @@ export default {
         return {
             /* Replace with API payload */
             stats: {
-                totalUsers  : 5_892,
-                activeUsers :    73,
+                totalUsers  : '-',
+                activeUsers : '-',
             },
-            recentUsers: [
-                { id: 1,  name: 'Alice', email: 'alice@example.com', avatar: 'https://i.pravatar.cc/40?u=1', joined: '2025-05-04T16:32:00Z' },
-                /* …up to 10 users … */
-            ],
-            recentTx: [
-                { id: 10101, user: 'Alice', amount: 299.99, date: '2025-05-04T16:45:00Z' },
-                /* …up to 10 transactions … */
-            ],
+            recentUsers: [],
+            recentTx: [],
         }
     },
     methods: {
