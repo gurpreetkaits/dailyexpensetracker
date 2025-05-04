@@ -45,9 +45,6 @@
           </div>
         </div>
       </div>
-      <div v-if="isStats">
-        <DashboardView :key="stats[1]?.current_page" :stats="getStats" @load-stats="fetchStats" />
-      </div>
     </template>
   </div>
 </template>
