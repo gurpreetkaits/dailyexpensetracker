@@ -7,7 +7,6 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
@@ -17,7 +16,9 @@ class DashboardController extends Controller
         abort_if(!Auth::user()->is_admin,403);
         // ── numbers ──────────────────────────────────────────────
         $totalUsers       = User::count();
-        $activeUsersCount = User::where('last_seen_at', '>=', now()->subMinutes(15))->count();
+        $activeUsersCount = Transaction::where('created_at', '>=', now()->subDays(2))
+            ->distinct('user_id')
+            ->count('user_id');;
         $totalTx          = Transaction::count();
         $txLastHour       = Transaction::where('created_at', '>=', now()->subHour())->count();
 
