@@ -29,16 +29,6 @@
                         </select>
                     </div>
                 </div>
-
-                <!-- Minimum Monthly Income -->
-                <div class="flex items-center justify-between">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Min Monthly Income</label>
-                    </div>
-                    <div class="ml-4 w-full max-w-sm">
-                        <input v-model="income" type="number" class="rounded-md border border-gray-300 p-2 w-full" required />
-                    </div>
-                </div>
             </div>
             <div class="flex justify-start">
                 <button @click="handleSaveSettings"
