@@ -7,6 +7,51 @@
     </div>
 
     <template v-else>
+    <div class="bg-white rounded-lg shadow mb-6">
+        <div class="p-4 border-b">
+            <h2 class="text-lg font-semibold">General Settings</h2>
+        </div>
+        <div class="p-4 space-y-4">
+            <!-- Currency Setting -->
+            <div class="p-4 space-y-4">
+                <!-- Currency Setting -->
+                <div class="flex items-center justify-between">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Currency</label>
+                        <p class="text-sm text-gray-500">Select your preferred currency</p>
+                    </div>
+                    <div class="ml-4 w-full max-w-sm">
+                        <select v-model="selectedCurrency"
+                                class="rounded-md border border-gray-300 p-2 w-full">
+                            <option v-for="curr in currencies" :key="curr.code" :value="curr.code">
+                                {{ curr.code }} - {{ curr.name }} ({{ curr.symbol }})
+                            </option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Minimum Monthly Income -->
+                <div class="flex items-center justify-between">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Min Monthly Income</label>
+                    </div>
+                    <div class="ml-4 w-full max-w-sm">
+                        <input v-model="income" type="number" class="rounded-md border border-gray-300 p-2 w-full" required />
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-start">
+                <button @click="handleSaveSettings"
+                        class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg flex items-center gap-2 disabled:opacity-50"
+                        :disabled="isSaving">
+          <span v-if="isSaving"
+                class="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                    {{ isSaving ? 'Saving...' : 'Save' }}
+                </button>
+
+            </div>
+        </div>
+    </div>
       <div class="bg-white rounded-lg shadow mb-6">
         <div class="p-4 border-b">
             <h2 class="text-lg font-semibold ">Feedback</h2>
@@ -122,7 +167,22 @@ export default {
       },
     async fetchStats(page = 1) {
       this.stats = await this.loadStats(page)
-    }
+    },
+  async handleSaveSettings() {
+      try {
+          this.isSaving = true
+          let params = {
+              reminders: this.reminder,
+              currency_code: this.selectedCurrency,
+              income: this.income
+          }
+          await this.addSettings(params)
+      } catch (e) {
+          console.log(e)
+      } finally {
+          this.isSaving = false
+      }
+  },
   },
   async created() {
     try {
