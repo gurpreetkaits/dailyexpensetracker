@@ -35,7 +35,7 @@ class NewFeatureNotification extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-                    ->subject('Better track your transactions now!')
+                    ->subject('Better track your expenses now!')
                     ->markdown('emails.new_feature', ['feature' => $this->feature,'user' => $notifiable]);
     }
 
