@@ -23,7 +23,7 @@ export default {
                 { path: '/overview', name: 'Home', icon: Home },
                 { path: '/stats', name: 'Stats', icon: BarChart },
                 // { path: '/goals', name: 'Goals', icon: Target },
-                { path: '/profile', name: 'Profile', icon: User },
+                // { path: '/profile', name: 'Profile', icon: User },
                 { path: '/settings', name: 'Settings', icon: Settings },
             ],
         }

@@ -1,6 +1,6 @@
 <!-- src/views/SettingsView.vue -->
 <template>
-  <div class="max-w-2xl mx-auto p-4">
+  <div class="max-w-2xl mx-auto p-4 mb-10">
     <!-- Loading State -->
     <div v-if="loading" class="flex justify-center py-4">
       <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
@@ -55,13 +55,16 @@
           <h2 class="text-lg font-semibold text-red-600">Danger Zone</h2>
         </div>
         <div class="p-4">
-          <!-- Reset Button -->
           <button @click="showResetDialog = true"
                   class="bg-red-50  text-red-500 hover:bg-red-100 px-4 py-2 rounded-lg flex items-center gap-2">
             Reset All Transactions
           </button>
-
-          <!-- Confirmation Dialog -->
+          <div class="mt-4">
+            <button @click="handleLogout"
+                    class="bg-red-50  text-red-500 hover:bg-red-100 px-4 py-2 rounded-lg flex items-center gap-2">
+              <span>Log Out</span>
+            </button>
+          </div>
           <div v-if="showResetDialog" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
             <div class="bg-white p-6 rounded-lg max-w-md">
               <h3 class="text-lg font-bold mb-2">Are you sure?</h3>
@@ -78,6 +81,20 @@
               </div>
             </div>
           </div>
+        </div>
+      </div>
+      <div class="bg-white rounded-lg shadow mb-6">
+        <div class="p-4 border-b">
+          <h2 class="text-lg font-semibold">Sponsor My Work</h2>
+        </div>
+        <div class="p-4 flex flex-col items-center">
+          <p class="mb-3 text-gray-700 text-center">
+            If this app saves you time or helps you manage your money, you can support its development!
+          </p>
+          <a href="https://buymeacoffee.com/gurpreetkash" target="_blank" rel="noopener"
+             class="inline-block bg-yellow-400 hover:bg-yellow-500 text-white font-bold py-2 px-6 rounded-lg text-lg transition-colors">
+            🍕 Buy Me a Pizza
+          </a>
         </div>
       </div>
     </template>
@@ -144,17 +161,17 @@ export default {
         this.loading= false
       }
     },
-      handleLogout() {
-          if (!confirm('Sure!! you want to logout?')) {
-              return
-          }
-          try {
-              this.clearAuth()
-              this.$router.push('/login')
-          } catch (error) {
-              console.error('Logout failed:', error)
-          }
-      },
+    handleLogout() {
+      if (!confirm('Sure!! you want to logout?')) {
+        return
+      }
+      try {
+        this.clearAuth()
+        this.$router.push('/login')
+      } catch (error) {
+        console.error('Logout failed:', error)
+      }
+    },
     async fetchStats(page = 1) {
       this.stats = await this.loadStats(page)
     },

@@ -25,7 +25,7 @@ export default {
             navigation: [
                 { path: '/overview', name: 'Home', icon: Home, show: true },
                 { path: '/stats', name: 'Stats', icon: BarChart, show: true },
-                { path: '/profile', name: 'Profile', icon: User , show: true },
+                // { path: '/profile', name: 'Profile', icon: User , show: true },
                 { path: '/settings', name: 'Settings', icon: Settings , show: true },
                 { path: '/dashboard', name: 'Dashboard', icon: User, show: true },
                 { path: '/feedbacks', name: 'Feedback', icon: User, show: true },
