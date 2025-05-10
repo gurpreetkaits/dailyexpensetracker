@@ -32,19 +32,14 @@ class StatsController extends Controller
     public function showStats(Request $request)
     {
         $validated = $request->validate([
-            'type' => ['required', 'in:today,week,month,year,custom,all'],
             'start_date' => ['nullable', 'required_if:type,custom', 'date'],
             'end_date' => ['nullable', 'required_if:type,custom', 'date', 'after_or_equal:start_date']
         ]);
 
         $query = Transaction::query()
             ->where('user_id', auth()->id());
-
-        // Apply date filters
-        $dateRange = $this->getDateRange($validated['type'], $request->start_date, $request->end_date);
-        if ($dateRange && $validated['type'] !== 'all') {
-            $query->whereBetween('transaction_date', [$dateRange['start'], $dateRange['end']]);
-        }
+        $query->whereBetween('transaction_date', [$validated['start_date'], $validated['end_date']]);
+    
 
         // Get category wise expenses
         $categoryStats = $query->clone()
@@ -59,12 +54,13 @@ class StatsController extends Controller
         $totalExpenses = $categoryStats->sum('total');
 
         // Get stats data
+        $dateRange = $this->getDateRange('custom', $validated['start_date'], $validated['end_date']);
         $stats = [
             'overview' => [
                 'total_spent' => $totalExpenses,
                 'avg_per_day' => $this->calculateDailyAverage($query->clone(), $dateRange),
                 'most_expensive_day' => $this->getMostExpensiveDay($query->clone()),
-                'previous_comparison' => $this->getPreviousPeriodComparison($validated['type'], $dateRange['start'])
+                'previous_comparison' => $this->getPreviousPeriodComparison('custom', $dateRange['start'])
             ],
             'financial_health' => [
                 'savings_rate' => $this->calculateSavingsRate($query->clone()),

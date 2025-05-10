@@ -36,6 +36,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::resource('feedback', FeedbackController::class);
 
     Route::get('dashboard',DashboardController::class)->name('dashboard');
+
+    // Structured Routes
+    Route::get('get-transactions', [TransactionController::class, 'getTransactions']);
 });
 
 Route::post('register', [RegisteredUserController::class, 'store']);

@@ -75,7 +75,8 @@
             </div>
             <div class="space-y-6">
                 <div v-for="category in topCategories" :key="category.id"
-                    class="space-y-2 hover:bg-gray-50 p-3 rounded-xl transition-colors">
+                    class="space-y-2 hover:bg-gray-50 p-3 rounded-xl transition-colors cursor-pointer"
+                    @click="openCategoryTransactions(category)">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 rounded-full flex items-center justify-center"
@@ -96,6 +97,64 @@
                         </div>
                     </div>
                 </div>
+                <!-- Category Transactions Modal (Desktop) -->
+                <div v-if="showCategoryModal && !isMobile" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+                  <div class="bg-white rounded-xl shadow max-w-md w-full p-0 relative">
+                    <button @click="closeCategoryModal" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700">
+                      <CircleX class="h-6 w-6" />
+                    </button>
+                    <h3 class="text-base font-semibold px-4 pt-4 pb-2">Transactions for {{ selectedCategory?.name }}</h3>
+                    <div v-if="loadingCategoryTx" class="text-center py-8 text-gray-400">Loading...</div>
+                    <div v-else-if="categoryTxError" class="text-center py-8 text-red-400">{{ categoryTxError }}</div>
+                    <div v-else-if="categoryTransactions.length === 0" class="text-gray-500 text-center py-8">
+                      No transactions found for this category.
+                    </div>
+                    <div v-else class="divide-y divide-gray-100 max-h-80 overflow-y-auto">
+                      <div v-for="tx in categoryTransactions" :key="tx.id" class="py-2 px-4 flex items-center gap-2 text-xs">
+                        <div class="w-7 h-7 rounded-full flex items-center justify-center" :style="{ backgroundColor: selectedCategory.color + '15', color: selectedCategory.color }">
+                          <component :is="getCategoryIcon(selectedCategory)" class="h-4 w-4" />
+                        </div>
+                        <div class="flex-1 min-w-0">
+                          <div class="font-medium text-gray-900 truncate">{{ tx.note || 'No note' }}</div>
+                          <div class="text-xs text-gray-400 truncate">{{ formatDate(tx.transaction_date) }}</div>
+                        </div>
+                        <div class="text-right">
+                          <span class="font-medium text-red-600">-{{ formatCurrency(tx.amount, currencyCode) }}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Category Transactions BottomSheet (Mobile) -->
+                <BottomSheet v-if="showCategoryModal && isMobile" v-model="showCategoryModal">
+                  <div class="p-2">
+                    <div class="flex justify-between items-center mb-2">
+                      <h3 class="text-base font-semibold">Transactions for {{ selectedCategory?.name }}</h3>
+                      <button @click="closeCategoryModal" class="text-gray-400 hover:text-gray-700">
+                        <CircleX class="h-6 w-6" />
+                      </button>
+                    </div>
+                    <div v-if="loadingCategoryTx" class="text-center py-8 text-gray-400">Loading...</div>
+                    <div v-else-if="categoryTxError" class="text-center py-8 text-red-400">{{ categoryTxError }}</div>
+                    <div v-else-if="categoryTransactions.length === 0" class="text-gray-500 text-center py-8">
+                      No transactions found for this category.
+                    </div>
+                    <div v-else class="divide-y divide-gray-100 max-h-80 overflow-y-auto">
+                      <div v-for="tx in categoryTransactions" :key="tx.id" class="py-2 flex items-center gap-2 text-xs">
+                        <div class="w-7 h-7 rounded-full flex items-center justify-center" :style="{ backgroundColor: selectedCategory.color + '15', color: selectedCategory.color }">
+                          <component :is="getCategoryIcon(selectedCategory)" class="h-4 w-4" />
+                        </div>
+                        <div class="flex-1 min-w-0">
+                          <div class="font-medium text-gray-900 truncate">{{ tx.note || 'No note' }}</div>
+                          <div class="text-xs text-gray-400 truncate">{{ formatDate(tx.transaction_date) }}</div>
+                        </div>
+                        <div class="text-right">
+                          <span class="font-medium text-red-600">-{{ formatCurrency(tx.amount, currencyCode) }}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </BottomSheet>
             </div>
         </div>
     </div>
@@ -116,6 +175,8 @@ import { mapActions, mapState } from 'pinia'
 import { useTransactionStore } from '../store/transaction'
 import { useSettingsStore } from '../store/settings'
 import { numberMixin } from '../mixins/numberMixin'
+import axios from 'axios'
+import { getCategoryTransactions } from '../services/TransactionService'
 
 export default {
     name: 'StatsPage',
@@ -141,14 +202,21 @@ export default {
                 { label: 'Monthly', value: 'month' },
                 { label: 'Yearly', value: 'year' },
                 { label: 'Custom', value: 'custom' },
-            ]
+            ],
+            showCategoryModal: false,
+            selectedCategory: null,
+            categoryTransactions: [],
+            loadingCategoryTx: false,
+            categoryTxError: null,
         }
     },
 
     computed: {
         ...mapState(useTransactionStore, ['userStats', 'loading']),
         ...mapState(useSettingsStore, ['currencyCode']),
-
+        isMobile() {
+            return window.innerWidth < 640;
+        },
         totalSpent() {
             return this.userStats?.overview?.total_spent || 0
         },
@@ -168,7 +236,6 @@ export default {
         },
 
         financialHealth() {
-            console.log(this.userStats)
             return this.userStats?.financial_health?.status?.status || 'Good'
         },
 
@@ -207,11 +274,12 @@ export default {
         },
 
         getFilters() {
+            let { start_date, end_date } = this.getDateRangeFromType(this.dateFilter);
             return {
-                type: this.dateFilter,
-                start_date: this.customStartDate,
-                end_date: this.customEndDate
-            }
+                start_date,
+                end_date,
+                // add other filters if needed
+            };
         }
     },
 
@@ -223,7 +291,6 @@ export default {
         },
 
         getCategoryIcon(category) {
-            console.log('category', category)
             return category.icon
         },
 
@@ -251,6 +318,83 @@ export default {
             } catch (error) {
                 console.error('Error applying filter:', error)
             }
+        },
+
+        async openCategoryTransactions(category) {
+            this.selectedCategory = category;
+            this.showCategoryModal = true;
+            this.loadingCategoryTx = true;
+            this.categoryTxError = null;
+            try {
+                const filters = {
+                    ...this.getFilters,
+                    category: category.id,
+                }
+                const response = await getCategoryTransactions(filters);
+                this.categoryTransactions = response.transactions;
+            } catch (err) {
+                this.categoryTxError = 'Failed to load transactions.';
+                this.categoryTransactions = [];
+            } finally {
+                this.loadingCategoryTx = false;
+            }
+        },
+
+        closeCategoryModal() {
+            this.showCategoryModal = false;
+            this.selectedCategory = null;
+            this.categoryTransactions = [];
+            this.categoryTxError = null;
+        },
+
+        getDateRangeFromType(type) {
+            const now = new Date();
+            let start, end;
+
+            switch (type) {
+                case 'today':
+                    start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                    end = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+                    break;
+                case 'week':
+                case 'weekly':
+                    // Start of week (Sunday)
+                    start = new Date(now);
+                    start.setDate(now.getDate() - now.getDay());
+                    start.setHours(0, 0, 0, 0);
+                    end = new Date(start);
+                    end.setDate(start.getDate() + 7);
+                    break;
+                case 'month':
+                case 'monthly':
+                    start = new Date(now.getFullYear(), now.getMonth(), 1);
+                    end = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+                    break;
+                case 'year':
+                case 'yearly':
+                    start = new Date(now.getFullYear(), 0, 1);
+                    end = new Date(now.getFullYear() + 1, 0, 1);
+                    break;
+                case 'yesterday':
+                    start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+                    end = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                    break;
+                case 'custom':
+                    // Use customStartDate and customEndDate from your data
+                    start = this.customStartDate ? new Date(this.customStartDate) : null;
+                    end = this.customEndDate ? new Date(this.customEndDate) : null;
+                    break;
+                default:
+                    start = null;
+                    end = null;
+            }
+
+            // Format as YYYY-MM-DD
+            const format = d => d ? d.toISOString().slice(0, 10) : null;
+            return {
+                start_date: format(start),
+                end_date: format(end)
+            };
         }
     },
 

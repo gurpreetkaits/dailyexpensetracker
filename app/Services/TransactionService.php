@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Data\GetTransactionFilterData;
 use App\Enum\TransactionFilterEnum;
 use App\Enums\TransactionTypeEnum;
 use App\Models\Transaction;
@@ -182,5 +183,22 @@ class TransactionService
 
         // Return results ordered by latest first
         return $transactions->latest('transaction_date')->get();
+    }
+
+    public function getCategoryTransactions(GetTransactionFilterData $data)
+    {
+        $query = Transaction::where([
+            'user_id' => auth()->id(),
+            'category_id' => $data->category
+        ]);
+
+        if ($data->start_date) {
+            $query->whereBetween('transaction_date', [
+                $data->start_date,
+                $data->end_date
+            ]);
+        }
+
+        return $query->get();
     }
 }

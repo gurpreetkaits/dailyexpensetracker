@@ -13,27 +13,23 @@
                       border:2px solid #10b981;">
           <tr>
             <td style="padding:32px 40px 24px;text-align:left;">
-              <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;justify-content:center;margin-bottom: 20px;">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;">
                 <img src="https://dailyexpensetracker.in/images/dailyexpensetracker.png" alt="Daily Expense Tracker" style="height:36px;border-radius:8px;">
                 <span style="font-size:22px;font-weight:bold;color:#10b981;vertical-align:middle;">Daily Expense Tracker</span>
               </div>
-              <h2 style="margin-bottom:16px;font-size:22px;color:#222;margin-top: 15px;">Hey {{ $user->name ?? 'there' }} 👋</h2>
+              <h2 style="margin:0 0 16px;font-size:22px;color:#222;">Hi {{ $user->name }},</h2>
 
-              <p style="margin:0 0 24px;font-size:16px;line-height:24px;color:#333;">
-                It's been a while since your last expense entry. I'd love to know what would make
-                <strong style="color:#10b981;">Daily&nbsp;Expense&nbsp;Tracker</strong> more valuable for you. Could you share a quick thought?
+              <p style="margin:0 0 18px;font-size:16px;line-height:24px;color:#333;">
+                I just launched a new feature: <strong style="color:#10b981;">{{ $feature }}</strong>
               </p>
 
-              <p style="margin:0 0 32px;text-align:center;">
-                <a href="https://app.dailyexpensetracker.in/settings"
-                   style="display:inline-block;background:#10b981;color:#ffffff !important;text-decoration:none;
-                          padding:12px 28px;border-radius:4px;font-weight:bold;font-size:15px;">
-                  Tell Me in 30 sec
-                </a>
+              <p style="margin:0 0 24px;font-size:15px;line-height:22px;color:#555;">
+                Would love to hear what you think—just reply to this email!
               </p>
 
               <p style="margin:0;font-size:14px;line-height:22px;color:#777;">
-                Thanks a ton for helping shape the app!<br><br>— Gurpreet (Creator of DailyExpenseTracker)
+                Thanks for being part of the journey,<br>
+                Gurpreet (Creator of Daily Expense Tracker)
               </p>
             </td>
           </tr>

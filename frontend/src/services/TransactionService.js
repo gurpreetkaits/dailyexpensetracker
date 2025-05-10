@@ -54,3 +54,9 @@ function objectToQueryString(obj) {
     .map((key) => `${encodeURIComponent(key)}=${encodeURIComponent(obj[key])}`)
     .join("&");
 }
+
+
+export const getCategoryTransactions = async (filters) => {
+  const { data } = await axiosConf.get(`/api/get-transactions?${objectToQueryString(filters)}`);
+  return data;
+};

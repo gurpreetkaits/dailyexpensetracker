@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Data\GetTransactionFilterData;
 use App\Models\Transaction;
 use App\Services\TransactionService;
 use App\Enum\TransactionFilterEnum;
@@ -33,7 +34,7 @@ class TransactionController extends Controller
     public function index(Request $request)
     {
         $validated = $request->validate([
-            'filter' => ['nullable', 'in:today,monthly,yearly,all,weekly,yesterday']
+            'filter' => ['nullable', 'in:today,monthly,yearly,all,weekly,yesterday'],
         ]);
         $transactions = $this->transactionService->getUserTransactions(
             auth()->id(),
@@ -114,5 +115,13 @@ class TransactionController extends Controller
             'startDate' => ['nullable|required_if:type,custom'],
             'endDate' => ['nullable|required_if:type,custom']
         ]);
+    }
+
+    public function getTransactions(GetTransactionFilterData $data)
+    {
+      
+        $transactions = $this->transactionService->getCategoryTransactions($data);
+
+        return response()->json(['transactions' => $transactions]);
     }
 }

@@ -2,20 +2,19 @@
 
 namespace App\Notifications;
 
-use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class AskFeedbackNotification extends Notification
+class NewFeatureNotification extends Notification
 {
     use Queueable;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct()
+    public function __construct(public string $feature)
     {
         //
     }
@@ -36,8 +35,8 @@ class AskFeedbackNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-                    ->subject('DailyExpenseTracker - Your Opinion Matters!')
-                    ->markdown('emails.nudge', ['user' => $notifiable]);
+                    ->subject('New Feature: ' . $this->feature)
+                    ->markdown('emails.new_feature', ['feature' => $this->feature,'user']);
     }
 
     /**
@@ -48,7 +47,7 @@ class AskFeedbackNotification extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            'user' => $notifiable,
+            //
         ];
     }
 }

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "740487a01c2f96430468cdad03557bfb",
+    "content-hash": "5f7b658b95429b3d1731e78090821579",
     "packages": [
         {
             "name": "amphp/amp",
@@ -4837,20 +4837,20 @@
         },
         {
             "name": "spatie/laravel-data",
-            "version": "4.11.1",
+            "version": "4.15.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/spatie/laravel-data.git",
-                "reference": "df5b58baebae34475ca35338b4e9a131c9e2a8e0"
+                "reference": "cb97afe6c0dadeb2e76ea1b7220cd04ed33dcca9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/spatie/laravel-data/zipball/df5b58baebae34475ca35338b4e9a131c9e2a8e0",
-                "reference": "df5b58baebae34475ca35338b4e9a131c9e2a8e0",
+                "url": "https://api.github.com/repos/spatie/laravel-data/zipball/cb97afe6c0dadeb2e76ea1b7220cd04ed33dcca9",
+                "reference": "cb97afe6c0dadeb2e76ea1b7220cd04ed33dcca9",
                 "shasum": ""
             },
             "require": {
-                "illuminate/contracts": "^10.0|^11.0",
+                "illuminate/contracts": "^10.0|^11.0|^12.0",
                 "php": "^8.1",
                 "phpdocumentor/reflection": "^6.0",
                 "spatie/laravel-package-tools": "^1.9.0",
@@ -4859,18 +4859,17 @@
             "require-dev": {
                 "fakerphp/faker": "^1.14",
                 "friendsofphp/php-cs-fixer": "^3.0",
-                "inertiajs/inertia-laravel": "^1.2",
+                "inertiajs/inertia-laravel": "^2.0",
                 "livewire/livewire": "^3.0",
                 "mockery/mockery": "^1.6",
-                "nesbot/carbon": "^2.63",
-                "nunomaduro/larastan": "^2.0",
-                "orchestra/testbench": "^8.0|^9.0",
-                "pestphp/pest": "^2.31",
-                "pestphp/pest-plugin-laravel": "^2.0",
-                "pestphp/pest-plugin-livewire": "^2.1",
+                "nesbot/carbon": "^2.63|^3.0",
+                "orchestra/testbench": "^8.0|^9.0|^10.0",
+                "pestphp/pest": "^2.31|^3.0",
+                "pestphp/pest-plugin-laravel": "^2.0|^3.0",
+                "pestphp/pest-plugin-livewire": "^2.1|^3.0",
                 "phpbench/phpbench": "^1.2",
                 "phpstan/extension-installer": "^1.1",
-                "phpunit/phpunit": "^10.0",
+                "phpunit/phpunit": "^10.0|^11.0|^12.0",
                 "spatie/invade": "^1.0",
                 "spatie/laravel-typescript-transformer": "^2.5",
                 "spatie/pest-plugin-snapshots": "^2.1",
@@ -4909,7 +4908,7 @@
             ],
             "support": {
                 "issues": "https://github.com/spatie/laravel-data/issues",
-                "source": "https://github.com/spatie/laravel-data/tree/4.11.1"
+                "source": "https://github.com/spatie/laravel-data/tree/4.15.1"
             },
             "funding": [
                 {
@@ -4917,7 +4916,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-10-23T07:14:53+00:00"
+            "time": "2025-04-10T06:06:27+00:00"
         },
         {
             "name": "spatie/laravel-package-tools",
