@@ -36,7 +36,8 @@ class AskFeedbackNotification extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-                    ->markdown('emails.nudge');
+                    ->subject('DailyExpenseTracker - Your Opinion Matters!')
+                    ->markdown('emails.nudge', ['user' => $notifiable]);
     }
 
     /**
@@ -47,7 +48,7 @@ class AskFeedbackNotification extends Notification implements ShouldQueue
     public function toArray(object $notifiable): array
     {
         return [
-            //
+            'user' => $notifiable,
         ];
     }
 }

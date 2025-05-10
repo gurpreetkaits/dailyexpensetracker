@@ -107,4 +107,10 @@ class User extends Authenticatable implements AuthMustVerifyEmail
             'monthly_payment_total' => round($expenses->sum('amount'), 2)
         ];
     }
+
+    public function scopeActive($query){
+        return $query->whereHas('transactions', function ($q) {
+            $q->where('created_at', '>=', now()->subDays(7));
+        });
+    }
 }

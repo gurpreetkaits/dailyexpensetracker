@@ -2,7 +2,6 @@
 <html>
 <head>
     <meta charset="UTF-8" />
-    <title>We miss you!</title>
 </head>
 <body style="margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;background:#f2f4f6;">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="padding:24px 0;">
@@ -27,7 +26,7 @@
               </p>
 
               <p style="margin:0;font-size:14px;line-height:22px;color:#777;">
-                Thanks a ton for helping shape the app!<br><br>— Gurpreet
+                Thanks a ton for helping shape the app!<br><br>— Gurpreet (Creator of DailyExpenseTracker)
               </p>
             </td>
           </tr>

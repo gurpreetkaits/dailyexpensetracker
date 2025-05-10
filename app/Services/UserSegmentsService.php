@@ -15,4 +15,9 @@ class UserSegmentsService
         })
         ->get();
     }
+
+    public static function active()
+    {
+        return User::active()->get();
+    }
 }
