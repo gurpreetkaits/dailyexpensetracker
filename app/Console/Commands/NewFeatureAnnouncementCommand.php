@@ -30,7 +30,7 @@ class NewFeatureAnnouncementCommand extends Command
     public function handle()
     {
         $feature = $this->ask('feature','test feature');
-        $singleUser = $this->ask('single-user','test@example.com');
+        $singleUser = $this->ask('single-user');
         if($singleUser){
             $user = User::where('email', $singleUser)->first();
             if($user){
