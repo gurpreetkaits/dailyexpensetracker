@@ -35,7 +35,7 @@ class NewFeatureNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-                    ->subject('New Feature: ' . $this->feature)
+                    ->subject('Better track your transactions now!')
                     ->markdown('emails.new_feature', ['feature' => $this->feature,'user' => $notifiable]);
     }
 

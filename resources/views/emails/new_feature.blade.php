@@ -20,7 +20,7 @@
               <h2 style="margin:0 0 16px;font-size:22px;color:#222;">Hi {{ $user->name }},</h2>
 
               <p style="margin:0 0 18px;font-size:16px;line-height:24px;color:#333;">
-                I just launched a new feature: <strong style="color:#10b981;">{{ $feature }}</strong>
+                I just launched a new feature! <strong>You can better track your transactions now and have good control over your expenses.</strong>
               </p>
 
               <p style="margin:0 0 18px;font-size:15px;line-height:22px;color:#555;">
