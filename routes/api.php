@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\GoalsController;
@@ -39,6 +40,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Structured Routes
     Route::get('get-transactions', [TransactionController::class, 'getTransactions']);
+    Route::resource('chat', ChatController::class)->only(['index', 'store']);
 });
 
 Route::post('register', [RegisteredUserController::class, 'store']);
