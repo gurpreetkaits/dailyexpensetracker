@@ -23,6 +23,12 @@
                 I just launched a new feature: <strong style="color:#10b981;">{{ $feature }}</strong>
               </p>
 
+              <p style="margin:0 0 18px;font-size:15px;line-height:22px;color:#555;">
+                Now you can see what transactions you made in a particular category.
+              </p>
+
+              <img src="{{ asset('feature/transactions-under-categories.png') }}" alt="Transactions for Food & drink" style="width:100%;max-width:480px;border-radius:8px;margin:18px 0;box-shadow:0 2px 8px rgba(16,185,129,0.07);border:1px solid #eee;">
+
               <p style="margin:0 0 24px;font-size:15px;line-height:22px;color:#555;">
                 Would love to hear what you think—just reply to this email!
               </p>

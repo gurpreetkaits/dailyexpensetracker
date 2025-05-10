@@ -36,7 +36,7 @@ class NewFeatureNotification extends Notification
     {
         return (new MailMessage)
                     ->subject('New Feature: ' . $this->feature)
-                    ->markdown('emails.new_feature', ['feature' => $this->feature,'user']);
+                    ->markdown('emails.new_feature', ['feature' => $this->feature,'user' => $notifiable]);
     }
 
     /**
