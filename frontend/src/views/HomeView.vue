@@ -1,6 +1,6 @@
 <template>
-  <div class="py-1">
-    <div class="lg:max-w-2xl lg:mx-auto">
+  <div class="px-2 sm:px-6 md:px-10 lg:px-16 ml-0 sm:ml-28">
+    <div class="w-full">
       <ExpenseList :expenses="expenses" :categories="categories" @delete="deleteExpense"
         @add-expense="showExpenseForm = true" />
     </div>

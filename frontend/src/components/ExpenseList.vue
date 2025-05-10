@@ -1,161 +1,292 @@
 <template>
-  <div class="space-y-4 relative pb-24 m-3">
+  <div class="space-y-4 relative pb-24">
     <!-- Start New Overview Card -->
     <template v-if="getActiveTab === 'daily'">
-      <div class="bg-white rounded-xl shadow-sm p-4"><!-- Search Toggle Button / Input -->
-
-        <div>
-          <div class="flex items-center justify-end mb-3">
-            <h2 class="text-sm font-medium text-gray-700"></h2>
+      <!-- Mobile View -->
+      <div class="sm:hidden">
+        <div class="bg-white rounded-xl shadow-sm p-4">
+          <div>
+            <div class="flex items-center justify-end mb-3">
+              <h2 class="text-sm font-medium text-gray-700"></h2>
               <div class="relative mr-2">
-                  <template v-if="showSearch">
-                      <div class="flex items-center bg-gray-50 border border-gray-100 rounded-lg">
-                          <input
-                              v-model="searchQuery"
-                              type="text"
-                              @keydown="handleSearch"
-                              placeholder="Search by note..."
-                              class="text-xs px-2 py-1 bg-transparent outline-none w-40 rounded-md"
-                          />
-                          <button
-                              @click="showSearch = false; searchQuery = ''"
-                              class="p-1 text-gray-400 hover:text-gray-600"
-                          >
-                              <CircleX class="h-4 w-4" />
-                          </button>
-                      </div>
-                  </template>
-                  <button
-                      v-else
-                      @click="showSearch = true"
-                      class="p-1 text-gray-500 hover:text-gray-700"
-                  >
-                      <SearchIcon class="h-4 w-4" />
-                  </button>
+                <template v-if="showSearch">
+                  <div class="flex items-center bg-gray-50 border border-gray-100 rounded-lg">
+                    <input
+                      v-model="searchQuery"
+                      type="text"
+                      @keydown="handleSearch"
+                      placeholder="Search by note..."
+                      class="text-xs px-2 py-1 bg-transparent outline-none w-40 rounded-md"
+                    />
+                    <button
+                      @click="showSearch = false; searchQuery = ''"
+                      class="p-1 text-gray-400 hover:text-gray-600"
+                    >
+                      <CircleX class="h-4 w-4" />
+                    </button>
+                  </div>
+                </template>
+                <button
+                  v-else
+                  @click="showSearch = true"
+                  class="p-1 text-gray-500 hover:text-gray-700"
+                >
+                  <SearchIcon class="h-4 w-4" />
+                </button>
               </div>
-            <select v-model="dateFilter"
-              class="text-xs bg-gray-50 border border-gray-100 rounded-lg px-2 py-1 text-gray-600">
-              <option value="Today">Today</option>
-              <option value="Weekly">This Week</option>
-              <option value="Yesterday">Yesterday</option>
-              <option value="Monthly">This Month</option>
-              <option value="Yearly">This Year</option>
-            </select>
+              <select v-model="dateFilter"
+                class="text-xs bg-gray-50 border border-gray-100 rounded-lg px-2 py-1 text-gray-600">
+                <option value="Today">Today</option>
+                <option value="Weekly">This Week</option>
+                <option value="Yesterday">Yesterday</option>
+                <option value="Monthly">This Month</option>
+                <option value="Yearly">This Year</option>
+              </select>
+            </div>
+            <div class="bg-gray-50 rounded-lg p-3">
+              <div class="flex justify-between mb-2">
+                <span class="text-xs font-medium text-gray-700">{{ dateFilter }} Earnings</span>
+                <p class="text-sm font-medium text-green-700">
+                  {{ formatCurrency(getFilteredIncome, currencyCode) }}
+                </p>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-xs font-medium text-gray-700">{{ dateFilter }} Expenses</span>
+                <p class="text-sm font-medium text-red-700">
+                  {{ formatCurrency(getFilteredExpenses, currencyCode) }}
+                </p>
+              </div>
+              <hr class="my-2">
+              <div class="flex justify-between">
+                <span class="text-xs font-medium text-gray-700">Balance</span>
+                <p class="text-sm font-medium text-blue-700">
+                  {{ formatCurrency(balance, currencyCode) }}
+                </p>
+              </div>
+            </div>
           </div>
-          <div class="bg-gray-50 rounded-lg p-3">
-            <div class="flex justify-between mb-2">
-              <span class="text-xs font-medium text-gray-700">{{ dateFilter }} Earnings</span>
-              <p class="text-sm font-medium text-green-700">
-                {{ formatCurrency(getFilteredIncome, currencyCode) }}
-              </p>
+        </div>
+      </div>
+
+      <!-- Desktop View -->
+      <div class="hidden sm:block w-full">
+        <!-- Top bar: switch and filters -->
+        <div class="flex items-center justify-between mb-4 gap-4">
+          <div class="flex items-center gap-2">
+            <div class="flex items-center bg-white/80 shadow-sm border border-gray-200 rounded-full px-2 py-1.5 h-10 gap-1">
+              <div class="relative flex items-center">
+                <template v-if="showSearch">
+                  <input
+                    v-model="searchQuery"
+                    type="text"
+                    @keydown="handleSearch"
+                    placeholder="Search by note..."
+                    class="text-xs bg-transparent outline-none w-36 h-6 px-2 rounded-full focus:bg-white focus:ring-2 focus:ring-blue-100 transition"
+                  />
+                  <button
+                    @click="showSearch = false; searchQuery = ''"
+                    class="ml-1 text-gray-400 hover:text-gray-600 rounded-full p-1 focus:bg-gray-100 transition"
+                  >
+                    <CircleX class="h-4 w-4" />
+                  </button>
+                </template>
+                <button
+                  v-else
+                  @click="showSearch = true"
+                  class="inline-flex items-center justify-center text-gray-500 hover:text-gray-700 rounded-full p-1 focus:bg-gray-100 transition"
+                >
+                  <SearchIcon class="h-4 w-4" />
+                </button>
+              </div>
+              <div class="w-px h-6 bg-gray-200 mx-2"></div>
+              <select v-model="dateFilter"
+                class="text-xs  bg-transparent rounded-full px-2 min-h-7 text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-100 transition appearance-none">
+                <option value="Today">Today</option>
+                <option value="Weekly">This Week</option>
+                <option value="Yesterday">Yesterday</option>
+                <option value="Monthly">This Month</option>
+                <option value="Yearly">This Year</option>
+              </select>
             </div>
-            <div class="flex justify-between">
-              <span class="text-xs font-medium text-gray-700">{{ dateFilter }} Expenses</span>
-              <p class="text-sm font-medium text-red-700">
-                {{ formatCurrency(getFilteredExpenses, currencyCode) }}
-              </p>
+          </div>
+          <div class="inline-flex bg-gray-100 rounded-full p-1">
+            <button
+              v-for="type in ['Daily', 'Recurring']"
+              :key="type"
+              @click="activeTab = type.toLowerCase()"
+              class="px-5 py-1.5 rounded-full text-sm font-medium transition-all focus:outline-none"
+              :class="getActiveTab === type.toLowerCase() ? 'bg-blue-500 text-white shadow' : 'text-gray-600 hover:bg-gray-200'"
+            >
+              {{ type }}
+            </button>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <!-- Overview Card (Left, 50%) -->
+          <div class="bg-white rounded-xl shadow-sm p-4">
+            <div>
+              <div class="bg-gray-50 rounded-lg p-3">
+                <div class="flex justify-between mb-2">
+                  <span class="text-xs font-medium text-gray-700">{{ dateFilter }} Earnings</span>
+                  <p class="text-sm font-medium text-green-700">
+                    {{ formatCurrency(getFilteredIncome, currencyCode) }}
+                  </p>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-xs font-medium text-gray-700">{{ dateFilter }} Expenses</span>
+                  <p class="text-sm font-medium text-red-700">
+                    {{ formatCurrency(getFilteredExpenses, currencyCode) }}
+                  </p>
+                </div>
+                <hr class="my-2">
+                <div class="flex justify-between">
+                  <span class="text-xs font-medium text-gray-700">Balance</span>
+                  <p class="text-sm font-medium text-blue-700">
+                    {{ formatCurrency(balance, currencyCode) }}
+                  </p>
+                </div>
+              </div>
             </div>
-            <hr class="my-2">
-            <div class="flex justify-between">
-              <span class="text-xs font-medium text-gray-700">Balance</span>
-              <p class="text-sm font-medium text-blue-700">
-                {{ formatCurrency(balance, currencyCode) }}
-              </p>
+          </div>
+          <!-- Chart (Right, 50%) -->
+          <div class="bg-white rounded-xl shadow-sm p-4 flex flex-col justify-between">
+            <h3 class="text-sm font-medium text-gray-700 mb-4">Daily Spending Activity</h3>
+            <div class="h-64 flex-1">
+              <canvas ref="dailyActivityChart"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm p-4 w-full">
+          <div>
+            <div v-for="transaction in sortedTransactions" :key="transaction.id"
+              class="flex items-center gap-2 px-2 py-1 rounded hover:bg-gray-50 cursor-pointer text-xs"
+              @click="editTransaction(transaction)">
+              <div class="w-6 h-6 rounded-full flex items-center justify-center" :style="{
+                backgroundColor: (transaction.type === 'income'
+                  ? (transaction.category?.color + '15') || '#dcfce7'
+                  : (transaction.category?.color + '15') || '#fee2e2'),
+                color: transaction.type === 'income'
+                  ? transaction.category?.color || '#16a34a'
+                  : transaction.category?.color || '#dc2626'
+              }">
+                <component :is="transaction.category?.icon || (transaction.type === 'income' ? 'CircleDollarSign' : 'ShoppingBag')" class="h-4 w-4" />
+              </div>
+              <div class="truncate flex-1">
+                <span class="font-medium text-gray-900 truncate">
+                  {{ transaction.category ? capitalizeFirstLetter(transaction.category.name) : transaction.note }}
+                </span>
+                <span class="text-gray-400 ml-1">{{ transaction.note }}</span>
+              </div>
+              <span :class="transaction.type === 'income' ? 'font-medium text-green-600 min-w-[60px] text-right' : 'font-medium text-red-600 min-w-[60px] text-right'">
+                {{ transaction.type === 'income' ? '+' : '-' }}{{ formatCurrency(transaction.amount, currencyCode) }}
+              </span>
+              <span class="text-gray-400 min-w-[60px] text-right">{{ formatDate(transaction.transaction_date) }}</span>
             </div>
           </div>
         </div>
       </div>
     </template>
-      <template v-else>
-          <div class="bg-white rounded-xl shadow-sm p-4">
-              <div>
-                  <div class="bg-gray-50 rounded-lg p-3 space-y-3">
-                      <!-- Total Monthly Payable -->
-                      <div class="flex justify-between mb-2">
-                          <span class="text-xs font-medium text-gray-700">Total Monthly Payable</span>
-                          <p class="text-sm font-medium text-red-700">
-                              {{ formatCurrency(nextMonthPayable, currencyCode) }}
-                          </p>
-                      </div>
+    <template v-else>
+      <div class="bg-white rounded-xl shadow-sm p-4">
+        <div>
+          <div class="bg-gray-50 rounded-lg p-3 space-y-3">
+            <!-- Total Monthly Payable -->
+            <div class="flex justify-between mb-2">
+              <span class="text-xs font-medium text-gray-700">Total Monthly Payable</span>
+              <p class="text-sm font-medium text-red-700">
+                {{ formatCurrency(nextMonthPayable, currencyCode) }}
+              </p>
+            </div>
 
-                      <!-- EMI Details - Show only if there are EMI type expenses -->
-                      <template v-if="hasEMIExpenses">
-                          <hr class="border-gray-200">
-                          <div class="space-y-2">
-                              <h4 class="text-xs font-medium text-gray-700">EMI Summary</h4>
+            <!-- EMI Details - Show only if there are EMI type expenses -->
+            <template v-if="hasEMIExpenses">
+              <hr class="border-gray-200">
+              <div class="space-y-2">
+                <h4 class="text-xs font-medium text-gray-700">EMI Summary</h4>
 
-                              <div class="grid grid-cols-2 gap-2 text-sm">
-                                  <!-- Interest Paid -->
-                                  <div class="bg-white p-2 rounded-lg">
-                                      <p class="text-xs text-gray-500">Interest Paid</p>
-                                      <p class="font-medium text-blue-600">
-                                          {{ formatCurrency(getTotalInterestPaid, currencyCode) }}
-                                      </p>
-                                  </div>
-
-                                  <!-- Remaining Balance -->
-                                  <div class="bg-white p-2 rounded-lg">
-                                      <p class="text-xs text-gray-500">Remaining Balance</p>
-                                      <p class="font-medium text-blue-600">
-                                          {{ formatCurrency(getTotalRemainingBalance, currencyCode) }}
-                                      </p>
-                                  </div>
-                              </div>
-                          </div>
-                      </template>
-
-                      <hr class="border-gray-200">
-
-                      <!-- Total Paid -->
-                      <div class="flex justify-between">
-                          <span class="text-xs font-medium text-gray-700">Total Paid Till Now</span>
-                          <p class="text-sm font-medium text-green-700">
-                              {{ formatCurrency(totalPaidTillNow, currencyCode) }}
-                          </p>
-                      </div>
-
-                      <!-- Pending Payments -->
-                      <div class="flex justify-between">
-                          <span class="text-xs font-medium text-gray-700">Pending Payments</span>
-                          <p class="text-sm font-medium text-yellow-600">
-                              {{ formatCurrency(getTotalPendingPayments, currencyCode) }}
-                          </p>
-                      </div>
-
-                      <!-- Upcoming Payments Preview -->
-                      <template v-if="getUpcomingPayments.length">
-                          <hr class="border-gray-200">
-                          <div class="space-y-2">
-                              <h4 class="text-xs font-medium text-gray-700">Upcoming Payments</h4>
-                              <div class="space-y-1">
-                                  <div v-for="payment in getUpcomingPayments.slice(0, 3)" :key="payment.date"
-                                       class="flex justify-between text-sm">
-                                      <span class="text-gray-500">{{ formatDate(payment.date) }}</span>
-                                      <span class="font-medium text-gray-700">
-                  {{ formatCurrency(payment.amount, currencyCode) }}
-                </span>
-                                  </div>
-                              </div>
-                          </div>
-                      </template>
+                <div class="grid grid-cols-2 gap-2 text-sm">
+                  <!-- Interest Paid -->
+                  <div class="bg-white p-2 rounded-lg">
+                    <p class="text-xs text-gray-500">Interest Paid</p>
+                    <p class="font-medium text-blue-600">
+                      {{ formatCurrency(getTotalInterestPaid, currencyCode) }}
+                    </p>
                   </div>
+
+                  <!-- Remaining Balance -->
+                  <div class="bg-white p-2 rounded-lg">
+                    <p class="text-xs text-gray-500">Remaining Balance</p>
+                    <p class="font-medium text-blue-600">
+                      {{ formatCurrency(getTotalRemainingBalance, currencyCode) }}
+                    </p>
+                  </div>
+                </div>
               </div>
+            </template>
+
+            <hr class="border-gray-200">
+
+            <!-- Total Paid -->
+            <div class="flex justify-between">
+              <span class="text-xs font-medium text-gray-700">Total Paid Till Now</span>
+              <p class="text-sm font-medium text-green-700">
+                {{ formatCurrency(totalPaidTillNow, currencyCode) }}
+              </p>
+            </div>
+
+            <!-- Pending Payments -->
+            <div class="flex justify-between">
+              <span class="text-xs font-medium text-gray-700">Pending Payments</span>
+              <p class="text-sm font-medium text-yellow-600">
+                {{ formatCurrency(getTotalPendingPayments, currencyCode) }}
+              </p>
+            </div>
+
+            <!-- Upcoming Payments Preview -->
+            <template v-if="getUpcomingPayments.length">
+              <hr class="border-gray-200">
+              <div class="space-y-2">
+                <h4 class="text-xs font-medium text-gray-700">Upcoming Payments</h4>
+                <div class="space-y-1">
+                  <div v-for="payment in getUpcomingPayments.slice(0, 3)" :key="payment.date"
+                    class="flex justify-between text-sm">
+                    <span class="text-gray-500">{{ formatDate(payment.date) }}</span>
+                    <span class="font-medium text-gray-700">
+                      {{ formatCurrency(payment.amount, currencyCode) }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </template>
           </div>
-      </template>
+        </div>
+      </div>
+    </template>
     <!-- End New Overview Card -->
 
-    <!-- Switch -->
-    <div class="bg-white rounded-2xl shadow-sm p-1 mb-6">
-      <div class="grid grid-cols-2 gap-2">
-        <button v-for="type in ['Daily', 'Recurring']" :key="type" @click="activeTab = type.toLowerCase()"
-          class="py-1 px-2 rounded-xl text-sm font-medium transition-all" :class="getActiveTab === type.toLowerCase()
-            ? 'bg-blue-50 text-blue-600'
-            : 'text-gray-500 hover:bg-gray-50'">
+    <!-- Switch: Desktop (above transactions) -->
+    <div class="hidden sm:flex justify-end mb-4">
+      <div class="inline-flex bg-gray-100 rounded-full p-1">
+        <button
+          v-for="type in ['Daily', 'Recurring']"
+          :key="type"
+          @click="activeTab = type.toLowerCase()"
+          class="px-5 py-1.5 rounded-full text-sm font-medium transition-all focus:outline-none"
+          :class="getActiveTab === type.toLowerCase() ? 'bg-blue-500 text-white shadow' : 'text-gray-600 hover:bg-gray-200'"
+        >
           {{ type }}
         </button>
       </div>
     </div>
-    <!-- End Switch -->
+    <!-- Switch: Mobile (keep as is) -->
+    <div class="sm:hidden bg-white rounded-2xl shadow-sm p-1 mb-6">
+      <div class="grid grid-cols-2 gap-2">
+        <button v-for="type in ['Daily', 'Recurring']" :key="type" @click="activeTab = type.toLowerCase()"
+          class="py-1 px-2 rounded-xl text-sm font-medium transition-all" :class="getActiveTab === type.toLowerCase() ? 'bg-blue-50 text-blue-600' : 'text-gray-500 hover:bg-gray-50'">
+          {{ type }}
+        </button>
+      </div>
+    </div>
     <div>
       <template v-if="saving">
         <div class="flex justify-center py-4">
@@ -250,71 +381,6 @@
           </template>
           <template v-else>
             <!-- Desktop View -->
-            <div class="hidden sm:grid sm:grid-cols-2 sm:gap-4">
-              <!-- Expenses Column -->
-              <div class="space-y-3">
-                <h3 class="text-base font-medium text-gray-900 px-1 flex items-center gap-2">
-                  <ArrowDownCircle class="h-4 w-4 text-red-500" />
-                  Expenses
-                </h3>
-                <div v-for="transaction in filteredTransactions.filter(t => t.type === 'expense')" :key="transaction.id"
-                  class="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-all cursor-pointer"
-                  @click="editTransaction(transaction)">
-                  <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full flex items-center justify-center" :style="{
-                      backgroundColor: (transaction.category?.color + '15') || '#fee2e2',
-                      color: transaction.category?.color || '#dc2626'
-                    }">
-                      <component :is="transaction.category?.icon || 'ShoppingBag'" class="h-5 w-5" />
-                    </div>
-                    <div class="flex-1 min-w-0">
-                      <h4 class="font-medium text-gray-900 truncate">
-                        {{ transaction.category ? capitalizeFirstLetter(transaction.category.name) : transaction.note }}
-                      </h4>
-                      <p class="text-sm text-gray-500 truncate">{{ transaction.note }}</p>
-                    </div>
-                    <div class="text-right">
-                      <p class="font-medium text-red-600">
-                        -{{ formatCurrency(transaction.amount, currencyCode) }}
-                      </p>
-                      <p class="text-sm text-gray-400">{{ formatDate(transaction.transaction_date) }}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Income Column -->
-              <div class="space-y-3">
-                <h3 class="text-base font-medium text-gray-900 px-1 flex items-center gap-2">
-                  <ArrowUpCircle class="h-4 w-4 text-green-500" />
-                  Income
-                </h3>
-                <div v-for="transaction in filteredTransactions.filter(t => t.type === 'income')" :key="transaction.id"
-                  class="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-all cursor-pointer"
-                  @click="editTransaction(transaction)">
-                  <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full flex items-center justify-center" :style="{
-                      backgroundColor: (transaction.category?.color + '15') || '#dcfce7',
-                      color: transaction.category?.color || '#16a34a'
-                    }">
-                      <component :is="transaction.category?.icon || 'CircleDollarSign'" class="h-5 w-5" />
-                    </div>
-                    <div class="flex-1 min-w-0">
-                      <h4 class="font-medium text-gray-900 truncate">
-                        {{ transaction.category ? capitalizeFirstLetter(transaction.category.name) : transaction.note }}
-                      </h4>
-                      <p class="text-sm text-gray-500 truncate">{{ transaction.note }}</p>
-                    </div>
-                    <div class="text-right">
-                      <p class="font-medium text-green-600">
-                        +{{ formatCurrency(transaction.amount, currencyCode) }}
-                      </p>
-                      <p class="text-sm text-gray-400">{{ formatDate(transaction.transaction_date) }}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
             <!-- Mobile View -->
             <div class="sm:hidden space-y-3">
               <!-- Empty State -->
@@ -430,6 +496,9 @@ import { deleteTransaction, getTransactionById } from '../services/TransactionSe
 import { useSettingsStore } from '../store/settings';
 import { Dialog, DialogPanel, TransitionRoot, TransitionChild } from '@headlessui/vue'
 import { useRecurringExpenseStore } from '../store/recurringExpense';
+import { Chart, registerables } from 'chart.js';
+Chart.register(...registerables);
+
 export default {
   name: 'ExpenseList',
   mixins: [numberMixin],
@@ -465,6 +534,7 @@ export default {
       nextMonthPayable: 0,
       totalPaidTillNow: 0,
         searchTimeout: null,
+      categoryChart: null,
     }
   },
   computed: {
@@ -540,7 +610,10 @@ export default {
 
       hasEMIExpenses() {
           return this.recurringExpenses.some(expense => expense.type === 'emi')
-      }
+      },
+    sortedTransactions() {
+      return [...this.filteredTransactions].sort((a, b) => new Date(b.transaction_date) - new Date(a.transaction_date))
+    },
   },
   watch: {
     currencySymbol: {
@@ -571,7 +644,10 @@ export default {
         await this.fetchRecurringExpenses()
         this.setRecurringSummary()
       }
-    }
+    },
+    filteredTransactions: { handler() { this.$nextTick(() => { this.initializeDailyActivityChart(); }); }, deep: true },
+    searchQuery() { this.$nextTick(() => { this.initializeDailyActivityChart(); }); },
+    dateFilter() { this.$nextTick(() => { this.initializeDailyActivityChart(); }); },
   },
   methods: {
     ...mapActions(useTransactionStore, ['addTransaction', 'fetchTransactions', 'updateTransaction', 'removeTransaction','searchTransactions' ]),
@@ -771,6 +847,56 @@ export default {
           } catch (error) {
               console.error('Error setting recurring summary:', error);
           }
+      },
+      initializeDailyActivityChart() {
+        if (this.dailyActivityChart) {
+          this.dailyActivityChart.destroy();
+        }
+        const ctx = this.$refs.dailyActivityChart;
+        if (!ctx) return;
+        const { labels, data } = this.getDailyActivityData();
+        this.dailyActivityChart = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels,
+            datasets: [{
+              label: 'Spending',
+              data,
+              backgroundColor: '#3b82f6',
+              borderRadius: 6,
+              barPercentage: 0.7,
+              categoryPercentage: 0.6
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false }
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                ticks: {
+                  callback: (value) => this.formatCurrency(value, this.currencyCode)
+                }
+              }
+            }
+          }
+        });
+      },
+      getDailyActivityData() {
+        // Group by date, sum amounts for expenses only
+        const dailyTotals = {};
+        this.filteredTransactions
+          .filter(t => t.type === 'expense')
+          .forEach(t => {
+            const date = this.formatDate(t.transaction_date);
+            dailyTotals[date] = (dailyTotals[date] || 0) + Number(t.amount);
+          });
+        const labels = Object.keys(dailyTotals);
+        const data = Object.values(dailyTotals);
+        return { labels, data };
       }
   },
   async created() {
@@ -784,6 +910,14 @@ export default {
 
     } catch (error) {
       console.error('Error loading transactions:', error)
+    }
+  },
+  mounted() {
+    this.initializeDailyActivityChart();
+  },
+  beforeUnmount() {
+    if (this.dailyActivityChart) {
+      this.dailyActivityChart.destroy();
     }
   }
 }

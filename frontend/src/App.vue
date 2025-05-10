@@ -1,52 +1,57 @@
 <template>
-    <div class="min-h-screen bg-gray-100">
-    <NotificationContainer />
-        <Header />
-        <DesktopNav v-if="showFooter" />
-        <main>
-            <router-view />
-        </main>
-        <MobileNav v-if="showFooter" />
-    </div>
+    <BaseLayout>
+        <template  #sidebar>
+            <DesktopNav v-if="showFooter" class="hidden sm:block" />
+        </template>
+
+        <template #header>
+            <NotificationContainer />
+            <Header />
+        </template>
+
+        <router-view />
+
+        <template #mobile-nav>
+            <MobileNav v-if="showFooter" />
+        </template>
+    </BaseLayout>
 </template>
 
-<script>
-import { verifyToken } from './services/AuthService';
+<script setup>
+import { computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from './store/auth'
-import Header from './components/Layout/Header.vue';
-import DesktopNav from './components/Layout/DesktopNav.vue';
-import MobileNav from './components/Layout/MobileNav.vue';
-import { mapActions } from 'pinia';
-import { useSettingsStore } from './store/settings';
-import NotificationContainer from './components/Global/NotificationContainer.vue';
+import { useSettingsStore } from './store/settings'
+import { verifyToken } from './services/AuthService'
 
-export default {
-  name: 'App',
-  components: {
-    Header,NotificationContainer,
-    MobileNav, DesktopNav
-  },
+import BaseLayout from './components/Layout/BaseLayout.vue'
+import Header from './components/Layout/Header.vue'
+import DesktopNav from './components/Layout/DesktopNav.vue'
+import MobileNav from './components/Layout/MobileNav.vue'
+import NotificationContainer from './components/Global/NotificationContainer.vue'
 
-  methods: {
-    ...mapActions(useSettingsStore, ['fetchSettings'])
-  },
-  computed: {
-    showFooter() {
-      return this.$route.name !== 'login' && useAuthStore().token
-    }
-  },
-  async created() {
-    const authStore = useAuthStore()
-    if (authStore.token) {
-      await this.fetchSettings()
-      try {
+const auth    = useAuthStore()
+const settings = useSettingsStore()
+const route   = useRoute()
+const router  = useRouter()
+
+// Only show navs when logged in and not on the login route
+const showFooter = computed(() =>
+    Boolean(auth.token) && route.name !== 'login'
+)
+
+async function initApp() {
+    if (!auth.token) return
+
+    await settings.fetchSettings()
+    try {
         const user = await verifyToken()
-        authStore.setAuth(authStore.token, user)
-      } catch (error) {
-        authStore.clearAuth()
-        this.$router.push('/login')
-      }
+        auth.setAuth(auth.token, user)
+    } catch {
+        auth.clearAuth()
+        router.push({ name: 'login' })
     }
-  }
 }
+
+initApp()
 </script>

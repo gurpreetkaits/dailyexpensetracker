@@ -32,6 +32,11 @@ const routes = [
     component: () => import("../views/Profile.vue"),
     beforeEnter: requireAuth,
   },
+    {
+        path: "/categories",
+        component: () => import("../views/Categories.vue"),
+        beforeEnter: requireAuth,
+    },
   {
     path: "/settings",
     component: () => import("../views/Settings.vue"),
