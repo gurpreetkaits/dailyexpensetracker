@@ -1,5 +1,5 @@
 <?php
 
 return [
-    'production_pricing_id' => 'price_1RNeDWSHibvmemb3NWox2vZp'
+    'production_pricing_id' => env('STRIPE_PRICE_ID')
 ];

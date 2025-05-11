@@ -112,7 +112,7 @@ class SubscriptionController extends Controller
                         'stripe_price' => $session->metadata->price_id ?? null,
                         'quantity' => 1,
                         'trial_ends_at' => null,
-                        'ends_at' => null,
+                        'ends_at' => now()->addDays(30),
                     ]);
 
                     // Create subscription items
