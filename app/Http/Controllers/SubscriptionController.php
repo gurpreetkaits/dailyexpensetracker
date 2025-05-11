@@ -36,7 +36,7 @@ class SubscriptionController extends Controller
             $returnUrl = strtok($returnUrl, '?');
 
 
-            $checkout = $user->newSubscription('default', $priceId)
+            $checkout = $user->newSubscription('pro', $priceId)
                 ->checkout([
                     'success_url' => $returnUrl . 'plans?session_id={CHECKOUT_SESSION_ID}',
                     'cancel_url' => $returnUrl,
@@ -87,8 +87,8 @@ class SubscriptionController extends Controller
         $user = $request->user();
 
         return response()->json([
-            'hasActiveSubscription' => $user->subscribed('default'),
-            'subscription' => $user->subscription('default'),
+            'hasActiveSubscription' => $user->subscribed('pro'),
+            'subscription' => $user->subscription('pro'),
             'defaultPaymentMethod' => $user->defaultPaymentMethod()
         ]);
     }
@@ -106,7 +106,7 @@ class SubscriptionController extends Controller
                 if (!$subscription) {
                     // If subscription doesn't exist, create it
                     $subscription = $user->subscriptions()->create([
-                        'type' => 'default',
+                        'type' => 'pro',
                         'stripe_id' => $session->subscription,
                         'stripe_status' => $session->subscription_status ?? 'active',
                         'stripe_price' => $session->metadata->price_id ?? null,
@@ -118,7 +118,7 @@ class SubscriptionController extends Controller
                     // Create subscription items
                     $subscription->items()->create([
                         'stripe_id' => $session->subscription,
-                        'stripe_product' => $session->metadata->product_id ?? 'default',
+                        'stripe_product' => $session->metadata->product_id ?? 'pro',
                         'stripe_price' => $session->metadata->price_id ?? null,
                         'quantity' => 1,
                     ]);
