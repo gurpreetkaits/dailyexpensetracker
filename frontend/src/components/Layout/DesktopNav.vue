@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import { Settings, Home, User, BarChart, MessageCircle } from 'lucide-vue-next';
+import { Settings, Home, User, BarChart, MessageCircle, Star } from 'lucide-vue-next';
 import {mapActions, mapState} from "pinia";
 import {useAuthStore} from "../../store/auth.js";
 
@@ -26,7 +26,8 @@ export default {
                 { path: '/overview', name: 'Home', icon: Home, show: true },
                 { path: '/stats', name: 'Stats', icon: BarChart, show: true },
                 { path: '/chat', name: 'Chat', icon: MessageCircle, show: true },
-                { path: '/settings', name: 'Settings', icon: Settings , show: true },
+                { path: '/settings', name: 'Settings', icon: Settings, show: true },
+                // { path: '/plans', name: 'Plans', icon: Star, show: true },
                 { path: '/dashboard', name: 'Dashboard', icon: User, show: true },
                 { path: '/feedbacks', name: 'Feedback', icon: User, show: true },
             ]

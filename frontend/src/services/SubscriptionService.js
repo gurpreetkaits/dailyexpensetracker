@@ -33,3 +33,8 @@ export const updatePaymentMethod = async (paymentMethodId) => {
   });
   return data;
 };
+
+export const getSubscriptionHistory = async (page = 1) => {
+  const { data } = await axiosConf.get(`/api/subscription/history?page=${page}`);
+  return data;
+};

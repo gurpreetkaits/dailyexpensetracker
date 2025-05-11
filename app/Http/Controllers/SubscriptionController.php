@@ -38,7 +38,7 @@ class SubscriptionController extends Controller
 
             $checkout = $user->newSubscription('default', $priceId)
                 ->checkout([
-                    'success_url' => $returnUrl . 'chat?session_id={CHECKOUT_SESSION_ID}',
+                    'success_url' => $returnUrl . 'plans?session_id={CHECKOUT_SESSION_ID}',
                     'cancel_url' => $returnUrl,
                     'billing_address_collection' => 'required',
                     'metadata' => [
@@ -223,5 +223,17 @@ class SubscriptionController extends Controller
         } catch (\Exception $e) {
             return response()->json(['error' => 'Failed to update payment method'], 500);
         }
+    }
+
+    public function history(Request $request)
+    {
+        $user = $request->user();
+        $perPage = $request->get('per_page', 10);
+
+        $subscriptions = $user->subscriptions()
+            ->orderByDesc('created_at')
+            ->paginate($perPage);
+
+        return response()->json($subscriptions);
     }
 }

@@ -32,6 +32,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('cancel', [SubscriptionController::class, 'cancelSubscription']);
         Route::post('resume', [SubscriptionController::class, 'resumeSubscription']);
         Route::post('payment-method', [SubscriptionController::class, 'updatePaymentMethod']);
+        Route::get('history', [SubscriptionController::class, 'history']);
     });
 
     Route::delete('user-setttings/transactions/reset', [SettingsController::class, 'deleteTransactions']);

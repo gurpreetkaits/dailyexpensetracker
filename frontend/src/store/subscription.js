@@ -5,7 +5,8 @@ import {
   cancelSubscription,
   resumeSubscription,
   updatePaymentMethod,
-  verifyCheckoutSession
+  verifyCheckoutSession,
+  getSubscriptionHistory
 } from '../services/SubscriptionService'
 import { useNotifications } from '../composables/useNotifications'
 
@@ -14,7 +15,16 @@ export const useSubscriptionStore = defineStore('subscription', {
     subscription: null,
     loading: false,
     error: null,
-    sessionVerified: false
+    sessionVerified: false,
+    subscriptionHistory: [],
+    pagination: {
+      current_page: 1,
+      per_page: 10,
+      total: 0,
+      last_page: 1,
+      from: 1,
+      to: 1
+    }
   }),
 
   getters: {
@@ -184,6 +194,29 @@ export const useSubscriptionStore = defineStore('subscription', {
         throw error
       } finally {
         this.loading = false
+      }
+    },
+
+    async fetchSubscriptionHistory(page = 1) {
+      this.loading = true;
+      try {
+        const response = await getSubscriptionHistory(page);
+        this.subscriptionHistory = response.data;
+        this.pagination = {
+          current_page: response.current_page,
+          per_page: response.per_page,
+          total: response.total,
+          last_page: response.last_page,
+          from: response.from,
+          to: response.to
+        };
+        return response.data;
+      } catch (error) {
+        this.error = error.message;
+        console.error('Error fetching subscription history:', error);
+        return null;
+      } finally {
+        this.loading = false;
       }
     }
   }

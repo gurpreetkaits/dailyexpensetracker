@@ -15,10 +15,9 @@
             <p class="text-2xl font-bold text-gray-900">$7<span class="text-lg font-normal text-gray-600">/month</span></p>
             <p class="text-sm text-gray-600 mt-1">Unlock all premium features</p>
           </div>
-          <button @click="handleSubscription"
-                  class="w-full bg-emerald-500 text-white px-6 py-3 rounded-lg hover:bg-emerald-600 transition-colors"
-                  :disabled="processingPayment">
-            {{ processingPayment ? 'Processing...' : 'Subscribe Now' }}
+          <button @click="handleUpgrade"
+                  class="w-full bg-emerald-500 text-white px-6 py-3 rounded-lg hover:bg-emerald-600 transition-colors">
+            View Plans & Upgrade
           </button>
         </div>
       </div>
@@ -32,11 +31,9 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useSubscriptionStore } from '../store/subscription'
-import { useNotifications } from '../composables/useNotifications'
-import { loadStripe } from '@stripe/stripe-js'
 
 const props = defineProps({
   description: {
@@ -45,83 +42,16 @@ const props = defineProps({
   }
 })
 
-const route = useRoute()
+const router = useRouter()
 const subscriptionStore = useSubscriptionStore()
-const { notify } = useNotifications()
 const hasActiveSubscription = computed(() => subscriptionStore.hasActiveSubscription)
-const processingPayment = ref(false)
-const stripe = ref(null)
 
 onMounted(async () => {
-  // Initialize Stripe
-  stripe.value = await loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY)
-
-  // Always fetch latest subscription status
   await subscriptionStore.fetchSubscriptionStatus()
-
-  console.log('hasActiveSubscription', subscriptionStore.hasActiveSubscription)
-  const sessionId = route.query.session_id
-  if (sessionId) {
-    try {
-      const verified = await subscriptionStore.verifyCheckoutSession(sessionId)
-      if (verified) {
-        notify({
-          title: 'Success',
-          message: 'Premium features activated successfully',
-          type: 'success'
-        })
-        window.history.replaceState({}, document.title, route.path)
-      }
-    } catch (error) {
-      console.error('Failed to verify subscription:', error)
-    }
-  }
 })
 
-const subscriptionPlans = [
-  {
-    id: 'price_premium',
-    name: 'Premium',
-    description: 'Unlock all features',
-    price: 7,
-    features: [
-      'Unlimited transactions',
-      'Advanced analytics',
-      'Export to CSV',
-      'Priority support',
-      'Multiple users',
-      'Team analytics'
-    ]
-  }
-]
-
-const handleSubscription = async () => {
-  if (processingPayment.value || !stripe.value) return
-
-  processingPayment.value = true
-  try {
-    const response = await subscriptionStore.createSubscription()
-    if (!response.session_id) {
-      throw new Error('Unable to start subscription process. Please try again.')
-    }
-
-    const { error } = await stripe.value.redirectToCheckout({
-      sessionId: response.session_id,
-    })
-
-    if (error) {
-      throw new Error(error.message || 'An unexpected error occurred')
-    }
-  } catch (error) {
-    console.error('Subscription error:', error)
-    notify({
-      title: 'Error',
-      message: error.message || 'Failed to start subscription process',
-      type: 'error'
-    })
-  } finally {
-    processingPayment.value = false
-  }
+const handleUpgrade = () => {
+  router.push('/settings/plans')
 }
 </script>
 
