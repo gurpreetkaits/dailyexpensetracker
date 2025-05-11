@@ -1,9 +1,7 @@
 <template>
-  <div class="py-1">
-    <div class="lg:max-w-2xl lg:mx-auto">
-      <ExpenseList :expenses="expenses" :categories="allCategories" @delete="deleteExpense"
-        @add-expense="showExpenseForm = true" />
-    </div>
+  <div class="max-w-4xl mx-auto">
+    <ExpenseList :expenses="expenses" :categories="allCategories" @delete="deleteExpense"
+      @add-expense="showExpenseForm = true" />
   </div>
 
   <ExpenseForm :is-visible="showExpenseForm" :categories="allCategories" @close="showExpenseForm = false"

@@ -1,5 +1,5 @@
 <template>
-    <nav class="fixed left-0 top-16 h-full w-48 bg-white shadow p-4 flex flex-col space-y-4">
+    <nav class="h-full p-4 flex flex-col space-y-4">
         <router-link
             v-for="item in filteredNavigation"
             :key="item.path"
@@ -23,12 +23,13 @@ export default {
     data() {
         return {
             navigation: [
-                {path: '/overview', name: 'Home', icon: Home, show: true},
+                {path: '/dashboard', name: 'Dashboard', icon: Home, show: true},
+                {path: '/overview', name: 'Overview', icon: Home, show: true},
                 {path: '/stats', name: 'Stats', icon: BarChart, show: true},
                 { path: '/chat', name: 'Chat', icon: MessageCircle, show: true },
-                { path: '/plans', name: 'Plans', icon: Star },
+                { path: '/plans', name: 'Plans', icon: Star, show: true },
                 {path: '/settings', name: 'Settings', icon: Settings, show: true},
-                {path: '/dashboard', name: 'Dashboard', icon: User, show: true},
+                {path: '/admin-dashboard', name: 'Dashboard', icon: User, show: true},
                 {path: '/feedbacks', name: 'Feedback', icon: User, show: true},
             ],
         };
@@ -39,7 +40,7 @@ export default {
             return this.user?.is_admin;
         },
         filteredNavigation() {
-            const adminPaths = ['/dashboard', '/feedbacks'];
+            const adminPaths = ['/admin-dashboard', '/feedbacks'];
             return this.navigation.filter(
                 item => item.show && (this.isAdmin || !adminPaths.includes(item.path))
             );

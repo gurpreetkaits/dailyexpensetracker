@@ -250,66 +250,81 @@
           </template>
           <template v-else>
             <!-- Desktop View -->
-            <div class="hidden sm:grid sm:grid-cols-2 sm:gap-4">
-              <!-- Expenses Column -->
-              <div class="space-y-3">
-                <h3 class="text-base font-medium text-gray-900 px-1 flex items-center gap-2">
-                  <ArrowDownCircle class="h-4 w-4 text-red-500" />
-                  Expenses
+            <div class="hidden sm:block">
+              <!-- Empty State for Desktop -->
+              <div v-if="!transactions || transactions.length === 0 && !saving"
+                class="flex flex-col items-center justify-center py-12 px-4 bg-white rounded-xl shadow-sm">
+                <Receipt class="h-16 w-16 text-gray-300 mb-4" />
+                <h3 class="text-lg font-medium text-gray-900 mb-2">
+                  No Transactions
                 </h3>
-                <div v-for="transaction in filteredTransactions.filter(t => t.type === 'expense')" :key="transaction.id"
-                  class="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-all cursor-pointer"
-                  @click="editTransaction(transaction)">
-                  <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full flex items-center justify-center" :style="{
-                      backgroundColor: (transaction.category?.color + '15') || '#fee2e2',
-                      color: transaction.category?.color || '#dc2626'
-                    }">
-                      <component :is="transaction.category?.icon || 'ShoppingBag'" class="h-5 w-5" />
-                    </div>
-                    <div class="flex-1 min-w-0">
-                      <h4 class="font-medium text-gray-900 truncate">
-                        {{ transaction.category ? capitalizeFirstLetter(transaction.category.name) : transaction.note }}
-                      </h4>
-                      <p class="text-sm text-gray-500 truncate">{{ transaction.note }}</p>
-                    </div>
-                    <div class="text-right">
-                      <p class="font-medium text-red-600">
-                        -{{ formatCurrency(transaction.amount, currencyCode) }}
-                      </p>
-                      <p class="text-sm text-gray-400">{{ formatDate(transaction.transaction_date) }}</p>
+                <p class="text-gray-500 text-center text-sm mb-6 max-w-sm">
+                  Start tracking your expenses and income to get insights into your financial habits.
+                </p>
+              </div>
+
+              <!-- Desktop Grid View -->
+              <div v-else class="grid grid-cols-2 gap-4">
+                <!-- Expenses Column -->
+                <div class="space-y-3">
+                  <h3 class="text-base font-medium text-gray-900 px-1 flex items-center gap-2">
+                    <ArrowDownCircle class="h-4 w-4 text-red-500" />
+                    Expenses
+                  </h3>
+                  <div v-for="transaction in filteredTransactions.filter(t => t.type === 'expense')" :key="transaction.id"
+                    class="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-all cursor-pointer"
+                    @click="editTransaction(transaction)">
+                    <div class="flex items-center gap-3">
+                      <div class="w-10 h-10 rounded-full flex items-center justify-center" :style="{
+                        backgroundColor: (transaction.category?.color + '15') || '#fee2e2',
+                        color: transaction.category?.color || '#dc2626'
+                      }">
+                        <component :is="transaction.category?.icon || 'ShoppingBag'" class="h-5 w-5" />
+                      </div>
+                      <div class="flex-1 min-w-0">
+                        <h4 class="font-medium text-gray-900 truncate">
+                          {{ transaction.category ? capitalizeFirstLetter(transaction.category.name) : transaction.note }}
+                        </h4>
+                        <p class="text-sm text-gray-500 truncate">{{ transaction.note }}</p>
+                      </div>
+                      <div class="text-right">
+                        <p class="font-medium text-red-600">
+                          -{{ formatCurrency(transaction.amount, currencyCode) }}
+                        </p>
+                        <p class="text-sm text-gray-400">{{ formatDate(transaction.transaction_date) }}</p>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              <!-- Income Column -->
-              <div class="space-y-3">
-                <h3 class="text-base font-medium text-gray-900 px-1 flex items-center gap-2">
-                  <ArrowUpCircle class="h-4 w-4 text-green-500" />
-                  Income
-                </h3>
-                <div v-for="transaction in filteredTransactions.filter(t => t.type === 'income')" :key="transaction.id"
-                  class="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-all cursor-pointer"
-                  @click="editTransaction(transaction)">
-                  <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full flex items-center justify-center" :style="{
-                      backgroundColor: (transaction.category?.color + '15') || '#dcfce7',
-                      color: transaction.category?.color || '#16a34a'
-                    }">
-                      <component :is="transaction.category?.icon || 'CircleDollarSign'" class="h-5 w-5" />
-                    </div>
-                    <div class="flex-1 min-w-0">
-                      <h4 class="font-medium text-gray-900 truncate">
-                        {{ transaction.category ? capitalizeFirstLetter(transaction.category.name) : transaction.note }}
-                      </h4>
-                      <p class="text-sm text-gray-500 truncate">{{ transaction.note }}</p>
-                    </div>
-                    <div class="text-right">
-                      <p class="font-medium text-green-600">
-                        +{{ formatCurrency(transaction.amount, currencyCode) }}
-                      </p>
-                      <p class="text-sm text-gray-400">{{ formatDate(transaction.transaction_date) }}</p>
+                <!-- Income Column -->
+                <div class="space-y-3">
+                  <h3 class="text-base font-medium text-gray-900 px-1 flex items-center gap-2">
+                    <ArrowUpCircle class="h-4 w-4 text-green-500" />
+                    Income
+                  </h3>
+                  <div v-for="transaction in filteredTransactions.filter(t => t.type === 'income')" :key="transaction.id"
+                    class="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-all cursor-pointer"
+                    @click="editTransaction(transaction)">
+                    <div class="flex items-center gap-3">
+                      <div class="w-10 h-10 rounded-full flex items-center justify-center" :style="{
+                        backgroundColor: (transaction.category?.color + '15') || '#dcfce7',
+                        color: transaction.category?.color || '#16a34a'
+                      }">
+                        <component :is="transaction.category?.icon || 'CircleDollarSign'" class="h-5 w-5" />
+                      </div>
+                      <div class="flex-1 min-w-0">
+                        <h4 class="font-medium text-gray-900 truncate">
+                          {{ transaction.category ? capitalizeFirstLetter(transaction.category.name) : transaction.note }}
+                        </h4>
+                        <p class="text-sm text-gray-500 truncate">{{ transaction.note }}</p>
+                      </div>
+                      <div class="text-right">
+                        <p class="font-medium text-green-600">
+                          +{{ formatCurrency(transaction.amount, currencyCode) }}
+                        </p>
+                        <p class="text-sm text-gray-400">{{ formatDate(transaction.transaction_date) }}</p>
+                      </div>
                     </div>
                   </div>
                 </div>

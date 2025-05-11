@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-4xl mx-auto p-4 mb-12">
+  <div class="max-w-4xl mx-auto p-4 mb-12 min-w-full">
     <!-- Current Plan Status -->
     <div class="bg-white rounded-lg shadow mb-8">
       <div class="p-6">

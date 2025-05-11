@@ -69,12 +69,12 @@ const routes = [
     beforeEnter: requireAuth,
   },
   {
-    path: "/goals",
-    component: () => import("../views/GoalsView.vue"),
+    path: "/dashboard",
+    component: () => import("../views/DesktopDashboardView.vue"),
     beforeEnter: requireAuth,
   },
     {
-        path: "/dashboard",
+        path: "/admin-dashboard",
         component: () => import("../views/Admin/DashboardView.vue"),
         beforeEnter: requireAuth,
         meta: {

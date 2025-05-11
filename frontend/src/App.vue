@@ -2,10 +2,22 @@
     <div class="min-h-screen bg-gray-100">
     <NotificationContainer />
         <Header />
-        <DesktopNav v-if="showFooter" />
-        <main>
-            <router-view />
-        </main>
+        
+        <div class="flex min-h-[calc(100vh-4rem)]">
+            <!-- Desktop Sidebar -->
+            <aside class="hidden lg:block fixed left-0 top-16 h-[calc(100vh-4rem)] w-48 bg-white shadow">
+                <DesktopNav v-if="showFooter" />
+            </aside>
+
+            <!-- Main Content Area -->
+            <main class="flex-1 lg:ml-48 bg-gray-100">
+                <div class="px-2.5 lg:px-10 py-6">
+                    <router-view />
+                </div>
+            </main>
+        </div>
+
+        <!-- Mobile Navigation -->
         <MobileNav v-if="showFooter" />
     </div>
 </template>
@@ -50,3 +62,12 @@ export default {
   }
 }
 </script>
+
+<style>
+/* Ensure the mobile nav stays at the bottom and doesn't overlap content */
+@media (max-width: 1024px) {
+  main {
+    padding-bottom: 4rem; /* Height of mobile nav */
+  }
+}
+</style>
