@@ -106,7 +106,7 @@ class SubscriptionController extends Controller
                 if (!$subscription) {
                     // If subscription doesn't exist, create it
                     $subscription = $user->subscriptions()->create([
-                        'type' => 'pro',
+                        'name' => 'pro',
                         'stripe_id' => $session->subscription,
                         'stripe_status' => $session->subscription_status ?? 'active',
                         'stripe_price' => $session->metadata->price_id ?? null,
