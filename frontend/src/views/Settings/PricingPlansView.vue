@@ -1,15 +1,15 @@
 <template>
-  <div class="max-w-4xl mx-auto p-4 mb-12 min-w-full">
+  <div class="max-w-4xl mx-auto p-2 mb-12 min-w-full">
     <!-- Current Plan Status -->
-    <div class="bg-white rounded-lg shadow mb-8">
-      <div class="p-6">
-        <div class="flex items-center justify-between mb-6">
+    <div class="bg-white rounded-lg shadow mb-4">
+      <div class="p-4">
+        <div class="flex items-center justify-between mb-4">
           <div>
-            <h2 class="text-2xl font-semibold text-gray-900">Current Plan</h2>
-            <p class="text-gray-600 mt-1">Manage your subscription and billing</p>
+            <h2 class="text-xl font-semibold text-gray-900">Current Plan</h2>
+            <p class="text-sm text-gray-600 mt-0.5">Manage your subscription</p>
           </div>
           <div class="flex items-center gap-2">
-            <span class="px-3 py-1 rounded-full text-sm font-medium"
+            <span class="px-2 py-0.5 rounded-full text-xs font-medium"
               :class="hasActiveSubscription ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-800'">
               {{ hasActiveSubscription ? 'Pro Plan Active' : 'Basic Plan' }}
             </span>
@@ -17,20 +17,20 @@
         </div>
 
         <!-- Plan Cards -->
-        <div class="flex md:grid md:grid-cols-2 gap-4 overflow-x-auto md:overflow-visible pb-4">
+        <div class="flex flex-col md:flex-row md:grid md:grid-cols-2 gap-3">
           <!-- Basic Plan Card -->
           <div
-            class="min-w-[260px] md:min-w-0 flex-1 rounded-xl border p-6 flex flex-col justify-between mr-3 md:mr-0 bg-emerald-50"
-            :class="!hasActiveSubscription ? 'border-emerald-500 ring-2 ring-emerald-500' : 'border-gray-200'"
+            class="rounded-lg border p-4 flex flex-col justify-between bg-emerald-50 md:min-w-0"
+            :class="!hasActiveSubscription ? 'border-emerald-500 ring-1 ring-emerald-500' : 'border-gray-200'"
           >
             <div>
-              <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center justify-between mb-1">
                 <span class="text-xs font-medium text-gray-500">Basic</span>
                 <span v-if="!hasActiveSubscription" class="text-emerald-600 text-xs font-semibold">Current</span>
               </div>
-              <h3 class="text-xl font-bold text-gray-900 mb-2">Basic Plan</h3>
-              <p class="text-3xl font-bold text-gray-900 mb-4">$0<span class="text-lg font-normal text-gray-600">/month</span></p>
-              <ul class="space-y-2 text-sm text-gray-700 mb-4">
+              <h3 class="text-lg font-bold text-gray-900 mb-1">Basic Plan</h3>
+              <p class="text-2xl font-bold text-gray-900 mb-2">$0<span class="text-base font-normal text-gray-600">/month</span></p>
+              <ul class="space-y-1 text-xs text-gray-700 mb-3">
                 <li>Basic expense tracking and budgeting</li>
                 <li>Default categories</li>
                 <li>Basic monthly reports</li>
@@ -40,17 +40,17 @@
           </div>
           <!-- Pro Plan Card -->
           <div
-            class="min-w-[260px] md:min-w-0 flex-1 rounded-xl border p-6 flex flex-col justify-between bg-emerald-50"
-            :class="hasActiveSubscription ? 'border-emerald-500 ring-2 ring-emerald-200' : 'border-gray-200'"
+            class="rounded-lg border p-4 flex flex-col justify-between bg-emerald-50 md:min-w-0"
+            :class="hasActiveSubscription ? 'border-emerald-500 ring-1 ring-emerald-200' : 'border-gray-200'"
           >
             <div>
-              <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center justify-between mb-1">
                 <span class="text-xs font-medium text-emerald-700">Pro</span>
                 <span v-if="hasActiveSubscription" class="text-emerald-600 text-xs font-semibold">Current</span>
               </div>
-              <h3 class="text-xl font-bold text-gray-900 mb-2">Pro Plan</h3>
-              <p class="text-3xl font-bold text-gray-900 mb-4">$7<span class="text-lg font-normal text-gray-600">/month</span></p>
-              <ul class="space-y-2 text-sm text-gray-700 mb-4">
+              <h3 class="text-lg font-bold text-gray-900 mb-1">Pro Plan</h3>
+              <p class="text-2xl font-bold text-gray-900 mb-2">$7<span class="text-base font-normal text-gray-600">/month</span></p>
+              <ul class="space-y-1 text-xs text-gray-700 mb-3">
                 <li>AI-powered analytics</li>
                 <li>AI Chat (Know yourself better)</li>
                 <li>Custom categories</li>
@@ -61,13 +61,13 @@
             <div class="mt-2">
               <button v-if="!hasActiveSubscription"
                 @click="handleSubscription"
-                class="w-full bg-emerald-500 text-white px-4 py-2 rounded-lg hover:bg-emerald-600 transition-colors"
+                class="w-full bg-emerald-500 text-white px-3 py-1.5 text-sm rounded-lg hover:bg-emerald-600 transition-colors"
                 :disabled="processingPayment">
                 {{ processingPayment ? 'Processing...' : 'Upgrade to Pro' }}
               </button>
               <button v-else
                 @click="handleManageSubscription"
-                class="w-full bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors">
+                class="w-full bg-gray-100 text-gray-700 px-3 py-1.5 text-sm rounded-lg hover:bg-gray-200 transition-colors">
                 Manage Subscription
               </button>
             </div>
@@ -77,55 +77,55 @@
     </div>
 
     <!-- Purchase History -->
-    <div class="bg-white rounded-xl shadow p-4 mt-6 pb-24">
-      <h2 class="text-lg font-semibold text-gray-900 mb-4">Purchase History</h2>
-      <div class="overflow-x-auto">
-        <table class="w-full text-sm text-left">
+    <div class="bg-white rounded-lg shadow p-3 mt-4">
+      <h2 class="text-base font-semibold text-gray-900 mb-3">Purchase History</h2>
+      <div class="overflow-x-auto -mx-3">
+        <table class="w-full text-xs text-left">
           <thead>
             <tr class="border-b text-gray-500">
-              <th class="py-2 px-2">Plan Name</th>
-              <th class="py-2 px-2">Amount</th>
-              <th class="py-2 px-2">Purchase Date</th>
-              <th class="py-2 px-2">Status</th>
+              <th class="py-1.5 px-2">Plan</th>
+              <th class="py-1.5 px-2">Amount</th>
+              <th class="py-1.5 px-2">Date</th>
+              <th class="py-1.5 px-2">Status</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="item in subscriptionStore.subscriptionHistory" :key="item.id" class="border-b last:border-0">
-              <td class="py-2 px-2">{{ item.name || item.plan || 'Pro Plan' }}</td>
-              <td class="py-2 px-2">${{ item.price ?? 0 }}</td>
-              <td class="py-2 px-2">{{ item.created_at ? new Date(item.created_at).toLocaleDateString() : '' }}</td>
-              <td class="py-2 px-2">
+              <td class="py-1.5 px-2">{{ item.name || item.plan || 'Pro Plan' }}</td>
+              <td class="py-1.5 px-2">${{ item.price ?? 0 }}</td>
+              <td class="py-1.5 px-2">{{ item.created_at ? new Date(item.created_at).toLocaleDateString() : '' }}</td>
+              <td class="py-1.5 px-2">
                 <span :class="item.stripe_status === 'active' ? 'text-emerald-600' : 'text-gray-500'">{{ item.stripe_status }}</span>
               </td>
             </tr>
             <tr v-if="!subscriptionStore.subscriptionHistory.length">
-              <td colspan="4" class="text-center text-gray-400 py-4">No purchase history found.</td>
+              <td colspan="4" class="text-center text-gray-400 py-3">No purchase history found.</td>
             </tr>
           </tbody>
         </table>
       </div>
       <!-- Pagination Controls -->
-      <div v-if="totalPages > 1" class="mt-4 flex items-center justify-between">
-        <div class="text-sm text-gray-500">
-          Showing {{ startIndex }}-{{ endIndex }} of {{ totalItems }}
+      <div v-if="totalPages > 1" class="mt-3 flex items-center justify-between">
+        <div class="text-xs text-gray-500">
+          {{ startIndex }}-{{ endIndex }} of {{ totalItems }}
         </div>
         <div class="flex gap-1">
           <button @click="handlePageChange(currentPage - 1)"
                   :disabled="currentPage === 1"
-                  class="px-2 py-1 rounded border text-sm disabled:opacity-50"
+                  class="px-2 py-0.5 rounded border text-xs disabled:opacity-50"
                   :class="currentPage === 1 ? 'text-gray-400' : 'text-gray-700 hover:bg-gray-50'">
-            Previous
+            Prev
           </button>
           <button v-for="page in displayedPages"
                   :key="page"
                   @click="handlePageChange(page)"
-                  class="px-2 py-1 rounded border text-sm"
+                  class="px-2 py-0.5 rounded border text-xs"
                   :class="currentPage === page ? 'bg-emerald-500 text-white border-emerald-500' : 'text-gray-700 hover:bg-gray-50'">
             {{ page }}
           </button>
           <button @click="handlePageChange(currentPage + 1)"
                   :disabled="currentPage === totalPages"
-                  class="px-2 py-1 rounded border text-sm disabled:opacity-50"
+                  class="px-2 py-0.5 rounded border text-xs disabled:opacity-50"
                   :class="currentPage === totalPages ? 'text-gray-400' : 'text-gray-700 hover:bg-gray-50'">
             Next
           </button>
