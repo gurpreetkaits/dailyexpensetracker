@@ -85,7 +85,7 @@ class SubscriptionController extends Controller
     public function getSubscriptionStatus(Request $request)
     {
         $user = $request->user();
-            
+
         return response()->json([
             'hasActiveSubscription' => $user->subscribed('pro'),
             'subscription' => $user->subscription('pro'),
@@ -106,7 +106,7 @@ class SubscriptionController extends Controller
                 if (!$subscription) {
                     // If subscription doesn't exist, create it
                     $subscription = $user->subscriptions()->create([
-                        'name' => 'pro',
+                        'type' => 'pro',
                         'stripe_id' => $session->subscription,
                         'stripe_status' => $session->subscription_status ?? 'active',
                         'stripe_price' => $session->metadata->price_id ?? null,
