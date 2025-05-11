@@ -258,7 +258,7 @@ export default {
   methods: {
     async fetchData() {
       await useSettingsStore().fetchSettings()
-      await useTransactionStore().fetchTransactions({filter: 'all'})
+      await useTransactionStore().fetchTransactions('all')
     },
     async handleTransactionAdded(transaction) {
       this.showAddModal = false
