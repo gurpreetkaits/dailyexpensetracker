@@ -85,7 +85,7 @@ class SubscriptionController extends Controller
     public function getSubscriptionStatus(Request $request)
     {
         $user = $request->user();
-
+            
         return response()->json([
             'hasActiveSubscription' => $user->subscribed('pro'),
             'subscription' => $user->subscription('pro'),
@@ -186,7 +186,7 @@ class SubscriptionController extends Controller
         $user = $request->user();
 
         try {
-            $user->subscription('default')->cancel();
+            $user->subscription('pro')->cancel();
             return response()->json(['message' => 'Subscription cancelled successfully']);
         } catch (\Exception $e) {
             Log::error('Error cancelling subscription', [
@@ -202,7 +202,7 @@ class SubscriptionController extends Controller
         $user = $request->user();
 
         try {
-            $user->subscription('default')->resume();
+            $user->subscription('pro')->resume();
             return response()->json(['message' => 'Subscription resumed successfully']);
         } catch (\Exception $e) {
             Log::error('Error resuming subscription', [
