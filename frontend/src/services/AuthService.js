@@ -66,7 +66,6 @@ export const getGoogleUserInfo = async (code) => {
         return userObj.data
       } else {
         // Handle the case where userResponse or userResponse.data is undefined
-        console.error("Failed to fetch user data");
       }
     }
   } catch (e) {
