@@ -11,7 +11,7 @@
 
             <!-- Main Content Area -->
             <main class="flex-1 lg:ml-48 bg-gray-100">
-                <div class="px-2.5 lg:px-10 py-6">
+                <div class="lg:px-10 lg:py-6">
                     <router-view />
                 </div>
             </main>
