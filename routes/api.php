@@ -23,6 +23,17 @@ Route::get('/user', function (Request $request) {
 Route::middleware('auth:sanctum')->group(function () {
     //Load Stats
     Route::get('transactions/stats', [StatsController::class, 'showStats']);
+    
+    // Subscription Routes
+    Route::prefix('subscription')->group(function () {
+        Route::post('checkout', [SubscriptionController::class, 'createCheckoutSession']);
+        Route::get('status', [SubscriptionController::class, 'getSubscriptionStatus']);
+        Route::post('verify-session', [SubscriptionController::class, 'verifyCheckoutSession']);
+        Route::post('cancel', [SubscriptionController::class, 'cancelSubscription']);
+        Route::post('resume', [SubscriptionController::class, 'resumeSubscription']);
+        Route::post('payment-method', [SubscriptionController::class, 'updatePaymentMethod']);
+    });
+
     Route::delete('user-setttings/transactions/reset', [SettingsController::class, 'deleteTransactions']);
     Route::resource('settings', SettingsController::class);
     Route::resource('currencies', CurrencyController::class);
@@ -42,13 +53,6 @@ Route::middleware('auth:sanctum')->group(function () {
     // Structured Routes
     Route::get('get-transactions', [TransactionController::class, 'getTransactions']);
     Route::resource('chat', ChatController::class)->only(['index', 'store']);
-
-    // Subscription routes
-    Route::prefix('subscription')->group(function () {
-        Route::get('status', [SubscriptionController::class, 'status']);
-        Route::post('create', [SubscriptionController::class, 'create']);
-        Route::post('cancel', [SubscriptionController::class, 'cancel']);
-    });
 });
 
 // Paddle webhook route (no auth middleware)
