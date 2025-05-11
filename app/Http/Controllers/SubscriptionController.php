@@ -18,7 +18,7 @@ class SubscriptionController extends Controller
     public function createCheckoutSession(Request $request)
     {
         $user = $request->user();
-        $priceId = 'price_1RNQExSHibvmemb3Cpqa41EM';
+        $priceId = config('stripe.production_pricing_id');
 
         if (!$priceId) {
             Log::error('Missing price ID in checkout request', [
@@ -98,11 +98,11 @@ class SubscriptionController extends Controller
 
         try {
             $session = $user->stripe()->checkout->sessions->retrieve($request->get('session_id'));
-            
+
             if ($session->payment_status === 'paid') {
                 // Get the subscription from the session
                 $subscription = $user->subscriptions()->where('stripe_id', $session->subscription)->first();
-                
+
                 if (!$subscription) {
                     // If subscription doesn't exist, create it
                     $subscription = $user->subscriptions()->create([
@@ -154,7 +154,7 @@ class SubscriptionController extends Controller
                 'session_id' => $request->get('session_id'),
                 'error' => $e->getMessage()
             ]);
-            
+
             return response()->json([
                 'error' => 'Failed to verify subscription: ' . $e->getMessage()
             ], 400);
