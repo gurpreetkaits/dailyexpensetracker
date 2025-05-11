@@ -29,49 +29,30 @@ class SubscriptionController extends Controller
         }
 
         try {
-            // Verify the price exists in Stripe
-//            try {
-//                $price = Price::retrieve($priceId);
-//                Log::info('Price verified in Stripe', [
-//                    'price_id' => $priceId,
-//                    'price_details' => [
-//                        'amount' => $price->unit_amount,
-//                        'currency' => $price->currency,
-//                        'recurring' => $price->recurring
-//                    ]
-//                ]);
-//            } catch (\Stripe\Exception\InvalidRequestException $e) {
-//                Log::error('Invalid price ID', [
-//                    'price_id' => $priceId,
-//                    'error' => $e->getMessage()
-//                ]);
-//                return response()->json(['error' => 'Invalid price ID'], 400);
-//            }
-//
-//            $frontendUrl = config('app.frontend_url', 'http://localhost:5173');
-//
-//            Log::info('Creating checkout session', [
-//                'user_id' => $user->id,
-//                'price_id' => $priceId,
-//                'frontend_url' => $frontendUrl
-//            ]);
             $frontendUrl = env('FRONTEND_URL');
+            $returnUrl = $request->header('Referer') ?? $frontendUrl;
+
+            // Ensure we have a clean URL without any existing query parameters
+            $returnUrl = strtok($returnUrl, '?');
+
+
             $checkout = $user->newSubscription('default', $priceId)
-                ->allowPromotionCodes()
                 ->checkout([
-                    'success_url' => $request->header('Referer') . '?session_id={CHECKOUT_SESSION_ID}',
-                    'cancel_url' => $request->header('Referer'),
+                    'success_url' => $returnUrl . 'chat?session_id={CHECKOUT_SESSION_ID}',
+                    'cancel_url' => $returnUrl,
                     'billing_address_collection' => 'required',
                     'metadata' => [
                         'user_id' => $user->id,
-                        'price_id' => 'price_premium'
+                        'price_id' => $priceId,
+                        'return_url' => $returnUrl
                     ]
                 ]);
 
             Log::info('Stripe checkout session created successfully', [
                 'user_id' => $user->id,
                 'session_id' => $checkout->id,
-                'price_id' => $priceId
+                'price_id' => $priceId,
+                'return_url' => $returnUrl
             ]);
 
             return response()->json([
@@ -88,17 +69,6 @@ class SubscriptionController extends Controller
                 'error' => 'Payment requires additional confirmation.',
                 'payment_id' => $e->payment->id
             ], 402);
-        } catch (\Stripe\Exception\ApiErrorException $e) {
-            Log::error('Stripe API error', [
-                'user_id' => $user->id,
-                'error_type' => $e->getStripeCode(),
-                'error_message' => $e->getMessage(),
-                'http_status' => $e->getHttpStatus()
-            ]);
-
-            return response()->json([
-                'error' => 'Stripe API error: ' . $e->getMessage()
-            ], 500);
         } catch (\Exception $e) {
             Log::error('Unexpected error in checkout session creation', [
                 'user_id' => $user->id,
@@ -121,6 +91,74 @@ class SubscriptionController extends Controller
             'subscription' => $user->subscription('default'),
             'defaultPaymentMethod' => $user->defaultPaymentMethod()
         ]);
+    }
+
+    public function verifyCheckoutSession(Request $request){
+        $user = $request->user();
+
+        try {
+            $session = $user->stripe()->checkout->sessions->retrieve($request->get('session_id'));
+            
+            if ($session->payment_status === 'paid') {
+                // Get the subscription from the session
+                $subscription = $user->subscriptions()->where('stripe_id', $session->subscription)->first();
+                
+                if (!$subscription) {
+                    // If subscription doesn't exist, create it
+                    $subscription = $user->subscriptions()->create([
+                        'type' => 'default',
+                        'stripe_id' => $session->subscription,
+                        'stripe_status' => $session->subscription_status ?? 'active',
+                        'stripe_price' => $session->metadata->price_id ?? null,
+                        'quantity' => 1,
+                        'trial_ends_at' => null,
+                        'ends_at' => null,
+                    ]);
+
+                    // Create subscription items
+                    $subscription->items()->create([
+                        'stripe_id' => $session->subscription,
+                        'stripe_product' => $session->metadata->product_id ?? 'default',
+                        'stripe_price' => $session->metadata->price_id ?? null,
+                        'quantity' => 1,
+                    ]);
+                }
+
+                // Update subscription status if needed
+                if ($subscription->stripe_status !== $session->subscription_status) {
+                    $subscription->update([
+                        'stripe_status' => $session->subscription_status ?? 'active'
+                    ]);
+                }
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Subscription activated successfully!',
+                    'subscription' => [
+                        'id' => $subscription->id,
+                        'status' => $subscription->stripe_status,
+                        'price_id' => $subscription->stripe_price,
+                        'ends_at' => $subscription->ends_at,
+                        'trial_ends_at' => $subscription->trial_ends_at
+                    ]
+                ], 200);
+            }
+
+            return response()->json([
+                'error' => 'Payment not completed',
+                'status' => $session->payment_status
+            ], 400);
+        } catch (\Exception $e) {
+            Log::error('Subscription verification failed', [
+                'user_id' => $user->id,
+                'session_id' => $request->get('session_id'),
+                'error' => $e->getMessage()
+            ]);
+            
+            return response()->json([
+                'error' => 'Failed to verify subscription: ' . $e->getMessage()
+            ], 400);
+        }
     }
 
     public function handleSubscriptionSuccess(Request $request)
