@@ -3,7 +3,7 @@
     <div class="p-6 lg:ml-28 mb-10">
       <div class="bg-white rounded-lg shadow flex flex-col overflow-hidden min-w-full mx-auto min" style="height:75vh;">
         <div class="p-4 border-b border-gray-100 flex flex-col gap-2">
-          <h2 class="text-lg font-semibold text-[#10b981]">AI Chat</h2>
+          <h2 class="text-lg font-semibold text-[#10b981]">AI Chat (Beta)</h2>
         </div>
         <div class="flex-1 overflow-y-auto px-4 py-4 space-y-3">
           <div v-for="(message, index) in messages" :key="index" :class="message.sender === 'user' ? 'justify-end' : 'justify-start'" class="flex">
