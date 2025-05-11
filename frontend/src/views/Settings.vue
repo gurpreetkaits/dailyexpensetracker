@@ -161,17 +161,17 @@ export default {
         this.loading= false
       }
     },
-    handleLogout() {
-      if (!confirm('Sure!! you want to logout?')) {
-        return
-      }
-      try {
-        this.clearAuth()
-        this.$router.push('/login')
-      } catch (error) {
-        console.error('Logout failed:', error)
-      }
-    },
+      handleLogout() {
+          if (!confirm('Sure!! you want to logout?')) {
+              return
+          }
+          try {
+              this.clearAuth()
+              this.$router.push('/login')
+          } catch (error) {
+              console.error('Logout failed:', error)
+          }
+      },
     async fetchStats(page = 1) {
       this.stats = await this.loadStats(page)
     },

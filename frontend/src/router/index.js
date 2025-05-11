@@ -43,6 +43,11 @@ const routes = [
     beforeEnter: requireAuth,
   },
   {
+    path: "/chat",
+    component: () => import("../views/ChatView.vue"),
+    beforeEnter: requireAuth,
+  },
+  {
     path: "/goals",
     component: () => import("../views/GoalsView.vue"),
     beforeEnter: requireAuth,

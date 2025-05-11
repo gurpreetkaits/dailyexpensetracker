@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\GoalsController;
@@ -11,6 +12,7 @@ use App\Http\Controllers\RecurringExpenseController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\StatsController;
 use App\Http\Controllers\TransactionController;
+use App\Http\Controllers\SubscriptionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -39,7 +41,18 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Structured Routes
     Route::get('get-transactions', [TransactionController::class, 'getTransactions']);
+    Route::resource('chat', ChatController::class)->only(['index', 'store']);
+
+    // Subscription routes
+    Route::prefix('subscription')->group(function () {
+        Route::get('status', [SubscriptionController::class, 'status']);
+        Route::post('create', [SubscriptionController::class, 'create']);
+        Route::post('cancel', [SubscriptionController::class, 'cancel']);
+    });
 });
+
+// Paddle webhook route (no auth middleware)
+Route::post('paddle/webhook', [SubscriptionController::class, 'handleWebhook']);
 
 Route::post('register', [RegisteredUserController::class, 'store']);
 Route::post('login', [AuthenticatedSessionController::class, 'store']);
