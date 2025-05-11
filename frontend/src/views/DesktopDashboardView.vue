@@ -74,72 +74,19 @@
       </div>
     </div>
 
-    <!-- Filters -->
-    <div class="flex flex-wrap items-center gap-2 mb-4">
-      <div class="relative">
-        <input v-model="searchQuery" @input="handleSearch" type="text" placeholder="Search by note..."
-          class="text-xs px-2 py-1 bg-gray-50 border border-gray-200 rounded-md outline-none w-40" />
+    <!-- Filter/Add/Pagination Card Bar -->
+    <div class="bg-white rounded-xl shadow-sm px-4 py-3 mb-4 flex items-center justify-between gap-2">
+      <!-- Add Transaction Button -->
+      <div class="flex-shrink-0">
+        <button @click="openAddModal" class="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-medium px-5 py-2 rounded-lg shadow transition-all">
+          <Plus class="h-4 w-4" />
+          Add Transaction
+        </button>
       </div>
-      <select v-model="dateFilter" @change="handleDateFilter" class="text-xs bg-gray-50 border border-gray-100 rounded-lg px-2 py-1 text-gray-600">
-        <option value="Today">Today</option>
-        <option value="Weekly">This Week</option>
-        <option value="Monthly">This Month</option>
-        <option value="Yearly">This Year</option>
-      </select>
-    </div>
 
-    <!-- Add Transaction Button above table -->
-    <div class="flex items-center justify-between mb-2">
-      <h3 class="text-lg font-semibold">All Transactions</h3>
-      <button @click="openAddModal" class="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-medium px-4 py-2 rounded-lg shadow transition-all">
-        <Plus class="h-4 w-4" />
-        Add Transaction
-      </button>
-    </div>
-
-    <!-- Transactions Table with Pagination -->
-    <div class="bg-white rounded-xl shadow-sm p-4 overflow-x-auto">
-      <table class="min-w-full text-sm">
-        <thead>
-          <tr class="text-gray-500 border-b">
-            <th class="py-2 text-left font-medium">Category</th>
-            <th class="py-2 text-left font-medium">Type</th>
-            <th class="py-2 text-left font-medium">Note</th>
-            <th class="py-2 text-left font-medium">Amount</th>
-            <th class="py-2 text-left font-medium">Date</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="transaction in paginatedTransactions" :key="transaction.id" class="border-b last:border-0">
-            <td class="py-2 flex items-center gap-2">
-              <div class="w-7 h-7 rounded-full flex items-center justify-center" :style="{
-                backgroundColor: (transaction.category?.color + '15') || (transaction.type === 'income' ? '#e6ffed' : '#ffeded'),
-                color: transaction.category?.color || (transaction.type === 'income' ? '#16a34a' : '#dc2626')
-              }">
-                <component :is="transaction.category?.icon || (transaction.type === 'income' ? 'CircleDollarSign' : 'ShoppingBag')" class="h-4 w-4" />
-              </div>
-              <span>{{ transaction.category ? capitalizeFirstLetter(transaction.category.name) : '-' }}</span>
-            </td>
-            <td class="py-2">
-              <span :class="transaction.type === 'expense' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'" class="px-2 py-0.5 rounded-full text-xs capitalize">
-                {{ transaction.type }}
-              </span>
-            </td>
-            <td class="py-2">{{ transaction.note }}</td>
-            <td class="py-2">{{ formatCurrency(transaction.amount, currencyCode) }}</td>
-            <td class="py-2">{{ formatDate(transaction.transaction_date) }}</td>
-          </tr>
-          <tr v-if="paginatedTransactions.length === 0">
-            <td colspan="5" class="text-center text-gray-400 py-8">No Transactions</td>
-          </tr>
-        </tbody>
-      </table>
-      <!-- Pagination -->
-      <div v-if="totalPages > 1" class="mt-4 flex items-center justify-between">
-        <div class="text-sm text-gray-500">
-          Showing {{ startIndex }}-{{ endIndex }} of {{ totalItems }}
-        </div>
-        <div class="flex gap-1">
+      <!-- Pagination Controls -->
+      <div class="flex-shrink-0">
+        <div v-if="totalPages > 1" class="flex items-center gap-1">
           <button @click="handlePageChange(currentPage - 1)"
                   :disabled="currentPage === 1"
                   class="px-2 py-1 rounded border text-sm disabled:opacity-50"
@@ -162,6 +109,47 @@
         </div>
       </div>
     </div>
+
+    <!-- Transactions Table with Pagination -->
+    <div>
+      <div v-if="paginatedTransactions.length > 0" class="bg-white rounded-xl shadow-sm p-4 overflow-x-auto min-h-[440px]">
+        <table class="min-w-full text-sm">
+          <thead>
+            <tr class="text-gray-500 border-b">
+              <th class="py-2 text-left font-medium">Category</th>
+              <th class="py-2 text-left font-medium">Type</th>
+              <th class="py-2 text-left font-medium">Note</th>
+              <th class="py-2 text-left font-medium">Amount</th>
+              <th class="py-2 text-left font-medium">Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="transaction in paginatedTransactions" :key="transaction.id" class="border-b last:border-0">
+              <td class="py-2 flex items-center gap-2">
+                <div class="w-7 h-7 rounded-full flex items-center justify-center" :style="{
+                  backgroundColor: (transaction.category?.color + '15') || (transaction.type === 'income' ? '#e6ffed' : '#ffeded'),
+                  color: transaction.category?.color || (transaction.type === 'income' ? '#16a34a' : '#dc2626')
+                }">
+                  <component :is="transaction.category?.icon || (transaction.type === 'income' ? 'CircleDollarSign' : 'ShoppingBag')" class="h-4 w-4" />
+                </div>
+                <span>{{ transaction.category ? capitalizeFirstLetter(transaction.category.name) : '-' }}</span>
+              </td>
+              <td class="py-2">
+                <span :class="transaction.type === 'expense' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'" class="px-2 py-0.5 rounded-full text-xs capitalize">
+                  {{ transaction.type }}
+                </span>
+              </td>
+              <td class="py-2">{{ transaction.note }}</td>
+              <td class="py-2">{{ formatCurrency(transaction.amount, currencyCode) }}</td>
+              <td class="py-2">{{ formatDate(transaction.transaction_date) }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div v-else class="bg-white rounded-xl shadow-sm p-4 flex flex-col items-center justify-center min-h-[440px]">
+        <span class="text-gray-400 text-lg font-medium">No Transactions</span>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -170,7 +158,7 @@ import {
   Calendar, Trash2, Plus, Car, ReceiptIcon, Video, BriefcaseMedical, Gift, Circle, CircleEllipsis, Pizza, CircleDollarSign,
   HandCoins, Wallet, ChartCandlestick, Landmark, Citrus, ShoppingBag, House, Receipt, Clapperboard, Plane, Contact,
   Cross, ShoppingCart, Book, BriefcaseBusiness, BadgeDollarSign, Dumbbell, Sparkle, SearchIcon, CircleDot, CircleX,
-  TrendingUp, TrendingDown, ArrowUpCircle, ArrowDownCircle, PiggyBank, CalendarClock, RepeatIcon
+  TrendingUp, TrendingDown, ArrowUpCircle, ArrowDownCircle, PiggyBank, CalendarClock, RepeatIcon, ChevronLeft, ChevronRight
 } from 'lucide-vue-next'
 import AddTransaction from '../components/AddTransaction.vue'
 import { Dialog, DialogPanel, TransitionRoot, TransitionChild } from '@headlessui/vue'
@@ -185,16 +173,16 @@ export default {
     Calendar, Trash2, Plus, Car, ReceiptIcon, Video, BriefcaseMedical, Gift, Circle, CircleEllipsis, Pizza, CircleDollarSign,
     HandCoins, Wallet, ChartCandlestick, Landmark, Citrus, ShoppingBag, House, Receipt, Clapperboard, Plane, Contact,
     Cross, ShoppingCart, Book, BriefcaseBusiness, BadgeDollarSign, Dumbbell, Sparkle, SearchIcon, CircleDot, CircleX,
-    TrendingUp, TrendingDown, ArrowUpCircle, ArrowDownCircle, PiggyBank, CalendarClock, RepeatIcon
+    TrendingUp, TrendingDown, ArrowUpCircle, ArrowDownCircle, PiggyBank, CalendarClock, RepeatIcon, ChevronLeft, ChevronRight
   },
   data() {
     return {
       showAddModal: false,
       editingTransaction: null,
       searchQuery: '',
-      dateFilter: 'Today',
       currentPage: 1,
-      itemsPerPage: 10
+      itemsPerPage: 10,
+      saving: false
     }
   },
   computed: {
@@ -270,12 +258,12 @@ export default {
   methods: {
     async fetchData() {
       await useSettingsStore().fetchSettings()
-      await useTransactionStore().fetchTransactions(this.dateFilter)
+      await useTransactionStore().fetchTransactions()
     },
     async handleTransactionAdded(transaction) {
       this.showAddModal = false
       await useTransactionStore().addTransaction(transaction)
-      await useTransactionStore().fetchTransactions(this.dateFilter)
+      await this.fetchData()
     },
     openAddModal() {
       this.editingTransaction = null
@@ -284,12 +272,6 @@ export default {
     closeModal() {
       this.showAddModal = false
       this.editingTransaction = null
-    },
-    async handleSearch() {
-      await useTransactionStore().searchTransactions(this.searchQuery, this.dateFilter)
-    },
-    async handleDateFilter() {
-      await useTransactionStore().fetchTransactions(this.dateFilter)
     },
     handlePageChange(page) {
       if (page < 1 || page > this.totalPages) return
@@ -313,10 +295,11 @@ export default {
       return str.charAt(0).toUpperCase() + str.slice(1)
     }
   },
-  watch: {
-    dateFilter: {
-      immediate: true,
-      handler: 'fetchData'
+  async created() {
+    try {
+      await this.fetchData()
+    } catch (error) {
+      console.error('Error loading transactions:', error)
     }
   }
 }

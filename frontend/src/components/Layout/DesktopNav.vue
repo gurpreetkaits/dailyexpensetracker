@@ -23,8 +23,8 @@ export default {
     data() {
         return {
             navigation: [
-                {path: '/dashboard', name: 'Dashboard', icon: Home, show: true},
-                {path: '/overview', name: 'Overview', icon: Home, show: true},
+                {path: '/dashboard', name: 'Overview', icon: Home, show: true},
+                // {path: '/overview', name: 'Overview', icon: Home, show: true},
                 {path: '/stats', name: 'Stats', icon: BarChart, show: true},
                 { path: '/chat', name: 'Chat', icon: MessageCircle, show: true },
                 { path: '/plans', name: 'Plans', icon: Star, show: true },
