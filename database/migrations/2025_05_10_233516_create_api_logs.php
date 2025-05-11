@@ -16,10 +16,10 @@ return new class extends Migration
             $table->string('url');
             $table->string('method');
             $table->string('status');
-            $table->string('request_headers')->nullable();
-            $table->string('request_body')->nullable();
-            $table->string('response_headers')->nullable();
-            $table->string('response_body')->nullable();
+            $table->text('request_headers')->nullable();
+            $table->text('request_body')->nullable();
+            $table->text('response_headers')->nullable();
+            $table->text('response_body')->nullable();
             $table->string('user_id')->nullable();
             $table->timestamps();
         });
