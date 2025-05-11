@@ -1,9 +1,7 @@
 import axiosConf from "../config/axiosConf.js";
 
 export const createSubscription = async () => {
-  const { data } = await axiosConf.post("/api/subscription/checkout", {
-    price_id: 's'
-  });
+  const { data } = await axiosConf.post("/api/subscription/checkout");
   return data;
 };
 

@@ -56,7 +56,10 @@ onMounted(async () => {
   // Initialize Stripe
   stripe.value = await loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY)
 
+  // Always fetch latest subscription status
+  await subscriptionStore.fetchSubscriptionStatus()
 
+  console.log('hasActiveSubscription', subscriptionStore.hasActiveSubscription)
   const sessionId = route.query.session_id
   if (sessionId) {
     try {
@@ -72,9 +75,6 @@ onMounted(async () => {
     } catch (error) {
       console.error('Failed to verify subscription:', error)
     }
-  } else {
-    // Regular subscription status check
-    await subscriptionStore.fetchSubscriptionStatus()
   }
 })
 

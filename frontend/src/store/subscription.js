@@ -1,11 +1,11 @@
 import { defineStore } from 'pinia'
-import { 
-  createSubscription, 
-  getSubscriptionStatus, 
-  cancelSubscription, 
-  resumeSubscription, 
+import {
+  createSubscription,
+  getSubscriptionStatus,
+  cancelSubscription,
+  resumeSubscription,
   updatePaymentMethod,
-  verifyCheckoutSession 
+  verifyCheckoutSession
 } from '../services/SubscriptionService'
 import { useNotifications } from '../composables/useNotifications'
 
@@ -20,17 +20,17 @@ export const useSubscriptionStore = defineStore('subscription', {
   getters: {
     hasActiveSubscription: (state) => {
       if (!state.subscription) return false
-      return ['active', 'trialing'].includes(state.subscription.status)
+      return ['active', 'trialing'].includes(state.subscription.stripe_status)
     },
-    
+
     subscriptionStatus: (state) => {
       return state.subscription?.status
     },
-    
+
     defaultPaymentMethod: (state) => {
       return state.subscription?.defaultPaymentMethod
     },
-    
+
     isSessionVerified: (state) => {
       return state.sessionVerified
     }
@@ -39,15 +39,15 @@ export const useSubscriptionStore = defineStore('subscription', {
   actions: {
     async verifyCheckoutSession(sessionId) {
       if (!sessionId) return false
-      
+
       this.loading = true
       this.error = null
       const { notify } = useNotifications()
-      
+
       try {
         const response = await verifyCheckoutSession(sessionId)
-        if (response.data.success) {
-          this.subscription = response.data.subscription
+        if (response.success) {
+          this.subscription = response?.subscription
           this.sessionVerified = true
           notify({
             title: 'Success',
@@ -74,10 +74,10 @@ export const useSubscriptionStore = defineStore('subscription', {
     async fetchSubscriptionStatus() {
       this.loading = true
       this.error = null
-      
+
       try {
         const response = await getSubscriptionStatus()
-        this.subscription = response.data.subscription
+        this.subscription = response.subscription
         this.sessionVerified = true
       } catch (error) {
         this.error = error.message
@@ -90,7 +90,7 @@ export const useSubscriptionStore = defineStore('subscription', {
     async createSubscription() {
       this.loading = true
       this.error = null
-      
+
       try {
         const response = await createSubscription()
         console.log('Subscription response:', response)
@@ -113,7 +113,7 @@ export const useSubscriptionStore = defineStore('subscription', {
       this.loading = true
       this.error = null
       const { notify } = useNotifications()
-      
+
       try {
         await cancelSubscription()
         await this.fetchSubscriptionStatus()
@@ -139,7 +139,7 @@ export const useSubscriptionStore = defineStore('subscription', {
       this.loading = true
       this.error = null
       const { notify } = useNotifications()
-      
+
       try {
         await resumeSubscription()
         await this.fetchSubscriptionStatus()
@@ -165,7 +165,7 @@ export const useSubscriptionStore = defineStore('subscription', {
       this.loading = true
       this.error = null
       const { notify } = useNotifications()
-      
+
       try {
         await updatePaymentMethod(paymentMethodId)
         await this.fetchSubscriptionStatus()
