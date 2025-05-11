@@ -1,4 +1,3 @@
-
 //TODO: Only enable admin routes available after on check of admin _ROLE
 
 import { createRouter, createWebHistory } from "vue-router";
@@ -36,6 +35,28 @@ const routes = [
     path: "/settings",
     component: () => import("../views/Settings.vue"),
     beforeEnter: requireAuth,
+    children: [
+      {
+        path: "",
+        component: () => import("../views/Settings.vue"),
+        beforeEnter: requireAuth
+      },
+      {
+        path: "account",
+        component: () => import("../views/Settings/AccountSettings.vue"),
+        beforeEnter: requireAuth
+      }
+    ]
+  },
+  {
+    path: "/categories",
+    component: () => import("../views/Settings/CategoriesView.vue"),
+    beforeEnter: requireAuth
+  },
+  {
+    path: "/plans",
+    component: () => import("../views/Settings/PricingPlansView.vue"),
+    beforeEnter: requireAuth
   },
   {
     path: "/stats",

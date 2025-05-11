@@ -40,7 +40,7 @@
         <!-- Enhanced Date Input -->
         <div class="grid grid-cols-2 gap-2">
             <div>
-                <CategorySearch v-model="category" :selectableCategory="editableCategory" />
+                <CategorySearch v-model="category" :selectableCategory="editableCategory" :formType="type" />
             </div>
             <div>
                 <label class="text-xs font-medium text-gray-600">Transaction Date</label>

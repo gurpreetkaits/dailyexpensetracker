@@ -2,10 +2,20 @@
 import { defineStore } from "pinia";
 import axios from "../config/axiosConf";
 import { getCategories } from "../services/SettingsService";
+import { getUserCategories } from "../services/CategoryService";
 
 export const useCategoryStore = defineStore("category", {
     state: () => ({
         categories: [],
+        allCategories: [],
+        pagination: {
+            current_page: 1,
+            per_page: 10,
+            total: 0,
+            last_page: 1,
+            from: 1,
+            to: 1
+        },
         loading: false,
         error: null,
         selectedCategory: null
@@ -23,16 +33,24 @@ export const useCategoryStore = defineStore("category", {
     },
 
     actions: {
-        async fetchCategories() {
+        async fetchCategories(page = 1) {
             this.loading = true;
             try {
-                const data  = await getCategories();
-                this.categories = data;
-                return data;
+                const response = await getUserCategories(page);
+                this.categories = response.data;
+                this.pagination = {
+                    current_page: response.data.current_page,
+                    per_page: response.data.per_page,
+                    total: response.data.total,
+                    last_page: response.data.last_page,
+                    from: response.data.from,
+                    to: response.data.to
+                };
+                return response.data;
             } catch (error) {
                 this.error = error.message;
                 console.error("Error fetching categories:", error);
-                return [];
+                return null;
             } finally {
                 this.loading = false;
             }

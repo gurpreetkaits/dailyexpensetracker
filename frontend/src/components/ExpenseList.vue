@@ -368,7 +368,7 @@
 
     <!-- Floating Action Button -->
     <button @click="createNewTransaction"
-      class="fixed bottom-[80px] left-1/2 transform -translate-x-1/2 inline-flex items-center justify-center w-14 h-14 rounded-full bg-blue-500 text-white shadow-xl hover:bg-blue-600 hover:shadow-2xl transition-all">
+      class="fixed bottom-[80px] left-1/2 transform -translate-x-1/2 inline-flex items-center justify-center w-14 h-14 rounded-full bg-emerald-500 text-white shadow-xl hover:bg-emerald-600 hover:shadow-2xl transition-all">
       <Plus class="h-6 w-6" />
     </button>
     <!-- Start Desktop Model -->

@@ -21,7 +21,7 @@
 
         <!-- Dropdown -->
         <div v-show="showCategoryDropdown"
-            class="absolute w-full mt-1 bg-white border rounded-md shadow-lg max-h-60 overflow-y-auto z-10">
+            class="absolute w-full mt-1 bg-white border rounded-md shadow-lg max-h-48 overflow-y-auto z-20">
             <div v-if="loading" class="px-3 py-2 text-gray-500 flex items-center justify-center">
                 <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900"></div>
                 <span class="ml-2">Loading categories...</span>
@@ -51,6 +51,7 @@ import {
 } from 'lucide-vue-next'
 import { useCategoryStore } from '../store/category'
 import { numberMixin } from '../mixins/numberMixin';
+import { useSettingsStore } from '../store/settings';
 const iconMap = {
     Wallet, HandCoins, ChartCandlestick, Landmark, Citrus,
     ShoppingBag, House, Receipt, Clapperboard, Plane, Contact,
@@ -76,13 +77,18 @@ export default {
             type: [Object, String],
             default: null,
             required: false
+        },
+        formType: {
+            type: String,
+            default: 'expense',
+            required: false
         }
     },
 
     data() {
-        const store = useCategoryStore();
+        const settingStore = useSettingsStore();
         return {
-            store,
+            settingStore,
             categorySearch: '',
             showCategoryDropdown: false,
             selectedCategory: null
@@ -91,11 +97,11 @@ export default {
 
     computed: {
         categories() {
-            return this.store.categories;
+            return this.settingStore.categories;
         },
 
         loading() {
-            return this.store.loading;
+            return this.settingStore.loading;
         },
 
         filteredCategories() {
@@ -104,9 +110,10 @@ export default {
 
             return this.categories.map(cat => ({
                 ...cat,
-                icon: iconMap[cat.icon]  // Map string icon name to actual component
+                icon: iconMap[cat.icon]
             })).filter(category =>
-                category.name.toLowerCase().includes(this.categorySearch.toLowerCase())
+                category.name.toLowerCase().includes(this.categorySearch.toLowerCase()) &&
+                category.type.toLowerCase() === this.formType.toLowerCase()
             );
         }
     },
@@ -148,16 +155,22 @@ export default {
 
         async loadCategories() {
             try {
-                await this.store.fetchCategories();
+                const categories = await this.settingStore.fetchCategories();
+                console.log("categories", categories)
+                if (!categories || categories.length === 0) {
+                    console.warn('CategorySearch: No categories received');
+                }
             } catch (error) {
-                console.error('Error loading categories:', error);
+                console.error('CategorySearch: Error loading categories:', error);
             }
         }
     },
 
     async created() {
+        console.log('CategorySearch: Component created');
         await this.loadCategories();
         if (this.selectableCategory) {
+            console.log('CategorySearch: Setting selectable category:', this.selectableCategory);
             this.selectedCategory = this.selectableCategory;
             this.categorySearch = this.selectableCategory.name;
         }

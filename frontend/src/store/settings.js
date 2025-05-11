@@ -4,6 +4,7 @@ import {
   saveSettings,
   getSettings,
   getStats,
+  getCategories,
 } from "../services/SettingsService";
 import { useAuthStore } from "./auth";
 
@@ -101,15 +102,13 @@ export const useSettingsStore = defineStore("settings", {
     },
 
     async fetchCategories() {
-      if (this.isLoaded) return;
-
       this.loading = true;
       try {
-        const { data } = await this.fetchCategories();
-        this.categories = data;
-        return data;
+        const response = await getCategories();
+        this.categories = response;
       } catch (error) {
-        console.error("Error fetching settings:", error);
+        console.error("Error fetching categories:", error);
+        throw error; // Re-throw to handle in component
       } finally {
         this.loading = false;
       }

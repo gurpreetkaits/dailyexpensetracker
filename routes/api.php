@@ -23,7 +23,7 @@ Route::get('/user', function (Request $request) {
 Route::middleware('auth:sanctum')->group(function () {
     //Load Stats
     Route::get('transactions/stats', [StatsController::class, 'showStats']);
-    
+
     // Subscription Routes
     Route::prefix('subscription')->group(function () {
         Route::post('checkout', [SubscriptionController::class, 'createCheckoutSession']);
@@ -42,7 +42,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('transactions/search', [TransactionController::class, 'search']);
     });
     Route::resource('recurring-expenses', RecurringExpenseController::class);
-    Route::get('categories', [CategoryController::class, 'index']);
     Route::get('stats', [StatsController::class, 'index']);
     Route::resource('goals', GoalsController::class);
     Route::patch('goals/{goal}/progress', [GoalsController::class, 'updateProgress']);
@@ -53,10 +52,15 @@ Route::middleware('auth:sanctum')->group(function () {
     // Structured Routes
     Route::get('get-transactions', [TransactionController::class, 'getTransactions']);
     Route::resource('chat', ChatController::class)->only(['index', 'store']);
+
+    //premium features
+    Route::resource('categories', CategoryController::class);
+    Route::get('user-categories', [CategoryController::class, 'getUserCategories']);
+
 });
 
 // Paddle webhook route (no auth middleware)
-Route::post('paddle/webhook', [SubscriptionController::class, 'handleWebhook']);
+//Route::post('paddle/webhook', [SubscriptionController::class, 'handleWebhook']);
 
 Route::post('register', [RegisteredUserController::class, 'store']);
 Route::post('login', [AuthenticatedSessionController::class, 'store']);

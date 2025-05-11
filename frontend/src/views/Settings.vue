@@ -7,205 +7,133 @@
     </div>
 
     <template v-else>
-    <div class="bg-white rounded-lg shadow mb-6">
-        <div class="p-4 border-b">
-            <h2 class="text-lg font-semibold">General Settings</h2>
-        </div>
-        <div class="p-4 space-y-4">
-            <!-- Currency Setting -->
-            <div class="p-4 space-y-4">
-                <!-- Currency Setting -->
-                <div class="flex items-center justify-between">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Currency</label>
-                        <p class="text-sm text-gray-500">Select your preferred currency</p>
-                    </div>
-                    <div class="ml-4 w-full max-w-sm">
-                        <select v-model="selectedCurrency"
-                                class="rounded-md border border-gray-300 p-2 w-full">
-                            <option v-for="curr in currencies" :key="curr.code" :value="curr.code">
-                                {{ curr.code }} - {{ curr.name }} ({{ curr.symbol }})
-                            </option>
-                        </select>
-                    </div>
+      <!-- Show main settings menu only when not in a sub-route -->
+      <template v-if="$route.path === '/settings'">
+        <!-- Account Settings -->
+        <div class="bg-white rounded-lg shadow mb-6">
+          <div class="p-4 border-b">
+            <h2 class="text-lg font-semibold text-gray-800">Account</h2>
+          </div>
+          <div class="p-4">
+            <div class="space-y-4">
+              <router-link to="/settings/account" class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                <div class="flex items-center gap-3">
+                  <div class="p-2 bg-blue-100 rounded-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 class="font-medium text-gray-900">Account Settings</h3>
+                    <p class="text-sm text-gray-500">Manage your preferences and feedback</p>
+                  </div>
                 </div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </router-link>
             </div>
-            <div class="flex justify-start">
-                <button @click="handleSaveSettings"
-                        class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg flex items-center gap-2 disabled:opacity-50"
-                        :disabled="isSaving">
-          <span v-if="isSaving"
-                class="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                    {{ isSaving ? 'Saving...' : 'Save' }}
-                </button>
+          </div>
+        </div>
 
-            </div>
-        </div>
-    </div>
-      <div class="bg-white rounded-lg shadow mb-6">
-        <div class="p-4 border-b">
-            <h2 class="text-lg font-semibold ">Feedback</h2>
-        </div>
-        <div class="p-4">
-           <Feedback />
-        </div>
-    </div>
-      <div class="bg-white rounded-lg shadow mb-6">
-        <div class="p-4 border-b">
-          <h2 class="text-lg font-semibold text-red-600">Danger Zone</h2>
-        </div>
-        <div class="p-4">
-          <button @click="showResetDialog = true"
-                  class="bg-red-50  text-red-500 hover:bg-red-100 px-4 py-2 rounded-lg flex items-center gap-2">
-            Reset All Transactions
-          </button>
-          <div class="mt-4">
-            <button @click="handleLogout"
-                    class="bg-red-50  text-red-500 hover:bg-red-100 px-4 py-2 rounded-lg flex items-center gap-2">
-              <span>Log Out</span>
-            </button>
+        <!-- Premium Features -->
+        <div class="bg-white rounded-lg shadow mb-6">
+          <div class="p-4 border-b">
+            <h2 class="text-lg font-semibold text-emerald-600">Premium Features</h2>
           </div>
-          <div v-if="showResetDialog" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-            <div class="bg-white p-6 rounded-lg max-w-md">
-              <h3 class="text-lg font-bold mb-2">Are you sure?</h3>
-              <p class="text-gray-600 mb-4">This action cannot be undone. This will permanently delete all your transaction history.</p>
-              <div class="flex justify-end gap-2">
-                <button @click="showResetDialog = false"
-                        class="px-4 py-2 border rounded-lg hover:bg-gray-100">
-                  Cancel
-                </button>
-                <button @click="handleReset"
-                        class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
-                  Reset Transactions
-                </button>
+          <div class="p-4">
+            <div class="space-y-4">
+              <!-- Categories Management -->
+              <router-link to="/categories" class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                <div class="flex items-center gap-3">
+                  <div class="p-2 bg-emerald-100 rounded-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 class="font-medium text-gray-900">Custom Categories</h3>
+                    <p class="text-sm text-gray-500">Manage your custom expense categories</p>
+                  </div>
+                </div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </router-link>
+
+              <!-- Multi Wallet Management -->
+              <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div class="flex items-center gap-3">
+                  <div class="p-2 bg-emerald-100 rounded-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 class="font-medium text-gray-900">Multi Wallet</h3>
+                    <p class="text-sm text-gray-500">Manage multiple wallets and accounts</p>
+                    <span class="inline-block mt-1 px-2 py-0.5 text-xs font-medium bg-emerald-100 text-emerald-800 rounded-full">Coming Soon</span>
+                  </div>
+                </div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
               </div>
+
+              <!-- Upgrade to Pro -->
+              <router-link to="/plans" class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                <div class="flex items-center gap-3">
+                  <div class="p-2 bg-emerald-100 rounded-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 class="font-medium text-gray-900">Active Plans</h3>
+                    <p class="text-sm text-gray-500">See all premium features</p>
+                  </div>
+                </div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </router-link>
             </div>
           </div>
         </div>
-      </div>
-      <div class="bg-white rounded-lg shadow mb-6">
-        <div class="p-4 border-b">
-          <h2 class="text-lg font-semibold">Sponsor My Work</h2>
+
+        <!-- Sponsor Section -->
+        <div class="bg-white rounded-lg shadow mb-6">
+          <div class="p-4 border-b">
+            <h2 class="text-lg font-semibold">Sponsor My Work</h2>
+          </div>
+          <div class="p-4 flex flex-col items-center">
+            <p class="mb-3 text-gray-700 text-center">
+              If this app saves you time or helps you manage your money, you can support its development!
+            </p>
+            <a href="https://buymeacoffee.com/gurpreetkash" target="_blank" rel="noopener"
+               class="inline-block bg-yellow-400 hover:bg-yellow-500 text-white font-bold py-2 px-6 rounded-lg text-lg transition-colors">
+              🍕 Buy Me a Pizza
+            </a>
+          </div>
         </div>
-        <div class="p-4 flex flex-col items-center">
-          <p class="mb-3 text-gray-700 text-center">
-            If this app saves you time or helps you manage your money, you can support its development!
-          </p>
-          <a href="https://buymeacoffee.com/gurpreetkash" target="_blank" rel="noopener"
-             class="inline-block bg-yellow-400 hover:bg-yellow-500 text-white font-bold py-2 px-6 rounded-lg text-lg transition-colors">
-            🍕 Buy Me a Pizza
-          </a>
-        </div>
-      </div>
+      </template>
+
+      <!-- Router view for nested routes -->
+      <router-view v-else></router-view>
     </template>
   </div>
 </template>
 
 <script>
-
-import { mapActions, mapState } from 'pinia';
-import {fetchCurrencies, resetUserTransactions} from '../services/SettingsService'
-import { useSettingsStore } from '../store/settings';
-import { LogOut, ChevronRight } from 'lucide-vue-next';
-import DashboardView from './Admin/DashboardView.vue'
-import {useAuthStore} from "../store/auth.js";
-import Feedback from "../components/Settings/Feedback.vue";
+import { ref } from 'vue'
 
 export default {
   name: 'Settings',
-  data() {
+  setup() {
+    const loading = ref(false)
     return {
-      isSaving: false,
-      loading: false,
-      currencies: [],
-      selectedCurrency: '',
-      reminder: false,
-      stats: '',
-      showResetDialog: false,
-      income: 0,
+      loading
     }
-  },
-  watch: {
-    stats: {
-      immediate: true,
-      deep: true,
-      handler(newStats) {
-        this.stats = newStats
-      }
-    }
-  },
-  components: {
-      Feedback,
-    LogOut, DashboardView
-  },
-  computed: {
-    ...mapState(useSettingsStore, ['currency', 'billReminders','userIncome']),
-    isStats() {
-      return this.stats[1]?.data?.length > 0
-    },
-    getStats() {
-      return this.stats
-    }
-  },
-  methods: {
-    ...mapActions(useSettingsStore, ['addSettings', 'fetchSettings', 'loadStats']),
-  ...mapActions(useAuthStore, ['getAuth', 'clearAuth']),
-    async handleReset() {
-      this.loading = true
-      try {
-        await resetUserTransactions();
-        this.showResetDialog = false;
-      } catch (error) {
-        console.error(error);
-      } finally {
-        this.loading= false
-      }
-    },
-      handleLogout() {
-          if (!confirm('Sure!! you want to logout?')) {
-              return
-          }
-          try {
-              this.clearAuth()
-              this.$router.push('/login')
-          } catch (error) {
-              console.error('Logout failed:', error)
-          }
-      },
-    async fetchStats(page = 1) {
-      this.stats = await this.loadStats(page)
-    },
-  async handleSaveSettings() {
-      try {
-          this.isSaving = true
-          let params = {
-              reminders: this.reminder,
-              currency_code: this.selectedCurrency,
-              income: this.income
-          }
-          await this.addSettings(params)
-      } catch (e) {
-          console.log(e)
-      } finally {
-          this.isSaving = false
-      }
-  },
-  },
-  async created() {
-    try {
-      this.loading = true
-      this.currencies = await fetchCurrencies()
-        console.log(this.currencies)
-      await this.fetchSettings()
-      this.selectedCurrency = this.currency
-      this.reminder = Boolean(this.billReminders)
-      this.income = this.userIncome
-      await this.fetchStats()
-    } catch (error) {
-      console.log(error)
-    } finally {
-      this.loading = false
-    }
-  },
+  }
 }
 </script>

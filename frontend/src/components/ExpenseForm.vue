@@ -3,30 +3,40 @@
       <div class="bg-white rounded-lg w-full max-w-sm shadow-xl">
         <!-- Header -->
         <div class="p-4 border-b flex justify-between items-center bg-gray-50 rounded-t-lg">
-          <h2 class="text-base font-semibold text-gray-700">Add New Expense</h2>
-          <button 
-            @click="$emit('close')" 
+          <h2 class="text-base font-semibold text-gray-700">Add New Transaction</h2>
+          <button
+            @click="$emit('close')"
             class="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100 transition-colors"
           >
             <X class="h-4 w-4" />
           </button>
         </div>
-  
+
         <!-- Form -->
         <form @submit.prevent="handleSubmit" class="p-4 space-y-4">
-          <!-- Name Input -->
+          <!-- Type Selection -->
           <div class="space-y-1">
-            <label class="text-xs font-medium text-gray-600">Expense Name</label>
-            <input
-              v-model="form.name"
-              type="text"
-              class="w-full p-2.5 text-sm border rounded-md bg-gray-50 focus:bg-white 
-                     focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-              placeholder="e.g., Netflix, Rent, Phone Bill"
-              required
-            />
+            <label class="text-xs font-medium text-gray-600">Type</label>
+            <div class="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                @click="form.type = 'expense'"
+                class="p-2 text-sm rounded-md transition-colors"
+                :class="form.type === 'expense' ? 'bg-red-50 text-red-600' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'"
+              >
+                Expense
+              </button>
+              <button
+                type="button"
+                @click="form.type = 'income'"
+                class="p-2 text-sm rounded-md transition-colors"
+                :class="form.type === 'income' ? 'bg-green-50 text-green-600' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'"
+              >
+                Income
+              </button>
+            </div>
           </div>
-  
+
           <!-- Amount Input -->
           <div class="space-y-1">
             <label class="text-xs font-medium text-gray-600">Amount</label>
@@ -43,7 +53,7 @@
               />
             </div>
           </div>
-  
+
           <!-- Category Select -->
           <div class="space-y-1">
             <label class="text-xs font-medium text-gray-600">Category</label>
@@ -54,29 +64,41 @@
               required
             >
               <option value="" disabled>Select a category</option>
-              <option 
-                v-for="category in categories" 
-                :key="category.id" 
-                :value="category.id"
-                class="py-1"
-              >
-                {{ category.name }}
-              </option>
+                <option
+                  v-for="category in filteredCategories"
+                  :key="category.id"
+                  :value="category.id"
+                  class="py-1"
+                >
+                  {{ category.name }}
+                </option>
             </select>
           </div>
-  
+
+          <!-- Note Input -->
+          <div class="space-y-1">
+            <label class="text-xs font-medium text-gray-600">Note (Optional)</label>
+            <input
+              v-model="form.note"
+              type="text"
+              class="w-full p-2.5 text-sm border rounded-md bg-gray-50 focus:bg-white
+                     focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              placeholder="Add a note..."
+            />
+          </div>
+
           <!-- Date Input -->
           <div class="space-y-1">
-            <label class="text-xs font-medium text-gray-600">Start Date</label>
+            <label class="text-xs font-medium text-gray-600">Date</label>
             <input
-              v-model="form.startDate"
+              v-model="form.date"
               type="date"
               class="w-full p-2.5 text-sm border rounded-md bg-gray-50 focus:bg-white
                      focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
               required
             />
           </div>
-  
+
           <!-- Action Buttons -->
           <div class="flex gap-3 pt-2">
             <button
@@ -90,59 +112,62 @@
             </button>
             <button
               type="submit"
-              class="flex-1 py-2.5 px-4 text-sm bg-blue-500 text-white rounded-md 
-                     hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 
+              class="flex-1 py-2.5 px-4 text-sm bg-emerald-500 text-white rounded-md
+                     hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500
                      focus:ring-offset-2 transition-colors"
             >
-              Save Expense
+              Save Transaction
             </button>
           </div>
         </form>
       </div>
     </div>
   </template>
-  
+
   <script setup>
-  import { reactive } from 'vue'
+  import { reactive, computed } from 'vue'
   import { X, DollarSign } from 'lucide-vue-next'
-  
+
   const props = defineProps({
     isVisible: Boolean,
     categories: {
       type: Array,
-      default: () => [
-        { id: 'subscriptions', name: 'Subscriptions' },
-        { id: 'utilities', name: 'Utilities' },
-        { id: 'rent', name: 'Rent/Mortgage' },
-        { id: 'transport', name: 'Transportation' },
-        { id: 'emi', name: 'EMI' },
-        { id: 'other', name: 'Other' }
-      ]
+      required: true
     }
   })
-  
+
   const emit = defineEmits(['close', 'save'])
-  
+
   const form = reactive({
-    name: '',
+    type: 'expense',
     amount: '',
     category: '',
-    recurrence: 'monthly',
-    startDate: ''
+    note: '',
+    date: new Date().toISOString().split('T')[0]
   })
-  
+
+  const filteredCategories = computed(() => {
+    console.log("filteredCategories", props.categories)
+    return props.categories.filter(cat => cat.type.toLowerCase() === form.type.toLowerCase())
+  })
+
   const handleSubmit = () => {
-    emit('save', { ...form, amount: parseFloat(form.amount) })
+    emit('save', {
+      ...form,
+      amount: parseFloat(form.amount),
+      transaction_date: form.date
+    })
+    // Reset form
     Object.assign(form, {
-      name: '',
+      type: 'expense',
       amount: '',
       category: '',
-      recurrence: 'monthly',
-      startDate: ''
+      note: '',
+      date: new Date().toISOString().split('T')[0]
     })
   }
   </script>
-  
+
   <style scoped>
   input[type="date"]::-webkit-calendar-picker-indicator {
     cursor: pointer;
@@ -150,8 +175,18 @@
     margin-right: -4px;
     opacity: 0.6;
   }
-  
+
   input[type="date"]::-webkit-calendar-picker-indicator:hover {
     opacity: 1;
+  }
+
+  optgroup {
+    font-weight: 600;
+    color: #374151;
+  }
+
+  optgroup option {
+    font-weight: normal;
+    padding-left: 1rem;
   }
   </style>

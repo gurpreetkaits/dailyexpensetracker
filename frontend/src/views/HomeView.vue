@@ -1,33 +1,42 @@
 <template>
   <div class="py-1">
     <div class="lg:max-w-2xl lg:mx-auto">
-      <ExpenseList :expenses="expenses" :categories="categories" @delete="deleteExpense"
+      <ExpenseList :expenses="expenses" :categories="allCategories" @delete="deleteExpense"
         @add-expense="showExpenseForm = true" />
     </div>
   </div>
 
-  <ExpenseForm :is-visible="showExpenseForm" :categories="categories" @close="showExpenseForm = false"
+  <ExpenseForm :is-visible="showExpenseForm" :categories="allCategories" @close="showExpenseForm = false"
     @save="addExpense" />
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useLocalStorage } from '@vueuse/core'
 import ExpenseForm from '../components/ExpenseForm.vue'
 import ExpenseList from '../components/ExpenseList.vue'
+import { getCategories } from '../services/SettingsService'
 
 const showExpenseForm = ref(false)
+const globalCategories = ref([])
+const userCategories = ref([])
 
-const categories = [
-  { id: 'subscriptions', name: 'Subscriptions' },
-  { id: 'utilities', name: 'Utilities' },
-  { id: 'rent', name: 'Rent/Mortgage' },
-  { id: 'transport', name: 'Transportation' },
-  { id: 'other', name: 'Other' },
-  { id: 'emi', name: 'EMI' }
-]
+const allCategories = computed(() => {
+  return [...globalCategories.value, ...userCategories.value]
+})
 
 const expenses = useLocalStorage('expenses', [])
+
+const fetchCategories = async () => {
+  try {
+    const response = await getCategories()
+
+    globalCategories.value = response.filter(cat => !cat.is_custom)
+    userCategories.value = response.filter(cat => cat.is_custom)
+  } catch (error) {
+    console.error('Error fetching categories:', error)
+  }
+}
 
 const addExpense = (expense) => {
   expenses.value.push({
@@ -42,4 +51,8 @@ const deleteExpense = (id) => {
     expenses.value = expenses.value.filter(expense => expense.id !== id)
   }
 }
+
+onMounted(async () => {
+  await fetchCategories()
+})
 </script>
