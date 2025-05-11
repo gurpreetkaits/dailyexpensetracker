@@ -1,7 +1,7 @@
 import axiosConf from "../config/axiosConf.js";
 
-export const getTransactions = async () => {
-    return await axiosConf.get(`/api/transactions`);
+export const getTransactions = async (dateFilter) => {
+    return await axiosConf.get(`/api/transactions?${objectToQueryString({filter: dateFilter.toLowerCase()})}`);
 };
 export const saveTransaction = async (transaction) => {
   const { data } = await axiosConf.post("/api/transactions", transaction);
