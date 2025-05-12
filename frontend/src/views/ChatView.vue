@@ -16,10 +16,10 @@
         <div class="flex-1 overflow-y-auto px-4 py-4 space-y-3 pb-4">
           <!-- Welcome prompt when empty -->
           <div v-if="!loading && messages.length === 0" class="text-gray-500 italic">
-            Hi, I'm Dex! Ask me anything about your expenses—like
+            Hi, I’m Dex! Ask me anything about your expenses—like
             <button @click="inputMessage = 'What did I spend on groceries last week?'; sendMessage()"
               class="text-[#10b981] underline sm:block hidden">
-              "What did I spend on groceries last week?"
+              “What did I spend on groceries last week?”
             </button>
           </div>
 
@@ -66,9 +66,9 @@
           </div>
           <!-- Sample prompt chips -->
           <div class="flex space-x-2">
-            <button @click="inputMessage = 'Show me last month's spend'; handleSendMessage()"
+            <button @click="inputMessage = 'Show me last month’s spend'; handleSendMessage()"
               class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs hover:bg-gray-200">
-              Show last month's spend
+              Show last month’s spend
             </button>
             <button @click="inputMessage = 'Find all grocery transactions'; handleSendMessage()"
               class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs hover:bg-gray-200 sm:block hidden">
