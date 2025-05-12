@@ -32,6 +32,7 @@ export const useChatStore = defineStore("chat", {
         // 5. Show assistant reply
         this.messages.push({ sender: 'assistant', content: response.data.reply });
       } catch (e) {
+        console.error(e);
         this.messages.push({ sender: 'assistant', content: 'Sorry, there was an error.' });
       } finally {
         this.loading = false;

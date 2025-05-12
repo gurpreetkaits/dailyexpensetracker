@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Http\Integrations\OpenAiConnector\OpenAiConnector;
 use App\Models\Conversation;
 use App\Models\Message;
+use App\Models\Setting;
 use App\Models\Transaction;
 use Illuminate\Support\Facades\Auth;
 use Saloon\Exceptions\Request\FatalRequestException;
@@ -41,25 +42,30 @@ class ChatService
 
         // Prepare OpenAI connector and function spec
         $connector = new OpenAiConnector();
-        $tools = [
-            [
-                'type' => 'function',
-                'function' => [
-                    'name' => 'get_recent_transactions',
-                    'description' => "Get a summary of the user's recent transactions",
-                    'parameters' => [
-                        'type' => 'object',
-                        'properties' => [
-                            'days' => [
-                                'type' => 'integer',
-                                'description' => 'Number of days to look back for transactions (default 30).'
-                            ]
+        $tools = [[
+            'type'     => 'function',
+            'function' => [
+                'name'        => 'get_recent_transactions',
+                'description' => 'Get recent user transactions with optional filters',
+                'parameters'  => [
+                    'type'       => 'object',
+                    'properties' => [
+                        'days'     => [
+                            'type'        => 'integer',
+                            'description' => 'Look-back window (default 30)',
                         ],
-                        'required' => []
-                    ]
-                ]
-            ]
-        ];
+                        'category' => [
+                            'type'        => 'string',
+                            'description' => 'Category slug or name (e.g. "groceries")',
+                        ],
+                        'limit'    => [
+                            'type'        => 'integer',
+                            'description' => 'Max rows to return (default 50)',
+                        ],
+                    ],
+                ],
+            ],
+        ]];
 
         // Build full message history
         $history = Message::where('conversation_id', $conversation->id)
@@ -86,6 +92,11 @@ class ChatService
 
         // First call: ask model with function support
         try {
+            $embedExtra = "My currency is ". $this->userCurrency() . " make sure results are properly readable";
+            $history[] = [
+                'role'    => 'user',
+                'content' => $embedExtra,
+            ];
             $response = $connector->sendChatRequest(
                 messages: $history,
                 tools: $tools,
@@ -124,11 +135,21 @@ class ChatService
         if ($hasCall && $callName === 'get_recent_transactions') {
             // Compute days and fetch transactions
             $days = $args['days'] ?? 30;
-            $transactions = Transaction::with('category')->where('user_id', $userId)
-                ->where('created_at', '>=', now()->subDays($days))
-                ->get();
+            $limit = $args['limit'] ?? 50;
+            $category = $args['category'] ?? null;
 
-            // Append function result to history
+            $transactions = Transaction::with(['category:id,name'])->select(['note','id','category_id','amount'])->where('user_id', $userId)
+                ->where('created_at', '>=', now()->subDays($days));
+
+            if ($category) {
+                $transactions = $transactions->whereHas('category', function ($query) use ($category) {
+                    $query->where('name', 'like', '%' . strtolower($category) . '%');
+                });
+            }
+
+            $transactions = $transactions->get();
+
+
             $history[] = [
                 'role'    => 'function',
                 'name'    => 'get_recent_transactions',
@@ -163,5 +184,10 @@ class ChatService
             'reply'           => $assistantContent,
             'conversation_id' => $conversation->id,
         ];
+    }
+
+    private function userCurrency(){
+        $userId = Auth::id();
+        return Setting::where('user_id',$userId)->first()->currency_code;
     }
 }

@@ -36,15 +36,15 @@ class ChatRequest extends Request implements HasBody
         $systemMessages = [
             [
                 'role' => 'system',
-                'content' => 'You are a financial expert, you can teach people about their finances by looking at their spendings. Do not make multiple tool calls, only make one tool call at a time.'
+                'content' => 'You are Dex, my finance coach. One tool call max'
             ]
         ];
-        
+
         $body = [
             'model' => $this->model,
             'messages' => array_merge($systemMessages, $this->messages),
         ];
-        
+
         if ($this->tools) {
             $body['tools'] = $this->tools;
             $body['tool_choice'] = 'auto';
