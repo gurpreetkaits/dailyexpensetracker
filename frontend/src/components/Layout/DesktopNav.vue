@@ -8,7 +8,7 @@
             :class="{ 'text-blue-600': $route.path === item.path }"
         >
             <component :is="item.icon" class="w-6 h-6 flex-shrink-0" />
-            <span class="ml-2 text-sm font-medium">{{ item.name }}</span>
+            <span class="ml-2 text-sm font-medium">{{ item.name }} <span v-if="item?.beta">(beta)</span></span>
         </router-link>
     </nav>
 </template>
@@ -23,14 +23,14 @@ export default {
     data() {
         return {
             navigation: [
-                {path: '/dashboard', name: 'Overview', icon: Home, show: true},
-                // {path: '/overview', name: 'Overview', icon: Home, show: true},
+                {path: '/overview', name: 'Overview', icon: Home, show: true},
                 {path: '/stats', name: 'Stats', icon: BarChart, show: true},
-                { path: '/chat', name: 'Chat', icon: MessageCircle, show: true },
-                { path: '/plans', name: 'Plans', icon: Star, show: true },
+                { path: '/chat', name: 'Chat', icon: MessageCircle, show: true , beta: true},
                 {path: '/settings', name: 'Settings', icon: Settings, show: true},
                 {path: '/admin-dashboard', name: 'Dashboard', icon: User, show: true},
                 {path: '/feedbacks', name: 'Feedback', icon: User, show: true},
+                {path: '/dashboard', name: 'Overview', icon: Home, show: true , beta: true},
+                { path: '/plans', name: 'Plans', icon: Star, show: true, beta: true },
             ],
         };
     },
