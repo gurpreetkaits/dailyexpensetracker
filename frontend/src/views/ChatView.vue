@@ -147,16 +147,18 @@
 </template>
 
 <script setup>
-// Script logic remains unchanged
 import { ref, computed, onMounted } from 'vue'
 import { useChatStore } from '../store/chat'
 import { useSubscriptionStore } from '../store/subscription'
 import { useNotifications } from '../composables/useNotifications'
 import { loadStripe } from '@stripe/stripe-js'
+import { useAuthStore } from '../store/auth'
+import posthog from 'posthog-js'
 
 const inputMessage = ref('')
 const chatStore = useChatStore()
 const subscriptionStore = useSubscriptionStore()
+const authStore = useAuthStore()
 const { notify } = useNotifications()
 const loading = computed(() => chatStore.loading)
 const messages = computed(() => chatStore.messages)
@@ -170,7 +172,6 @@ onMounted(async () => {
   await subscriptionStore.fetchSubscriptionStatus()
 })
 
-
 const handleSendMessage = async () => {
   if (!inputMessage.value.trim() || loading.value) return
 
@@ -179,6 +180,20 @@ const handleSendMessage = async () => {
   //   showSubscriptionModal.value = true
   //   return
   // }
+
+  if (authStore.user?.email) {
+    posthog.identify(authStore.user.email, {
+      email: authStore.user.email,
+      id: authStore.user.id
+    })
+  }
+
+  posthog.capture('chat_message_sent', {
+    message: inputMessage.value,
+    user_id: authStore.user?.id,
+    user_email: authStore.user?.email,
+    timestamp: new Date().toISOString()
+  })
 
   await sendMessage()
 }
