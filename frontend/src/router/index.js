@@ -4,6 +4,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import {requireAuth, requireGuest} from "./auth-guard";
 import { useTransactionStore } from "../store/transaction";
 import {useAuthStore} from "../store/auth.js";
+import { usePostHog } from "../composables/usePosthog.js";
 const routes = [
   {
     path: "/",
@@ -95,10 +96,18 @@ const routes = [
   },
 ];
 
+
+const { posthog } = usePostHog()
+
 export const router = createRouter({
   history: createWebHistory(),
   routes,
 });
+
+router.afterEach((to) => {
+  posthog.capture('$pageview')
+})
+
 
 router.beforeEach(async (to, from, next) => {
   if (to.matched.some(record => record.meta.requiresTransactions)) {
