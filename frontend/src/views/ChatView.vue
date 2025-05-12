@@ -7,7 +7,7 @@
           <div class="flex items-center gap-2">
             <img src="../assets/images/monkey-assistant.png" alt="Dex" class="w-6 h-6" />
             <h2 class="text-lg font-semibold text-gray-900">
-              Dex <span class="text-sm text-[#10b981] font-normal">(Beta)</span>
+              Dex <span class="text-sm text-[#10b981] font-normal">(beta)</span>
             </h2>
           </div>
         </div>
@@ -18,7 +18,7 @@
           <div v-if="!loading && messages.length === 0" class="text-gray-500 italic">
             Hi, I’m Dex! Ask me anything about your expenses—like
             <button @click="inputMessage = 'What did I spend on groceries last week?'; sendMessage()"
-              class="text-[#10b981] underline">
+              class="text-[#10b981] underline sm:block hidden">
               “What did I spend on groceries last week?”
             </button>
           </div>
