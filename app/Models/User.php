@@ -112,7 +112,7 @@ class User extends Authenticatable implements AuthMustVerifyEmail
 
     public function scopeActive($query){
         return $query->whereHas('transactions', function ($q) {
-            $q->where('created_at', '>=', now()->subDays(7));
+            $q->where('created_at', '>=', now()->subDays(30));
         });
     }
 }
