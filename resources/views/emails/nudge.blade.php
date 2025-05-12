@@ -20,20 +20,20 @@
               <h2 style="margin-bottom:16px;font-size:22px;color:#222;margin-top: 15px;">Hey {{ $user->name ?? 'there' }} 👋</h2>
 
               <p style="margin:0 0 24px;font-size:16px;line-height:24px;color:#333;">
-                It's been a while since your last expense entry. I'd love to know what would make
-                <strong style="color:#10b981;">Daily&nbsp;Expense&nbsp;Tracker</strong> more valuable for you. Could you share a quick thought?
+                I need your feedback, so that i can know what mistakes I'm doing or what you love using.
+                <b>I want to build this app the way so that you love using it.</b>
               </p>
 
               <p style="margin:0 0 32px;text-align:center;">
                 <a href="https://app.dailyexpensetracker.in/settings"
                    style="display:inline-block;background:#10b981;color:#ffffff !important;text-decoration:none;
                           padding:12px 28px;border-radius:4px;font-weight:bold;font-size:15px;">
-                  Tell Me in 30 sec
+                  Help me to Improve the app (Click for feedback)
                 </a>
               </p>
 
               <p style="margin:0;font-size:14px;line-height:22px;color:#777;">
-                Thanks a ton for helping shape the app!<br><br>— Gurpreet (Creator of DailyExpenseTracker)
+                If you can't send feedback over app, just reply to the mail. Thanks in advance! <br><br>— Gurpreet (Creator of DailyExpenseTracker)
               </p>
             </td>
           </tr>
