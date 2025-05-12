@@ -15,7 +15,7 @@ class SubscriptionController extends Controller
         Stripe::setApiKey(config('cashier.secret'));
     }
 
-    public function createCheckoutSession(Request $request)
+    public function createCheckoutSession(Request $request): \Illuminate\Http\JsonResponse
     {
         $user = $request->user();
         $priceId = config('stripe.production_pricing_id');
