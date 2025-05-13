@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Http\Integrations\OpenAiConnector\OpenAiConnector;
+use App\Models\Category;
 use App\Models\Conversation;
 use App\Models\Message;
 use App\Models\Setting;
@@ -51,15 +52,15 @@ class ChatService
                 'If a month is given without a year, assume the current year (' . now()->year . ').',
                 'If a year is given alone, use Jan 1 to Dec 31 of that year.',
                 // ❸ Natural-language helpers
-                '"last month" = first & last day of previous month, "this month" = first day this month to today,  
-                 "last week" = 7 days ago to yesterday,  "this week" = Monday to today,  
+                '"last month" = first & last day of previous month, "this month" = first day this month to today,
+                 "last week" = 7 days ago to yesterday,  "this week" = Monday to today,
                  "yesterday" = yesterday, "today" = today.'
             ]),
         ];
 
         // Prepare OpenAI connector and function spec
         $connector = new OpenAiConnector();
-        
+
         $tools = [[
             'type'     => 'function',
             'function' => [
@@ -70,11 +71,11 @@ class ChatService
                     'properties' => [
                         'start_date' => [
                             'type'        => 'string',
-                            'description' => 'Start date in Y-m-d format. For natural language like "last month", convert to actual date e.g.: ' . Carbon::now()->subMonth()->startOfMonth()->format('Y-m-d'),
+                            'description' => 'Start date in Y-m-d format. For natural language like "last month", convert to actual date e.g.: ' . Carbon::now()->subMonth()->startOfMonth()->format('Y-m-d') . 'and last week means the recent week e.g: ' . Carbon::now()->subWeek()->startOfWeek()->format('Y-m-d'),
                         ],
                         'end_date' => [
                             'type'        => 'string',
-                            'description' => 'End date in Y-m-d format. For natural language like "last month", convert to actual date e.g.: ' . Carbon::now()->subMonth()->endOfMonth()->format('Y-m-d'),
+                            'description' => 'End date in Y-m-d format. For natural language like "last month", convert to actual date e.g.: ' . Carbon::now()->subMonth()->endOfMonth()->format('Y-m-d') . 'and last week means the recent week e.g: ' . Carbon::now()->subWeek()->endOfWeek()->format('Y-m-d'),
                         ],
                         'category' => [
                             'type'        => 'string',
@@ -165,14 +166,14 @@ class ChatService
             $category = $args['category'] ?? null;
 
             $transactions = Transaction::with(['category:id,name'])
-                ->select(['note', 'id', 'category_id', 'amount', 'transaction_date'])
+                ->select(['note', 'id', 'category_id', 'amount', 'transaction_date', 'type'])
                 ->where('user_id', $userId)
                 ->whereBetween('transaction_date', [
                     $startDate . ' 00:00:00',
                     $endDate . ' 23:59:59'
                 ]);
 
-            if ($category) {
+            if (Category::query()->where('id', $category)->exists()) {
                 $transactions = $transactions->whereHas('category', function ($query) use ($category) {
                     $query->where('name', 'like', '%' . strtolower($category) . '%');
                 });
@@ -181,25 +182,10 @@ class ChatService
             $transactions = $transactions->get();
 
             // Calculate analytics
-            $totalIncome = $transactions->where('amount', '>', 0)->sum('amount');
-            $totalExpense = abs($transactions
-            ->where('type', 'expense')->sum('amount'));
+            $totalIncome = $transactions->where('type','income')->sum('amount');
+            $totalExpense = $transactions
+            ->where('type', 'expense')->sum('amount');
             $balance = $totalIncome - $totalExpense;
-
-            // Calculate top spending categories
-            $categorySpending = $transactions
-                ->where('amount', '<', 0)
-                ->groupBy('category.name')
-                ->map(function ($group) {
-                    return abs($group->sum('amount'));
-                })
-                ->sortDesc();
-
-            $topSpendingCategory = $categorySpending->first() ? [
-                'category' => $categorySpending->keys()->first(),
-                'amount' => $categorySpending->first(),
-                'percentage' => ($categorySpending->first() / $totalExpense) * 100
-            ] : null;
 
             $analytics = [
                 'summary' => [
@@ -212,7 +198,6 @@ class ChatService
                         'end' => $endDate
                     ]
                 ],
-                'top_spending_category' => $topSpendingCategory,
                 'transactions' => $transactions->take($limit)
             ];
 
