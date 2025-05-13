@@ -7,6 +7,7 @@ use App\Models\Conversation;
 use App\Models\Message;
 use App\Models\Setting;
 use App\Models\Transaction;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Saloon\Exceptions\Request\FatalRequestException;
 use Saloon\Exceptions\Request\RequestException;
@@ -27,7 +28,7 @@ class ChatService
         } else {
             $conversation = Conversation::create([
                 'user_id' => $userId,
-                'model'   => 'gpt-3.5-turbo',
+                'model'   => 'gpt-4o-mini',
                 'status'  => 'active',
             ]);
         }
@@ -40,19 +41,40 @@ class ChatService
             'role'            => 'user',
         ]);
 
+        // Add system message for date context
+        $systemMessage = [
+            'role' => 'system',
+            'content' => implode("\n", [
+                // ❶ Always return explicit dates
+                'For every period mention, reply (or call a function) with exact `start_date` and `end_date` in Y-m-d.',
+                // ❷ Assumptions
+                'If a month is given without a year, assume the current year (' . now()->year . ').',
+                'If a year is given alone, use Jan 1 to Dec 31 of that year.',
+                // ❸ Natural-language helpers
+                '"last month" = first & last day of previous month, "this month" = first day this month to today,  
+                 "last week" = 7 days ago to yesterday,  "this week" = Monday to today,  
+                 "yesterday" = yesterday, "today" = today.'
+            ]),
+        ];
+
         // Prepare OpenAI connector and function spec
         $connector = new OpenAiConnector();
+        
         $tools = [[
             'type'     => 'function',
             'function' => [
                 'name'        => 'get_recent_transactions',
-                'description' => 'Get recent user transactions with optional filters',
+                'description' => 'Get user transactions within a specific date range. Convert natural language dates to specific dates (e.g. "last month" should be converted to actual start and end dates of the previous month)',
                 'parameters'  => [
                     'type'       => 'object',
                     'properties' => [
-                        'days'     => [
-                            'type'        => 'integer',
-                            'description' => 'Look-back window (default 30)',
+                        'start_date' => [
+                            'type'        => 'string',
+                            'description' => 'Start date in Y-m-d format. For natural language like "last month", convert to actual date e.g.: ' . Carbon::now()->subMonth()->startOfMonth()->format('Y-m-d'),
+                        ],
+                        'end_date' => [
+                            'type'        => 'string',
+                            'description' => 'End date in Y-m-d format. For natural language like "last month", convert to actual date e.g.: ' . Carbon::now()->subMonth()->endOfMonth()->format('Y-m-d'),
                         ],
                         'category' => [
                             'type'        => 'string',
@@ -63,6 +85,7 @@ class ChatService
                             'description' => 'Max rows to return (default 50)',
                         ],
                     ],
+                    'required' => ['start_date', 'end_date']
                 ],
             ],
         ]];
@@ -76,13 +99,15 @@ class ChatService
                     'role'    => $msg->role,
                     'content' => $msg->content,
                 ];
-                // If it's a function response, include its name
                 if ($msg->role === 'function') {
                     $entry['name'] = $msg->sender;
                 }
                 return $entry;
             })
             ->toArray();
+
+        // Add system message at the start of history
+        array_unshift($history, $systemMessage);
 
         // Append the new user message
         $history[] = [
@@ -92,21 +117,16 @@ class ChatService
 
         // First call: ask model with function support
         try {
-            $embedExtra = "My currency is ". $this->userCurrency() . " make sure results are properly readable";
-            $history[] = [
-                'role'    => 'user',
-                'content' => $embedExtra,
-            ];
             $response = $connector->sendChatRequest(
                 messages: $history,
                 tools: $tools,
-                model: 'gpt-3.5-turbo'
+                model: 'gpt-4o-mini'
             );
         } catch (RequestException $e) {
             // Fallback: plain chat
             $response = $connector->sendChatRequest(
                 messages: $history,
-                model: 'gpt-3.5-turbo'
+                model: 'gpt-4o-mini'
             );
         }
 
@@ -125,6 +145,11 @@ class ChatService
         }
         // Legacy tool_calls fallback
         elseif (!empty($choice['tool_calls'])) {
+            $embedExtra = "My currency is ". $this->userCurrency() . " make sure results are properly readable";
+            $history[] = [
+                'role'    => 'user',
+                'content' => $embedExtra,
+            ];
             $toolCalls = $choice['tool_calls'];
             $lastCall  = end($toolCalls);
             $callName  = $lastCall['function']['name'] ?? '';
@@ -133,13 +158,19 @@ class ChatService
         }
 
         if ($hasCall && $callName === 'get_recent_transactions') {
-            // Compute days and fetch transactions
-            $days = $args['days'] ?? 30;
+            // Get date range and other parameters with better defaults
+            $startDate = $args['start_date'] ?? Carbon::now()->startOfMonth()->format('Y-m-d');
+            $endDate = $args['end_date'] ?? Carbon::now()->format('Y-m-d');
             $limit = $args['limit'] ?? 50;
             $category = $args['category'] ?? null;
 
-            $transactions = Transaction::with(['category:id,name'])->select(['note','id','category_id','amount'])->where('user_id', $userId)
-                ->where('created_at', '>=', now()->subDays($days));
+            $transactions = Transaction::with(['category:id,name'])
+                ->select(['note', 'id', 'category_id', 'amount', 'transaction_date'])
+                ->where('user_id', $userId)
+                ->whereBetween('transaction_date', [
+                    $startDate . ' 00:00:00',
+                    $endDate . ' 23:59:59'
+                ]);
 
             if ($category) {
                 $transactions = $transactions->whereHas('category', function ($query) use ($category) {
@@ -149,17 +180,52 @@ class ChatService
 
             $transactions = $transactions->get();
 
+            // Calculate analytics
+            $totalIncome = $transactions->where('amount', '>', 0)->sum('amount');
+            $totalExpense = abs($transactions
+            ->where('type', 'expense')->sum('amount'));
+            $balance = $totalIncome - $totalExpense;
+
+            // Calculate top spending categories
+            $categorySpending = $transactions
+                ->where('amount', '<', 0)
+                ->groupBy('category.name')
+                ->map(function ($group) {
+                    return abs($group->sum('amount'));
+                })
+                ->sortDesc();
+
+            $topSpendingCategory = $categorySpending->first() ? [
+                'category' => $categorySpending->keys()->first(),
+                'amount' => $categorySpending->first(),
+                'percentage' => ($categorySpending->first() / $totalExpense) * 100
+            ] : null;
+
+            $analytics = [
+                'summary' => [
+                    'total_income' => $totalIncome,
+                    'total_expense' => $totalExpense,
+                    'balance' => $balance,
+                    'currency' => $this->userCurrency(),
+                    'date_range' => [
+                        'start' => $startDate,
+                        'end' => $endDate
+                    ]
+                ],
+                'top_spending_category' => $topSpendingCategory,
+                'transactions' => $transactions->take($limit)
+            ];
 
             $history[] = [
                 'role'    => 'function',
                 'name'    => 'get_recent_transactions',
-                'content' => $transactions->toJson(),
+                'content' => json_encode($analytics),
             ];
 
             // Re-call the model to get final assistant response
             $finalResponse = $connector->sendChatRequest(
                 messages: $history,
-                model: 'gpt-3.5-turbo'
+                model: 'gpt-4o-mini'
             );
             $finalChoice    = $finalResponse['choices'][0]['message'] ?? [];
             $assistantContent = $finalChoice['content'] ?? '';
