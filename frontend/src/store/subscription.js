@@ -4,7 +4,6 @@ import {
   getSubscriptionStatus,
   cancelSubscription,
   resumeSubscription,
-  updatePaymentMethod,
   verifyCheckoutSession,
   getSubscriptionHistory
 } from '../services/SubscriptionService'
@@ -30,15 +29,11 @@ export const useSubscriptionStore = defineStore('subscription', {
   getters: {
     hasActiveSubscription: (state) => {
       if (!state.subscription) return false
-      return ['active', 'trialing'].includes(state.subscription.stripe_status)
+      return state.subscription.status === 'active'
     },
 
     subscriptionStatus: (state) => {
       return state.subscription?.status
-    },
-
-    defaultPaymentMethod: (state) => {
-      return state.subscription?.defaultPaymentMethod
     },
 
     isSessionVerified: (state) => {
@@ -47,17 +42,17 @@ export const useSubscriptionStore = defineStore('subscription', {
   },
 
   actions: {
-    async verifyCheckoutSession(sessionId) {
-      if (!sessionId) return false
+    async verifyCheckoutSession(checkoutId) {
+      if (!checkoutId) return false
 
       this.loading = true
       this.error = null
       const { notify } = useNotifications()
 
       try {
-        const response = await verifyCheckoutSession(sessionId)
+        const response = await verifyCheckoutSession(checkoutId)
         if (response.success) {
-          this.subscription = response?.subscription
+          this.subscription = response.subscription
           this.sessionVerified = true
           notify({
             title: 'Success',
@@ -66,7 +61,7 @@ export const useSubscriptionStore = defineStore('subscription', {
           })
           return true
         } else {
-          throw new Error(response.data.message)
+          throw new Error(response.message)
         }
       } catch (error) {
         this.error = error.message
@@ -91,7 +86,6 @@ export const useSubscriptionStore = defineStore('subscription', {
         this.sessionVerified = true
       } catch (error) {
         this.error = error.message
-
       } finally {
         this.loading = false
       }
@@ -103,7 +97,6 @@ export const useSubscriptionStore = defineStore('subscription', {
 
       try {
         const response = await createSubscription()
-        console.log('Subscription response:', response)
         return response
       } catch (error) {
         this.error = error.message
@@ -163,32 +156,6 @@ export const useSubscriptionStore = defineStore('subscription', {
         notify({
           title: 'Error',
           message: error.message || 'Failed to resume subscription',
-          type: 'error'
-        })
-        throw error
-      } finally {
-        this.loading = false
-      }
-    },
-
-    async updatePaymentMethod(paymentMethodId) {
-      this.loading = true
-      this.error = null
-      const { notify } = useNotifications()
-
-      try {
-        await updatePaymentMethod(paymentMethodId)
-        await this.fetchSubscriptionStatus()
-        notify({
-          title: 'Success',
-          message: 'Payment method updated successfully',
-          type: 'success'
-        })
-      } catch (error) {
-        this.error = error.message
-        notify({
-          title: 'Error',
-          message: error.message || 'Failed to update payment method',
           type: 'error'
         })
         throw error

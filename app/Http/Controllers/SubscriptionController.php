@@ -3,72 +3,47 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Laravel\Cashier\Exceptions\IncompletePayment;
 use Illuminate\Support\Facades\Log;
-use Stripe\Stripe;
-use Stripe\Price;
+use App\Services\PolarService;
 
 class SubscriptionController extends Controller
 {
-    public function __construct()
+    protected $polarService;
+
+    public function __construct(PolarService $polarService)
     {
-        Stripe::setApiKey(config('cashier.secret'));
+        $this->polarService = $polarService;
     }
 
     public function createCheckoutSession(Request $request): \Illuminate\Http\JsonResponse
     {
         $user = $request->user();
-        $priceId = config('stripe.production_pricing_id');
+        $planId = config('polar.plan_id');
 
-        if (!$priceId) {
-            Log::error('Missing price ID in checkout request', [
+        if (!$planId) {
+            Log::error('Missing plan ID in checkout request', [
                 'user_id' => $user->id,
                 'request_data' => $request->all()
             ]);
-            return response()->json(['error' => 'Price ID is required'], 400);
+            return response()->json(['error' => 'Plan ID is required'], 400);
         }
 
         try {
-            $frontendUrl = env('FRONTEND_URL');
-            $returnUrl = $request->header('Referer') ?? $frontendUrl;
+            $result = $this->polarService->createCheckoutSession($user, $planId);
 
-            // Ensure we have a clean URL without any existing query parameters
-            $returnUrl = strtok($returnUrl, '?');
+            if (!$result['success']) {
+                throw new \Exception($result['message']);
+            }
 
-
-            $checkout = $user->newSubscription('pro', $priceId)
-                ->checkout([
-                    'success_url' => $returnUrl . 'plans?session_id={CHECKOUT_SESSION_ID}',
-                    'cancel_url' => $returnUrl,
-                    'billing_address_collection' => 'required',
-                    'metadata' => [
-                        'user_id' => $user->id,
-                        'price_id' => $priceId,
-                        'return_url' => $returnUrl
-                    ]
-                ]);
-
-            Log::info('Stripe checkout session created successfully', [
+            Log::info('Polar checkout session created successfully', [
                 'user_id' => $user->id,
-                'session_id' => $checkout->id,
-                'price_id' => $priceId,
-                'return_url' => $returnUrl
+                'checkout_id' => $result['checkout_id']
             ]);
 
             return response()->json([
-                'session_id' => $checkout->id
+                'checkout_id' => $result['checkout_id'],
+                'checkout_url' => $result['checkout_url']
             ]);
-        } catch (IncompletePayment $e) {
-            Log::error('Incomplete payment', [
-                'user_id' => $user->id,
-                'payment_id' => $e->payment->id,
-                'error' => $e->getMessage()
-            ]);
-
-            return response()->json([
-                'error' => 'Payment requires additional confirmation.',
-                'payment_id' => $e->payment->id
-            ], 402);
         } catch (\Exception $e) {
             Log::error('Unexpected error in checkout session creation', [
                 'user_id' => $user->id,
@@ -87,71 +62,45 @@ class SubscriptionController extends Controller
         $user = $request->user();
 
         return response()->json([
-            'hasActiveSubscription' => $user->subscribed('pro'),
-            'subscription' => $user->subscription('pro'),
-            'defaultPaymentMethod' => $user->defaultPaymentMethod()
+            'hasActiveSubscription' => $user->subscription_status === 'active',
+            'subscription' => [
+                'status' => $user->subscription_status,
+                'plan' => $user->subscription_plan,
+                'ends_at' => $user->subscription_ends_at
+            ]
         ]);
     }
 
-    public function verifyCheckoutSession(Request $request){
+    public function verifyCheckoutSession(Request $request)
+    {
         $user = $request->user();
+        $checkoutId = $request->get('checkout_id');
 
         try {
-            $session = $user->stripe()->checkout->sessions->retrieve($request->get('session_id'));
+            $result = $this->polarService->verifyCheckoutSession($checkoutId);
 
-            if ($session->payment_status === 'paid') {
-                // Get the subscription from the session
-                $subscription = $user->subscriptions()->where('stripe_id', $session->subscription)->first();
-
-                if (!$subscription) {
-                    // If subscription doesn't exist, create it
-                    $subscription = $user->subscriptions()->create([
-                        'type' => 'pro',
-                        'stripe_id' => $session->subscription,
-                        'stripe_status' => $session->subscription_status ?? 'active',
-                        'stripe_price' => $session->metadata->price_id ?? null,
-                        'quantity' => 1,
-                        'trial_ends_at' => null,
-                        'ends_at' => now()->addDays(30),
-                    ]);
-
-                    // Create subscription items
-                    $subscription->items()->create([
-                        'stripe_id' => $session->subscription,
-                        'stripe_product' => $session->metadata->product_id ?? 'pro',
-                        'stripe_price' => $session->metadata->price_id ?? null,
-                        'quantity' => 1,
-                    ]);
-                }
-
-                // Update subscription status if needed
-                if ($subscription->stripe_status !== $session->subscription_status) {
-                    $subscription->update([
-                        'stripe_status' => $session->subscription_status ?? 'active'
-                    ]);
-                }
-
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Subscription activated successfully!',
-                    'subscription' => [
-                        'id' => $subscription->id,
-                        'status' => $subscription->stripe_status,
-                        'price_id' => $subscription->stripe_price,
-                        'ends_at' => $subscription->ends_at,
-                        'trial_ends_at' => $subscription->trial_ends_at
-                    ]
-                ], 200);
+            if (!$result['success']) {
+                throw new \Exception($result['message']);
             }
 
+            $user->update([
+                'polar_id' => $result['subscription_id'],
+                'subscription_status' => $result['status'],
+                'subscription_plan' => $result['plan_id']
+            ]);
+
             return response()->json([
-                'error' => 'Payment not completed',
-                'status' => $session->payment_status
-            ], 400);
+                'success' => true,
+                'message' => 'Subscription activated successfully!',
+                'subscription' => [
+                    'status' => $result['status'],
+                    'plan_id' => $result['plan_id']
+                ]
+            ]);
         } catch (\Exception $e) {
             Log::error('Subscription verification failed', [
                 'user_id' => $user->id,
-                'session_id' => $request->get('session_id'),
+                'checkout_id' => $checkoutId,
                 'error' => $e->getMessage()
             ]);
 
@@ -163,17 +112,7 @@ class SubscriptionController extends Controller
 
     public function handleSubscriptionSuccess(Request $request)
     {
-        $user = $request->user();
-
-        try {
-            $session = $user->stripe()->checkout->sessions->retrieve($request->get('session_id'));
-
-            if ($session->payment_status === 'paid') {
-                return redirect()->route('overview')->with('success', 'Subscription activated successfully!');
-            }
-        } catch (\Exception $e) {
-            return redirect()->route('pricing')->with('error', 'There was an error processing your subscription.');
-        }
+        return redirect()->route('overview')->with('success', 'Subscription activated successfully!');
     }
 
     public function cancel()
@@ -186,7 +125,10 @@ class SubscriptionController extends Controller
         $user = $request->user();
 
         try {
-            $user->subscription('pro')->cancel();
+            $user->update([
+                'subscription_status' => 'cancelled',
+                'subscription_ends_at' => now()
+            ]);
             return response()->json(['message' => 'Subscription cancelled successfully']);
         } catch (\Exception $e) {
             Log::error('Error cancelling subscription', [
@@ -202,7 +144,10 @@ class SubscriptionController extends Controller
         $user = $request->user();
 
         try {
-            $user->subscription('pro')->resume();
+            $user->update([
+                'subscription_status' => 'active',
+                'subscription_ends_at' => null
+            ]);
             return response()->json(['message' => 'Subscription resumed successfully']);
         } catch (\Exception $e) {
             Log::error('Error resuming subscription', [
@@ -210,18 +155,6 @@ class SubscriptionController extends Controller
                 'error' => $e->getMessage()
             ]);
             return response()->json(['error' => 'Unable to resume subscription'], 500);
-        }
-    }
-
-    public function updatePaymentMethod(Request $request)
-    {
-        $user = $request->user();
-
-        try {
-            $user->updateDefaultPaymentMethod($request->input('payment_method_id'));
-            return response()->json(['message' => 'Payment method updated successfully']);
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'Failed to update payment method'], 500);
         }
     }
 

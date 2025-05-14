@@ -10,9 +10,9 @@ export const getSubscriptionStatus = async () => {
   return data;
 };
 
-export const verifyCheckoutSession = async (sessionId) => {
+export const verifyCheckoutSession = async (checkoutId) => {
   const { data } = await axiosConf.post("/api/subscription/verify-session", {
-    session_id: sessionId
+    checkout_id: checkoutId
   });
   return data;
 };

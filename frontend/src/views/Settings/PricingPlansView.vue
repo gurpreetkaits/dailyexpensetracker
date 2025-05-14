@@ -91,11 +91,11 @@
           </thead>
           <tbody>
             <tr v-for="item in subscriptionStore.subscriptionHistory" :key="item.id" class="border-b last:border-0">
-              <td class="py-1.5 px-2">{{ item.name || item.plan || 'Pro Plan' }}</td>
+              <td class="py-1.5 px-2">{{ item.name || item.plan_id || 'Pro Plan' }}</td>
               <td class="py-1.5 px-2">${{ item.price ?? 0 }}</td>
               <td class="py-1.5 px-2">{{ item.created_at ? new Date(item.created_at).toLocaleDateString() : '' }}</td>
               <td class="py-1.5 px-2">
-                <span :class="item.stripe_status === 'active' ? 'text-emerald-600' : 'text-gray-500'">{{ item.stripe_status }}</span>
+                <span :class="item.status === 'active' ? 'text-emerald-600' : 'text-gray-500'">{{ item.status }}</span>
               </td>
             </tr>
             <tr v-if="!subscriptionStore.subscriptionHistory.length">
@@ -140,7 +140,6 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useSubscriptionStore } from '../../store/subscription'
 import { useNotifications } from '../../composables/useNotifications'
-import { loadStripe } from '@stripe/stripe-js'
 
 const route = useRoute()
 const router = useRouter()
@@ -148,7 +147,6 @@ const subscriptionStore = useSubscriptionStore()
 const { notify } = useNotifications()
 const hasActiveSubscription = computed(() => subscriptionStore.hasActiveSubscription)
 const processingPayment = ref(false)
-const stripe = ref(null)
 
 const currentPage = ref(1)
 const totalPages = computed(() => subscriptionStore.pagination.last_page)
@@ -176,14 +174,13 @@ const handlePageChange = async (page) => {
 }
 
 onMounted(async () => {
-  stripe.value = await loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY)
   await subscriptionStore.fetchSubscriptionStatus()
   await subscriptionStore.fetchSubscriptionHistory(currentPage.value)
 
-  const sessionId = route.query.session_id
-  if (sessionId) {
+  const checkoutId = route.query.checkout_id
+  if (checkoutId) {
     try {
-      const verified = await subscriptionStore.verifyCheckoutSession(sessionId)
+      const verified = await subscriptionStore.verifyCheckoutSession(checkoutId)
       if (verified) {
         notify({
           title: 'Success',
@@ -204,19 +201,14 @@ onMounted(async () => {
 })
 
 const handleSubscription = async () => {
-  if (processingPayment.value || !stripe.value) return
+  if (processingPayment.value) return
   processingPayment.value = true
   try {
     const response = await subscriptionStore.createSubscription()
-    if (!response.session_id) {
+    if (!response.checkout_url) {
       throw new Error('Unable to start subscription process. Please try again.')
     }
-    const { error } = await stripe.value.redirectToCheckout({
-      sessionId: response.session_id,
-    })
-    if (error) {
-      throw new Error(error.message || 'An unexpected error occurred')
-    }
+    window.location.href = response.checkout_url
   } catch (error) {
     console.error('Subscription error:', error)
     notify({
