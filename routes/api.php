@@ -13,6 +13,7 @@ use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\StatsController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\ServeyController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -57,6 +58,9 @@ Route::middleware('auth:sanctum')->group(function () {
     //premium features
     Route::resource('categories', CategoryController::class);
     Route::get('user-categories', [CategoryController::class, 'getUserCategories']);
+
+    // Survey route
+    Route::post('user/survey', [ServeyController::class, 'store']);
 
 });
 

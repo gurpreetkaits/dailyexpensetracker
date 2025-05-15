@@ -75,7 +75,7 @@
                     </div>
                     <div class="mb-4">
                         <p class="text-gray-700 mb-2">
-                            If we perfectly address your needs 
+                            If we perfectly address your needs
                             <span v-if="selectedNeeds.length > 0 || otherNeed.trim()">
                                 (e.g., {{ formattedNeedsQuery }})
                             </span>,
@@ -100,7 +100,7 @@
 </template>
 
 <script>
-import { login, getGoogleUserInfo } from '../services/AuthService'
+import { login, getGoogleUserInfo, submitSurvey as submitSurveyAPI } from '../services/AuthService'
 import { useAuthStore } from '../store/auth'
 import { useRouter } from 'vue-router'
 import { googleAuthCodeLogin } from 'vue3-google-login'
@@ -133,9 +133,9 @@ export default {
             ],
             selectedNeeds: [],
             otherNeed: '',
-            isHappy: null, 
-            willingToPay: null, 
-            feedbackText: '' 
+            isHappy: null,
+            willingToPay: null,
+            feedbackText: ''
         }
     },
     computed: {
@@ -200,10 +200,14 @@ export default {
                  window.posthog.capture('post_login_survey_completed', surveyData);
             }
 
-            // Mark survey as completed in localStorage
-            localStorage.setItem('surveyCompleted', 'true');
-            this.showSurvey = false;
-            await this.proceedToApp();
+            try {
+                await submitSurveyAPI(surveyData);
+                localStorage.setItem('surveyCompleted', 'true');
+                this.showSurvey = false;
+                await this.proceedToApp();
+            } catch (e) {
+                this.errorMessage = 'Failed to save survey. Please try again.';
+            }
         },
 
         async successfulLoginActions() {

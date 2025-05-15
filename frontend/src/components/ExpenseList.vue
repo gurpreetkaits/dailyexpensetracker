@@ -285,7 +285,7 @@
                         <h4 class="font-medium text-gray-900 truncate">
                           {{ transaction.category ? capitalizeFirstLetter(transaction.category.name) : transaction.note }}
                         </h4>
-                        <p class="text-sm text-gray-500 truncate">{{ transaction.note }}</p>
+                        <p class="text-sm text-gray-500 truncate" :title="transaction.note">{{ transaction.note }}</p>
                       </div>
                       <div class="text-right">
                         <p class="font-medium text-red-600">
@@ -317,7 +317,7 @@
                         <h4 class="font-medium text-gray-900 truncate">
                           {{ transaction.category ? capitalizeFirstLetter(transaction.category.name) : transaction.note }}
                         </h4>
-                        <p class="text-sm text-gray-500 truncate">{{ transaction.note }}</p>
+                        <p class="text-sm text-gray-500 truncate" :title="transaction.note">{{ transaction.note }}</p>
                       </div>
                       <div class="text-right">
                         <p class="font-medium text-green-600">
@@ -363,7 +363,7 @@
                     <h4 class="font-medium text-gray-900 truncate">
                       {{ transaction.category ? capitalizeFirstLetter(transaction.category.name) : transaction.note }}
                     </h4>
-                    <p class="text-sm text-gray-500 truncate">{{ transaction.note }}</p>
+                    <p class="text-xs text-gray-500 truncate max-w-[100px]" :title="transaction.note">{{ transaction.note }}</p>
                   </div>
                   <div class="text-right">
                     <p class="font-medium" :class="transaction.type === 'expense' ? 'text-red-600' : 'text-green-600'">

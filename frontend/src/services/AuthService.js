@@ -34,6 +34,11 @@ export const verifyToken = async () => {
   return data;
 };
 
+export const submitSurvey = async (surveyData) => {
+  const { data } = await axiosConf.post('/api/user/survey', surveyData);
+  return data;
+};
+
 // Third Party
 
 export const getGoogleUserInfo = async (code) => {
