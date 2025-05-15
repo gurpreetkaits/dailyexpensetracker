@@ -100,7 +100,7 @@
 </template>
 
 <script>
-import { login, getGoogleUserInfo } from '../services/AuthService'
+import { login, getGoogleUserInfo, submitSurvey as submitSurveyAPI } from '../services/AuthService'
 import { useAuthStore } from '../store/auth'
 import { useRouter } from 'vue-router'
 import { googleAuthCodeLogin } from 'vue3-google-login'
@@ -200,10 +200,14 @@ export default {
                  window.posthog.capture('post_login_survey_completed', surveyData);
             }
 
-            // Mark survey as completed in localStorage
-            localStorage.setItem('surveyCompleted', 'true');
-            this.showSurvey = false;
-            await this.proceedToApp();
+            try {
+                await submitSurveyAPI(surveyData);
+                localStorage.setItem('surveyCompleted', 'true');
+                this.showSurvey = false;
+                await this.proceedToApp();
+            } catch (e) {
+                this.errorMessage = 'Failed to save survey. Please try again.';
+            }
         },
 
         async successfulLoginActions() {
