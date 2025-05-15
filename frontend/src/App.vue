@@ -5,13 +5,16 @@
         
         <div class="flex min-h-[calc(100vh-4rem)]">
             <!-- Desktop Sidebar -->
-            <aside class="hidden lg:block fixed left-0 top-16 h-[calc(100vh-4rem)] w-48 bg-white shadow">
-                <DesktopNav v-if="showFooter" />
+            <aside v-if="showDesktopNav" class="hidden lg:block fixed left-0 top-16 h-[calc(100vh-4rem)] w-48 bg-white shadow">
+                <DesktopNav />
             </aside>
 
             <!-- Main Content Area -->
-            <main class="flex-1 lg:ml-48 bg-gray-100">
-                <div class="lg:px-10 lg:py-6">
+            <main :class="showDesktopNav ? 'flex-1 lg:ml-48 bg-gray-100' : 'flex-1 flex items-center justify-center bg-gray-50'">
+                <div v-if="showDesktopNav" class="lg:px-10 lg:py-6">
+                    <router-view />
+                </div>
+                <div v-else class="w-full">
                     <router-view />
                 </div>
             </main>
@@ -44,6 +47,9 @@ export default {
   },
   computed: {
     showFooter() {
+      return this.$route.name !== 'login' && useAuthStore().token
+    },
+    showDesktopNav() {
       return this.$route.name !== 'login' && useAuthStore().token
     }
   },
