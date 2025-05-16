@@ -22,8 +22,19 @@
           window.location.reload()
         }
       },
-      updated (registration) {
-        registration.update()
+      updated(registration) {
+        if (registration && registration.waiting) {
+          // Listen for the controlling service worker to activate
+          registration.waiting.addEventListener('statechange', (event) => {
+            if (event.target.state === 'activated') {
+              // Now it's safe to reload
+              window.location.reload()
+            }
+          })
+      
+          // Send message to skip waiting
+          registration.waiting.postMessage({ type: 'SKIP_WAITING' })
+        }
       },
       offline () {
         console.log('No internet connection found. App is running in offline mode.')
