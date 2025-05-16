@@ -144,9 +144,7 @@ class ChatService
             $hasCall  = true;
             $callName = $choice['function_call']['name'];
             $args     = json_decode($choice['function_call']['arguments'], true) ?? [];
-        }
-        // Legacy tool_calls fallback
-        elseif (!empty($choice['tool_calls'])) {
+        } elseif (!empty($choice['tool_calls'])) {
             $embedExtra = "My currency is ". $this->userCurrency() . " make sure results are properly readable";
             $history[] = [
                 'role'    => 'user',
@@ -171,8 +169,8 @@ class ChatService
                 ->select(['note', 'id', 'category_id', 'amount', 'transaction_date', 'type'])
                 ->where('user_id', $userId)
                 ->whereBetween('transaction_date', [
-                    $startDate . ' 00:00:00',
-                    $endDate . ' 23:59:59'
+                    $startDate,
+                    $endDate
                 ]);
 
             if($category){
