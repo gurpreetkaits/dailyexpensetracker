@@ -29,11 +29,21 @@ export const useChatStore = defineStore("chat", {
           this.conversationId = response.data.conversation_id;
         }
 
-        // 5. Show assistant reply
-        this.messages.push({ sender: 'assistant', content: response.data.reply });
+        // 5. Show assistant reply with transactions if available
+        this.messages.push({ 
+          sender: 'assistant', 
+          content: response.data.reply,
+          transactions: response.data.transactions || [],
+          summary: response.data.summary || null
+        });
       } catch (e) {
         console.error(e);
-        this.messages.push({ sender: 'assistant', content: 'Sorry, there was an error.' });
+        this.messages.push({ 
+          sender: 'assistant', 
+          content: 'Sorry, there was an error.',
+          transactions: [],
+          summary: null
+        });
       } finally {
         this.loading = false;
       }

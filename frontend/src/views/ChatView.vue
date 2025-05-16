@@ -16,21 +16,62 @@
         <div class="flex-1 overflow-y-auto px-4 py-4 space-y-3 pb-4">
           <!-- Welcome prompt when empty -->
           <div v-if="!loading && messages.length === 0" class="text-gray-500 italic">
-            Hi, I’m Dex! Ask me anything about your expenses—like
+            Hi, I'm Dex! Ask me anything about your expenses—like
             <button @click="inputMessage = 'What did I spend on groceries last week?'; sendMessage()"
               class="text-[#10b981] underline sm:block hidden">
-              “What did I spend on groceries last week?”
+              "What did I spend on groceries last week?"
             </button>
           </div>
 
           <!-- Conversation bubbles -->
           <div v-for="(message, index) in messages" :key="index"
-            :class="message.sender === 'user' ? 'justify-end' : 'justify-start'" class="flex">
+            :class="message.sender === 'user' ? 'justify-end' : 'justify-start'" class="flex flex-col">
             <div :class="message.sender === 'user'
-                ? 'bg-[#10b981] text-white'
-                : 'bg-gray-100 text-gray-800'
-              " class="rounded-2xl px-4 py-2 max-w-[75%] text-sm">
+                ? 'bg-[#10b981] text-white self-end max-w-[75%]'
+                : 'bg-gray-100 text-gray-800 max-w-[75%]'"
+              class="rounded-2xl px-4 py-2 text-sm mb-1">
               {{ message.content }}
+            </div>
+            <!-- Transaction Table -->
+            <div v-if="message.sender === 'assistant' && message.transactions?.length" class="mt-1 max-w-[420px] text-xs self-start">
+              <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100">
+                <table class="min-w-full divide-y divide-gray-100">
+                  <thead class="bg-gray-50">
+                    <tr>
+                      <th class="px-2 py-1.5 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                      <th class="px-2 py-1.5 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                      <th class="px-2 py-1.5 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider w-[80px] max-w-[80px]">Note</th>
+                      <th class="px-2 py-1.5 text-right text-[10px] font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                    </tr>
+                  </thead>
+                  <tbody class="bg-white divide-y divide-gray-100">
+                    <tr v-for="transaction in message.transactions" :key="transaction.id" class="hover:bg-gray-50">
+                      <td class="px-2 py-1.5 text-[11px] text-gray-900 whitespace-nowrap">{{ formatDate(transaction.transaction_date) }}</td>
+                      <td class="px-2 py-1.5 text-[11px] text-gray-900 whitespace-nowrap">{{ transaction.category }}</td>
+                      <td class="px-2 py-1.5 text-[11px] text-gray-900 truncate max-w-[80px]" :title="transaction.note">{{ transaction.note }}</td>
+                      <td class="px-2 py-1.5 text-[11px] text-right whitespace-nowrap" :class="transaction.type === 'income' ? 'text-green-600' : 'text-red-600'">
+                        {{ formatAmount(transaction.amount, transaction.type) }}
+                      </td>
+                    </tr>
+                  </tbody>
+                  <tfoot v-if="message.summary" class="bg-gray-50 text-[11px]">
+                    <tr>
+                      <td colspan="3" class="px-2 py-1.5 font-medium text-gray-900">Total Income</td>
+                      <td class="px-2 py-1.5 text-right text-green-600 whitespace-nowrap">{{ formatAmount(message.summary.total_income) }}</td>
+                    </tr>
+                    <tr>
+                      <td colspan="3" class="px-2 py-1.5 font-medium text-gray-900">Total Expense</td>
+                      <td class="px-2 py-1.5 text-right text-red-600 whitespace-nowrap">{{ formatAmount(message.summary.total_expense) }}</td>
+                    </tr>
+                    <tr>
+                      <td colspan="3" class="px-2 py-1.5 font-medium text-gray-900">Balance</td>
+                      <td class="px-2 py-1.5 text-right whitespace-nowrap" :class="message.summary.balance >= 0 ? 'text-green-600' : 'text-red-600'">
+                        {{ formatAmount(message.summary.balance) }}
+                      </td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
             </div>
           </div>
 
@@ -66,9 +107,9 @@
           </div>
           <!-- Sample prompt chips -->
           <div class="flex space-x-2">
-            <button @click="inputMessage = 'Show me last month’s spend'; handleSendMessage()"
+            <button @click="inputMessage = 'Show me last month\'s spend'; handleSendMessage()"
               class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs hover:bg-gray-200">
-              Show last month’s spend
+              Show last month's spend
             </button>
             <button @click="inputMessage = 'Find all grocery transactions'; handleSendMessage()"
               class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs hover:bg-gray-200 sm:block hidden">
@@ -98,6 +139,7 @@ import posthog from 'posthog-js'
 import { usePolarStore } from '../store/polar'
 import UpgradeModal from '../components/UpgradeModal.vue'
 import {useRoute} from "vue-router";
+import { format } from 'date-fns'
 
 const inputMessage = ref('')
 const chatStore = useChatStore()
@@ -204,5 +246,25 @@ const handleUpgrade = async () => {
       type: 'error'
     })
   }
+}
+
+const formatDate = (dateString) => {
+  return format(new Date(dateString), 'MMM d, yyyy')
+}
+
+const formatAmount = (amount, type = null) => {
+  const formattedAmount = new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
+  }).format(Math.abs(amount))
+
+  if (type === 'income') {
+    return `+${formattedAmount}`
+  } else if (type === 'expense') {
+    return `-${formattedAmount}`
+  }
+  return formattedAmount
 }
 </script>

@@ -126,7 +126,7 @@ class ChatService
             $limit     = $args['limit'] ?? 50;
             $category  = $args['category'] ?? null;
 
-            $baseQuery = Transaction::with('category:id,name')
+            $baseQuery = Transaction::with(['category:id,name'])
                 ->select(['id', 'note', 'category_id', 'amount', 'transaction_date', 'type'])
                 ->where('user_id', $userId)
                 ->whereBetween('transaction_date', ["$startDate 00:00:00", "$endDate 23:59:59"]);
@@ -155,12 +155,27 @@ class ChatService
             ];
 
             $history[] = [
+                'role' => 'user',
+                'content' => implode("\n", [
+                    'today date: ' . now()->format('Y-m-d'),
+                    'Be professional in financial analysis.',
+                    'Do not format responses as markdown summaries.',
+                    'Do not start replies with phrases like "Here\'s a summary" or "Detailed Transactions:".',
+                    'Avoid listing transactions manually. The app will render them using $transactions in UI.',
+                    'If there are too many transactions (like for a full year), only analyze or summarize them briefly.',
+                    'Focus on insights or totals. Let the frontend handle detailed rendering.',
+                    'keep the user result as minimal as you can'
+                ])
+            ];
+
+            $history[] = [
                 'role' => 'function',
                 'name' => 'get_recent_transactions',
                 'content' => json_encode(['summary' => $summary, 'transactions' => $transactions]),
             ];
 
             // Re-call OpenAI for final assistant response
+
             $finalResponse = $connector->sendChatRequest($history, model: 'gpt-4o-mini');
             $finalChoice = $finalResponse['choices'][0]['message'] ?? [];
             $assistantContent = $finalChoice['content'] ?? '';
@@ -182,7 +197,7 @@ class ChatService
             'transactions'    => $transactions->map(fn ($tx) => [
                 'id' => $tx->id,
                 'note' => $tx->note,
-                'category' => $tx->category->name ?? null,
+                'category' => $tx->category->name ?? '-',
                 'amount' => $tx->amount,
                 'type' => $tx->type,
                 'transaction_date' => $tx->transaction_date->format('Y-m-d'),
