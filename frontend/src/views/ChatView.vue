@@ -7,7 +7,7 @@
           <div class="flex items-center gap-2">
             <img src="../assets/images/monkey-assistant.png" alt="Dex" class="w-6 h-6" />
             <h2 class="text-lg font-semibold text-gray-900">
-              Dex <span class="text-sm text-[#10b981] font-normal">(beta)</span>
+              Dex 
             </h2>
           </div>
         </div>
@@ -77,70 +77,11 @@
           </div>
         </div>
 
-        <!-- Subscription Modal -->
-        <div v-if="showSubscriptionModal"
-          class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-          <div class="bg-white rounded-lg p-6 max-w-sm w-full mx-4">
-            <div class="text-center">
-              <div class="mb-4">
-                <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-emerald-100">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-emerald-600" fill="none"
-                    viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
-              </div>
-              <div class="mb-6">
-                <h2 class="text-2xl font-bold text-gray-900">Pro Plan</h2>
-                <p class="text-3xl font-bold text-emerald-600 mt-2">$7<span
-                    class="text-lg font-normal text-gray-600">/month</span></p>
-              </div>
-
-              <div class="space-y-4 mb-6 text-left">
-                <div class="flex items-start">
-                  <svg class="h-5 w-5 text-emerald-500 mt-0.5 mr-2" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span class="text-gray-700">Custom Categories</span>
-                </div>
-                <div class="flex items-start">
-                  <svg class="h-5 w-5 text-emerald-500 mt-0.5 mr-2" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span class="text-gray-700">Multi Wallet <span class="text-xs text-emerald-600">(coming
-                      soon)</span></span>
-                </div>
-                <div class="flex items-start">
-                  <svg class="h-5 w-5 text-emerald-500 mt-0.5 mr-2" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span class="text-gray-700">Weekly Email Updates</span>
-                </div>
-                <div class="flex items-start">
-                  <svg class="h-5 w-5 text-emerald-500 mt-0.5 mr-2" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span class="text-gray-700">AI Chat - Know Yourself Better</span>
-                </div>
-              </div>
-
-              <div class="flex flex-col gap-3">
-                <button @click="handleSubscribe" :disabled="processingPayment"
-                  class="w-full bg-emerald-500 text-white px-4 py-3 rounded-lg hover:bg-emerald-600 transition-colors font-medium">
-                  {{ processingPayment ? 'Processing...' : 'Upgrade to Pro' }}
-                </button>
-                <button @click="showSubscriptionModal = false"
-                  class="w-full px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors text-sm">
-                  Maybe Later
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <!-- UpgradeModal -->
+        <UpgradeModal
+          v-model="showUpgradeModal"
+          @upgrade="handleUpgrade"
+        />
       </div>
     </div>
   </div>
@@ -154,6 +95,9 @@ import { useNotifications } from '../composables/useNotifications'
 import { loadStripe } from '@stripe/stripe-js'
 import { useAuthStore } from '../store/auth'
 import posthog from 'posthog-js'
+import { usePolarStore } from '../store/polar'
+import UpgradeModal from '../components/UpgradeModal.vue'
+import {useRoute} from "vue-router";
 
 const inputMessage = ref('')
 const chatStore = useChatStore()
@@ -162,24 +106,57 @@ const authStore = useAuthStore()
 const { notify } = useNotifications()
 const loading = computed(() => chatStore.loading)
 const messages = computed(() => chatStore.messages)
-const hasActiveSubscription = computed(() => subscriptionStore.hasActiveSubscription)
-const showSubscriptionModal = ref(false)
+const hasActiveSubscription = computed(() => polarStore.hasActiveSubscription)
+const showUpgradeModal = ref(false)
 const stripe = ref(null)
 const processingPayment = ref(false)
+const polarStore = usePolarStore()
 
 onMounted(async () => {
-  stripe.value = await loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY)
-  await subscriptionStore.fetchSubscriptionStatus()
+  try {
+    const route = useRoute()
+    const checkoutId = route.query?.checkout_id
+    if(checkoutId) {
+      await polarStore.verifyCheckoutSession(checkoutId)
+    } else {
+      await polarStore.fetchSubscriptionStatus()
+    }
+
+    if (polarStore.hasActiveSubscription) {
+      notify({
+        title: 'Subscription Active',
+        message: 'You are currently on the Pro plan',
+        type: 'success'
+      })
+    } else {
+      notify({
+        title: 'Basic Plan',
+        message: 'Upgrade to Pro for advanced features',
+        type: 'info'
+      })
+    }
+  } catch (error) {
+    console.error('Subscription status error:', error)
+    notify({
+      title: 'Error',
+      message: error.response?.data?.error || 'Failed to fetch subscription status',
+      type: 'error'
+    })
+  }
 })
 
 const handleSendMessage = async () => {
   if (!inputMessage.value.trim() || loading.value) return
 
-  // Commenting out premium check to make chat free
-  // if (!hasActiveSubscription.value) {
-  //   showSubscriptionModal.value = true
-  //   return
-  // }
+  if (!polarStore.hasActiveSubscription) {
+    showUpgradeModal.value = true
+    notify({
+      title: 'Subscription Required',
+      message: 'Please upgrade to Pro plan to use chat features',
+      type: 'error'
+    })
+    return
+  }
 
   if (authStore.user?.email) {
     posthog.identify(authStore.user.email, {
@@ -188,47 +165,50 @@ const handleSendMessage = async () => {
     })
   }
 
-  posthog.capture('chat_message_sent', {
-    message: inputMessage.value,
-    user_id: authStore.user?.id,
-    user_email: authStore.user?.email,
-    timestamp: new Date().toISOString()
-  })
+  try {
+    posthog.capture('chat_message_sent', {
+      message: inputMessage.value,
+      user_id: authStore.user?.id,
+      user_email: authStore.user?.email,
+      timestamp: new Date().toISOString()
+    })
 
-  await sendMessage()
+    await sendMessage()
+  } catch (error) {
+    console.error('Chat error:', error)
+    notify({
+      title: 'Error',
+      message: error.response?.data?.error || 'Failed to send message',
+      type: 'error'
+    })
+  }
 }
 
 const sendMessage = async () => {
-  await chatStore.sendMessage({ message: inputMessage.value })
-  inputMessage.value = ''
-}
-
-const handleSubscribe = async () => {
-  if (processingPayment.value || !stripe.value) return
-
-  processingPayment.value = true
   try {
-    const response = await subscriptionStore.createSubscription()
-    if (!response.session_id) {
-      throw new Error('Unable to start subscription process. Please try again.')
-    }
-
-    const { error } = await stripe.value.redirectToCheckout({
-      sessionId: response.session_id,
-    })
-
-    if (error) {
-      throw new Error(error.message || 'An unexpected error occurred')
-    }
+    await chatStore.sendMessage({ message: inputMessage.value })
+    inputMessage.value = ''
   } catch (error) {
-    console.error('Subscription error:', error)
+    console.error('Send message error:', error)
     notify({
       title: 'Error',
-      message: error.message || 'Failed to start subscription process',
-      type: 'error',
+      message: error.response?.data?.error || 'Failed to process message',
+      type: 'error'
     })
-  } finally {
-    processingPayment.value = false
+    throw error // Re-throw to be caught by handleSendMessage
+  }
+}
+
+const handleUpgrade = async () => {
+  try {
+    await polarStore.initiateCheckout()
+  } catch (error) {
+    console.error('Upgrade failed:', error)
+    notify({
+      title: 'Upgrade Failed',
+      message: error.response?.data?.error || 'Failed to process upgrade',
+      type: 'error'
+    })
   }
 }
 </script>

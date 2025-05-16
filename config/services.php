@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    'polar' => [
+        'webhook_secret' => env('POLAR_WEBHOOK_SECRET'),
+        'polar_url' => env('POLAR_URL'),
+        'polar_api_key' => env('POLAR_API_KEY'),
+    ],
+
 ];

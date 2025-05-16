@@ -47,6 +47,7 @@ class ChatService
             'role' => 'system',
             'content' => implode("\n", [
                 // ❶ Always return explicit dates
+                'be proffessional in financial analysis and reporting',
                 'For every period mention, reply (or call a function) with exact `start_date` and `end_date` in Y-m-d.',
                 // ❷ Assumptions
                 'If a month is given without a year, assume the current year (' . now()->year . ').',

@@ -8,6 +8,7 @@ use App\Http\Controllers\ChatController;
 use App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\GoalsController;
+use App\Http\Controllers\PolarSubscriptionController;
 use App\Http\Controllers\RecurringExpenseController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\StatsController;
@@ -26,15 +27,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('transactions/stats', [StatsController::class, 'showStats']);
 
     // Subscription Routes
-    Route::prefix('subscription')->group(function () {
-        Route::post('checkout', [SubscriptionController::class, 'createCheckoutSession']);
-        Route::get('status', [SubscriptionController::class, 'getSubscriptionStatus']);
-        Route::post('verify-session', [SubscriptionController::class, 'verifyCheckoutSession']);
-        Route::post('cancel', [SubscriptionController::class, 'cancelSubscription']);
-        Route::post('resume', [SubscriptionController::class, 'resumeSubscription']);
-        Route::post('payment-method', [SubscriptionController::class, 'updatePaymentMethod']);
-        Route::get('history', [SubscriptionController::class, 'history']);
-    });
+    // Route::prefix('subscription')->group(function () {
+    //     Route::post('checkout', [SubscriptionController::class, 'createCheckoutSession']);
+    //     Route::get('status', [SubscriptionController::class, 'getSubscriptionStatus']);
+    //     Route::post('verify-session', [SubscriptionController::class, 'verifyCheckoutSession']);
+    //     Route::post('cancel', [SubscriptionController::class, 'cancelSubscription']);
+    //     Route::post('resume', [SubscriptionController::class, 'resumeSubscription']);
+    //     Route::post('payment-method', [SubscriptionController::class, 'updatePaymentMethod']);
+    //     Route::get('history', [SubscriptionController::class, 'history']);
+    // });
 
     Route::delete('user-setttings/transactions/reset', [SettingsController::class, 'deleteTransactions']);
     Route::resource('settings', SettingsController::class);
@@ -61,6 +62,16 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Survey route
     Route::post('user/survey', [ServeyController::class, 'store']);
+
+
+    //Polar Subscription Routes
+    Route::post('polar/webhook', [PolarSubscriptionController::class, 'handleWebhook']);
+    Route::prefix('polar/subscription')->group(function () {
+        Route::post('verify-session', [PolarSubscriptionController::class, 'verifyCheckoutSession']);
+        Route::post('cancel', [PolarSubscriptionController::class, 'cancelSubscription']);
+        Route::get('status', [PolarSubscriptionController::class, 'getSubscriptionStatus']);
+        Route::get('history', [PolarSubscriptionController::class, 'index']);
+    });
 
 });
 

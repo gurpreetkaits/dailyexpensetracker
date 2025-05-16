@@ -179,6 +179,7 @@ import { useSettingsStore } from '../store/settings'
 import { numberMixin } from '../mixins/numberMixin'
 import axios from 'axios'
 import { getCategoryTransactions } from '../services/TransactionService'
+import { useNotifications } from '../composables/useNotifications'
 
 export default {
     name: 'StatsPage',
@@ -192,6 +193,10 @@ export default {
         CircleDot, CircleX, BottomSheet
     },
     mixins: [numberMixin],
+    setup() {
+        const { notify } = useNotifications()
+        return { notify }
+    },
     data() {
         return {
             showFilterModal: false,
@@ -319,26 +324,38 @@ export default {
                 this.showFilterModal = false
             } catch (error) {
                 console.error('Error applying filter:', error)
+                this.notify({
+                    title: 'Error',
+                    message: error.response?.data?.error || 'Failed to update statistics',
+                    type: 'error'
+                })
             }
         },
 
         async openCategoryTransactions(category) {
-            this.selectedCategory = category;
-            this.showCategoryModal = true;
-            this.loadingCategoryTx = true;
-            this.categoryTxError = null;
+            this.selectedCategory = category
+            this.showCategoryModal = true
+            this.loadingCategoryTx = true
+            this.categoryTxError = null
+            
             try {
                 const filters = {
                     ...this.getFilters,
                     category: category.id,
                 }
-                const response = await getCategoryTransactions(filters);
-                this.categoryTransactions = response.transactions;
-            } catch (err) {
-                this.categoryTxError = 'Failed to load transactions.';
-                this.categoryTransactions = [];
+                const response = await getCategoryTransactions(filters)
+                this.categoryTransactions = response.transactions
+            } catch (error) {
+                console.error('Category transactions error:', error)
+                this.categoryTxError = error.response?.data?.error || 'Failed to load transactions'
+                this.notify({
+                    title: 'Error',
+                    message: this.categoryTxError,
+                    type: 'error'
+                })
+                this.categoryTransactions = []
             } finally {
-                this.loadingCategoryTx = false;
+                this.loadingCategoryTx = false
             }
         },
 
@@ -405,6 +422,11 @@ export default {
             await this.fetchStats(this.getFilters)
         } catch (error) {
             console.error('Error in StatsView created:', error)
+            this.notify({
+                title: 'Error',
+                message: error.response?.data?.error || 'Failed to load statistics',
+                type: 'error'
+            })
         }
     }
 }

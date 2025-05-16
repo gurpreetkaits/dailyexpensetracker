@@ -20,8 +20,8 @@ class AbstractConnector extends Connector
                 'url' => $pendingRequest->getUrl(),
                 'method' => $pendingRequest->getMethod(),
                 'status' => 'pending',
-                'request_headers' => json_encode($pendingRequest->headers()->all()),
-                'request_body' => json_encode($pendingRequest->body()->all()),
+                'request_headers' => json_encode($pendingRequest->headers()?->all()),
+                'request_body' => json_encode($pendingRequest->body()?->all()),
                 'user_id' => Auth::id(),
             ]);
         });
@@ -33,7 +33,7 @@ class AbstractConnector extends Connector
             if ($log) {
                 $log->update([
                     'status' => $response->status(),
-                    'response_headers' => json_encode($response->headers()),
+                    'response_headers' => json_encode($response->headers()?->all()),
                     'response_body' => $response->body(),
                 ]);
             }

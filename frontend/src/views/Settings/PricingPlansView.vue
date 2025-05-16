@@ -10,7 +10,7 @@
           </div>
           <div class="flex items-center gap-2">
             <span class="px-2 py-0.5 rounded-full text-xs font-medium"
-              :class="hasActiveSubscription ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-800'">
+              :class="hasActiveSubscription ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800'">
               {{ hasActiveSubscription ? 'Pro Plan Active' : 'Basic Plan' }}
             </span>
           </div>
@@ -19,55 +19,79 @@
         <!-- Plan Cards -->
         <div class="flex flex-col md:flex-row md:grid md:grid-cols-2 gap-3">
           <!-- Basic Plan Card -->
-          <div
-            class="rounded-lg border p-4 flex flex-col justify-between bg-emerald-50 md:min-w-0"
-            :class="!hasActiveSubscription ? 'border-emerald-500 ring-1 ring-emerald-500' : 'border-gray-200'"
-          >
+          <div class="rounded-lg border p-4 flex flex-col justify-between"
+            :class="!hasActiveSubscription ? 'bg-blue-50 border-blue-500 ring-1 ring-blue-500' : 'bg-gray-50 border-gray-200'">
             <div>
               <div class="flex items-center justify-between mb-1">
                 <span class="text-xs font-medium text-gray-500">Basic</span>
-                <span v-if="!hasActiveSubscription" class="text-emerald-600 text-xs font-semibold">Current</span>
+                <span v-if="!hasActiveSubscription" class="text-blue-600 text-xs font-semibold">Current</span>
               </div>
               <h3 class="text-lg font-bold text-gray-900 mb-1">Basic Plan</h3>
-              <p class="text-2xl font-bold text-gray-900 mb-2">$0<span class="text-base font-normal text-gray-600">/month</span></p>
-              <ul class="space-y-1 text-xs text-gray-700 mb-3">
-                <li>Basic expense tracking and budgeting</li>
-                <li>Default categories</li>
-                <li>Basic monthly reports</li>
-                <li>Single wallet</li>
-              </ul>
+              <p class="text-2xl font-bold text-gray-900 mb-2">$0<span
+                  class="text-base font-normal text-gray-600">/month</span></p>
+              <div class="space-y-3">
+                <div class="flex items-start gap-3">
+                  <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                  <p class="text-sm text-gray-600">Basic expense tracking and budgeting</p>
+                </div>
+                <div class="flex items-start gap-3">
+                  <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                  <p class="text-sm text-gray-600">Default categories</p>
+                </div>
+                <div class="flex items-start gap-3">
+                  <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                  <p class="text-sm text-gray-600">Basic monthly reports</p>
+                </div>
+                <div class="flex items-start gap-3">
+                  <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                  <p class="text-sm text-gray-600">Single wallet</p>
+                </div>
+              </div>
             </div>
           </div>
           <!-- Pro Plan Card -->
-          <div
-            class="rounded-lg border p-4 flex flex-col justify-between bg-emerald-50 md:min-w-0"
-            :class="hasActiveSubscription ? 'border-emerald-500 ring-1 ring-emerald-200' : 'border-gray-200'"
-          >
+          <div class="rounded-lg border p-4 flex flex-col justify-between"
+            :class="hasActiveSubscription ? 'bg-blue-50 border-blue-500 ring-1 ring-blue-500' : 'bg-gray-50 border-gray-200'">
             <div>
               <div class="flex items-center justify-between mb-1">
-                <span class="text-xs font-medium text-emerald-700">Pro</span>
-                <span v-if="hasActiveSubscription" class="text-emerald-600 text-xs font-semibold">Current</span>
+                <span class="text-xs font-medium"
+                  :class="hasActiveSubscription ? 'text-blue-700' : 'text-gray-500'">Pro</span>
+                <span v-if="hasActiveSubscription" class="text-blue-600 text-xs font-semibold">Current</span>
               </div>
               <h3 class="text-lg font-bold text-gray-900 mb-1">Pro Plan</h3>
-              <p class="text-2xl font-bold text-gray-900 mb-2">$7<span class="text-base font-normal text-gray-600">/month</span></p>
-              <ul class="space-y-1 text-xs text-gray-700 mb-3">
-                <li>AI-powered analytics</li>
-                <li>AI Chat (Know yourself better)</li>
-                <li>Custom categories</li>
-                <li>Multiple wallets</li>
-                <li>Import bank statements (soon)</li>
-              </ul>
+              <p class="text-2xl font-bold text-gray-900 mb-2">$4.99<span
+                  class="text-base font-normal text-gray-600">/month</span></p>
+                  <div class="space-y-3">
+                    <div class="flex items-start gap-3">
+                      <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                      <p class="text-sm text-gray-600">Advanced expense analytics and insights (AI)</p>
+                    </div>
+                    <div class="flex items-start gap-3">
+                      <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                      <p class="text-sm text-gray-600">AI Access (Know yourself better)</p>
+                    </div>
+                    <div class="flex items-start gap-3">
+                      <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                      <p class="text-sm text-gray-600">Priority support and updates</p>
+                    </div>
+                    <div class="flex items-start gap-3">
+                      <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                      <p class="text-sm text-gray-600">Request any new feature</p>
+                    </div>
+                      <div class="flex items-start gap-3">
+                          <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                          <p class="text-sm text-gray-600">Free access to future updates</p>
+                      </div>
+                  </div>
             </div>
-            <div class="mt-2">
-              <button v-if="!hasActiveSubscription"
-                @click="handleSubscription"
-                class="w-full bg-emerald-500 text-white px-3 py-1.5 text-sm rounded-lg hover:bg-emerald-600 transition-colors"
+            <div class="mt-6 flex flex-col gap-3">
+              <button v-if="!hasActiveSubscription" @click="handleSubscription"
+                class="w-full rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                 :disabled="processingPayment">
-                {{ processingPayment ? 'Processing...' : 'Upgrade to Pro' }}
+                {{ processingPayment ? 'Processing...' : 'Upgrade Now' }}
               </button>
-              <button v-else
-                @click="handleManageSubscription"
-                class="w-full bg-gray-100 text-gray-700 px-3 py-1.5 text-sm rounded-lg hover:bg-gray-200 transition-colors">
+              <button v-else @click="handleManageSubscription"
+                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50">
                 Manage Subscription
               </button>
             </div>
@@ -90,46 +114,23 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="item in subscriptionStore.subscriptionHistory" :key="item.id" class="border-b last:border-0">
-              <td class="py-1.5 px-2">{{ item.name || item.plan || 'Pro Plan' }}</td>
-              <td class="py-1.5 px-2">${{ item.price ?? 0 }}</td>
-              <td class="py-1.5 px-2">{{ item.created_at ? new Date(item.created_at).toLocaleDateString() : '' }}</td>
+            <tr v-if="polarStore.subscription" class="border-b last:border-0">
+              <td class="py-1.5 px-2">Pro Plan</td>
               <td class="py-1.5 px-2">
-                <span :class="item.stripe_status === 'active' ? 'text-emerald-600' : 'text-gray-500'">{{ item.stripe_status }}</span>
+                ${{ polarStore.subscription.items?.[0]?.amount || 4.99 }}
+              </td>
+              <td class="py-1.5 px-2">{{ polarStore.subscription.created_at ? new Date(polarStore.subscription.created_at).toLocaleDateString() : '' }}</td>
+              <td class="py-1.5 px-2">
+                <span :class="polarStore.subscription.status === 'active' ? 'text-blue-600' : 'text-red-500'">
+                  {{ polarStore.subscription.status }}
+                </span>
               </td>
             </tr>
-            <tr v-if="!subscriptionStore.subscriptionHistory.length">
+            <tr v-if="!polarStore.subscription">
               <td colspan="4" class="text-center text-gray-400 py-3">No purchase history found.</td>
             </tr>
           </tbody>
         </table>
-      </div>
-      <!-- Pagination Controls -->
-      <div v-if="totalPages > 1" class="mt-3 flex items-center justify-between">
-        <div class="text-xs text-gray-500">
-          {{ startIndex }}-{{ endIndex }} of {{ totalItems }}
-        </div>
-        <div class="flex gap-1">
-          <button @click="handlePageChange(currentPage - 1)"
-                  :disabled="currentPage === 1"
-                  class="px-2 py-0.5 rounded border text-xs disabled:opacity-50"
-                  :class="currentPage === 1 ? 'text-gray-400' : 'text-gray-700 hover:bg-gray-50'">
-            Prev
-          </button>
-          <button v-for="page in displayedPages"
-                  :key="page"
-                  @click="handlePageChange(page)"
-                  class="px-2 py-0.5 rounded border text-xs"
-                  :class="currentPage === page ? 'bg-emerald-500 text-white border-emerald-500' : 'text-gray-700 hover:bg-gray-50'">
-            {{ page }}
-          </button>
-          <button @click="handlePageChange(currentPage + 1)"
-                  :disabled="currentPage === totalPages"
-                  class="px-2 py-0.5 rounded border text-xs disabled:opacity-50"
-                  :class="currentPage === totalPages ? 'text-gray-400' : 'text-gray-700 hover:bg-gray-50'">
-            Next
-          </button>
-        </div>
       </div>
     </div>
   </div>
@@ -138,23 +139,23 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useSubscriptionStore } from '../../store/subscription'
+import { usePolarStore } from '../../store/polar'
 import { useNotifications } from '../../composables/useNotifications'
-import { loadStripe } from '@stripe/stripe-js'
+import { CheckCircle } from 'lucide-vue-next'
 
 const route = useRoute()
 const router = useRouter()
-const subscriptionStore = useSubscriptionStore()
+const polarStore = usePolarStore()
 const { notify } = useNotifications()
-const hasActiveSubscription = computed(() => subscriptionStore.hasActiveSubscription)
+const hasActiveSubscription = computed(() => polarStore.hasActiveSubscription)
 const processingPayment = ref(false)
-const stripe = ref(null)
 
 const currentPage = ref(1)
-const totalPages = computed(() => subscriptionStore.pagination.last_page)
-const startIndex = computed(() => subscriptionStore.pagination.from)
-const endIndex = computed(() => subscriptionStore.pagination.to)
-const totalItems = computed(() => subscriptionStore.pagination.total)
+const totalPages = computed(() => polarStore.subscription?.total_pages || 1)
+const startIndex = computed(() => polarStore.subscription?.from || 0)
+const endIndex = computed(() => polarStore.subscription?.to || 0)
+const totalItems = computed(() => polarStore.subscription?.total || 0)
+
 const displayedPages = computed(() => {
   const pages = []
   const maxVisiblePages = 5
@@ -172,56 +173,63 @@ const displayedPages = computed(() => {
 const handlePageChange = async (page) => {
   if (page < 1 || page > totalPages.value) return
   currentPage.value = page
-  await subscriptionStore.fetchSubscriptionHistory(page)
 }
 
 onMounted(async () => {
-  stripe.value = await loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY)
-  await subscriptionStore.fetchSubscriptionStatus()
-  await subscriptionStore.fetchSubscriptionHistory(currentPage.value)
-
-  const sessionId = route.query.session_id
-  if (sessionId) {
-    try {
-      const verified = await subscriptionStore.verifyCheckoutSession(sessionId)
-      if (verified) {
+  try {
+    const route = useRoute()
+    const checkoutId = route.query?.checkout_id
+    if (checkoutId) {
+      await polarStore.verifyCheckoutSession(checkoutId)
+      if (polarStore.hasActiveSubscription) {
         notify({
-          title: 'Success',
-          message: 'Premium features activated successfully',
+          title: 'Subscription Activated',
+          message: 'Welcome to the Pro plan!',
           type: 'success'
         })
-        router.replace({ path: route.path })
+      } else {
+        notify({
+          title: 'Subscription Failed',
+          message: 'Failed to activate subscription. Please try again.',
+          type: 'error'
+        })
       }
-    } catch (error) {
-      console.error('Failed to verify subscription:', error)
-      notify({
-        title: 'Error',
-        message: 'Failed to verify subscription',
-        type: 'error'
-      })
+    } else {
+      await polarStore.fetchSubscriptionStatus()
+      if (hasActiveSubscription.value) {
+        notify({
+          title: 'Subscription Active',
+          message: 'You are currently on the Pro plan',
+          type: 'success'
+        })
+      } else {
+        notify({
+          title: 'Basic Plan',
+          message: 'Upgrade to Pro for advanced features',
+          type: 'info'
+        })
+      }
     }
+  } catch (error) {
+    console.error('Subscription status error:', error)
+    notify({
+      title: 'Error',
+      message: error.response?.data?.error || 'Failed to fetch subscription status',
+      type: 'error'
+    })
   }
 })
 
 const handleSubscription = async () => {
-  if (processingPayment.value || !stripe.value) return
+  if (processingPayment.value) return
   processingPayment.value = true
   try {
-    const response = await subscriptionStore.createSubscription()
-    if (!response.session_id) {
-      throw new Error('Unable to start subscription process. Please try again.')
-    }
-    const { error } = await stripe.value.redirectToCheckout({
-      sessionId: response.session_id,
-    })
-    if (error) {
-      throw new Error(error.message || 'An unexpected error occurred')
-    }
+    await polarStore.initiateCheckout()
   } catch (error) {
     console.error('Subscription error:', error)
     notify({
-      title: 'Error',
-      message: error.message || 'Failed to start subscription process',
+      title: 'Upgrade Failed',
+      message: error.response?.data?.error || 'Failed to start subscription process',
       type: 'error'
     })
   } finally {
@@ -230,11 +238,20 @@ const handleSubscription = async () => {
 }
 
 const handleManageSubscription = () => {
-  notify({
-    title: 'Coming Soon',
-    message: 'Subscription management portal will be available soon',
-    type: 'info'
-  })
+  try {
+    notify({
+      title: 'Coming Soon',
+      message: 'Subscription management portal will be available soon',
+      type: 'info'
+    })
+  } catch (error) {
+    console.error('Manage subscription error:', error)
+    notify({
+      title: 'Error',
+      message: 'Failed to manage subscription',
+      type: 'error'
+    })
+  }
 }
 </script>
 
@@ -242,6 +259,7 @@ const handleManageSubscription = () => {
 .flex::-webkit-scrollbar {
   display: none;
 }
+
 .flex {
   -ms-overflow-style: none;
   scrollbar-width: none;

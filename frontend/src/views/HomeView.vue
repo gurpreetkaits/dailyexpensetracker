@@ -57,9 +57,11 @@ import ExpenseList from '../components/ExpenseList.vue'
 import { getCategories } from '../services/SettingsService'
 import { useAuthStore } from '../store/auth'
 import { submitSurvey as submitSurveyAPI } from '../services/AuthService'
+import { iconMixin } from '../mixins/iconMixin'
 
 export default {
   components: { ExpenseForm, ExpenseList },
+  mixins: [iconMixin],
   setup() {
     // Expense logic
     const showExpenseForm = ref(false)

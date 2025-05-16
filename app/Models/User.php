@@ -115,4 +115,17 @@ class User extends Authenticatable implements AuthMustVerifyEmail
             $q->where('created_at', '>=', now()->subDays(30));
         });
     }
+
+    public function subscription($type = 'default'): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+       return $this->hasMany(PolarSubscription::class)->with('items');
+    }
+
+    public function activeSubscription(){
+        return $this->hasOne(PolarSubscription::class)
+        ->where('status', 'active')
+        ->where('canceled_at', null)
+        ->where('ends_at', '>', now());
+    }
 }
+    

@@ -9,7 +9,7 @@
                 :class="$route.path === item.path ? 'bg-emerald-50 text-emerald-600' : 'text-gray-700 hover:text-gray-900'"
             >
                 <component :is="item.icon" class="w-5 h-5 mr-3 flex-shrink-0 " :class="$route.path === item.path ? 'bg-emerald-50 text-emerald-600' : 'hover:bg-emerald-50 hover:text-emerald-600'" />
-                <span>{{ item.name }} <span v-if="item?.beta" class="text-xs text-emerald-500">(beta)</span></span>
+                <span>{{ item.name }} <span v-if="item?.beta" class="text-xs text-emerald-500">(beta)</span> <span v-if="item?.premium" class="text-xs text-emerald-500">(premium)</span></span>
             </router-link>
         </div>
         <div>
@@ -39,7 +39,7 @@ export default {
                 { path: '/overview', name: 'Overview', icon: Home, show: true },
                 { path: '/stats', name: 'Stats', icon: BarChart, show: true },
                 {path: '/dashboard', name: 'Stats', icon: Home, show: true , beta: true},
-                { path: '/chat', name: 'Chat', icon: MessageCircle, show: true, beta: true },
+                { path: '/chat', name: 'Chat', icon: MessageCircle, show: true,  premium: true},
                 { path: '/plans', name: 'Plans', icon: Star, show: true, beta: true },
                 { path: '/settings', name: 'Settings', icon: Settings, show: true },
                 { path: '/admin-dashboard', name: 'Dashboard', icon: User, show: true }, // Example admin route
