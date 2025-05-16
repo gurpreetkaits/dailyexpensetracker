@@ -445,9 +445,10 @@ import { deleteTransaction, getTransactionById } from '../services/TransactionSe
 import { useSettingsStore } from '../store/settings';
 import { Dialog, DialogPanel, TransitionRoot, TransitionChild } from '@headlessui/vue'
 import { useRecurringExpenseStore } from '../store/recurringExpense';
+import { iconMixin } from '../mixins/iconMixin';
 export default {
   name: 'ExpenseList',
-  mixins: [numberMixin],
+  mixins: [numberMixin,iconMixin],
   components: {
     Calendar, Trash2, Plus, ShoppingBag, ReceiptIcon, Video, BriefcaseMedical, Gift, Circle, CircleEllipsis, Pizza, CircleDollarSign,
     BottomSheet,
