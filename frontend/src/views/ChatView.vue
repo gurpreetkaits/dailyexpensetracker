@@ -122,13 +122,7 @@ onMounted(async () => {
       await polarStore.fetchSubscriptionStatus()
     }
 
-    if (polarStore.hasActiveSubscription) {
-      notify({
-        title: 'Subscription Active',
-        message: 'You are currently on the Pro plan',
-        type: 'success'
-      })
-    } else {
+    if (!polarStore.hasActiveSubscription) {
       notify({
         title: 'Basic Plan',
         message: 'Upgrade to Pro for advanced features',
