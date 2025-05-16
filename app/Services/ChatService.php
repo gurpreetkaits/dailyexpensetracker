@@ -12,6 +12,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Saloon\Exceptions\Request\FatalRequestException;
 use Saloon\Exceptions\Request\RequestException;
+use Illuminate\Support\Facades\Log;
 
 class ChatService
 {
@@ -172,11 +173,7 @@ class ChatService
                     $endDate . ' 23:59:59'
                 ]);
 
-            if (Category::query()->where('id', $category)->exists()) {
-                $transactions = $transactions->whereHas('category', function ($query) use ($category) {
-                    $query->where('name', 'like', '%' . strtolower($category) . '%');
-                });
-            }
+            $transactions = $this->handleCategoryQuery($transactions, $category, Auth::user());
 
             $transactions = $transactions->get();
 
@@ -239,5 +236,37 @@ class ChatService
     private function userCurrency(){
         $userId = Auth::id();
         return Setting::where('user_id',$userId)->first()->currency_code;
+    }
+
+    private function handleCategoryQuery($transactions, $category, $user)
+    {
+        $userCategory = $user->customCategories()
+            ->where('name', 'like', '%' . strtolower($category) . '%')
+            ->first();
+
+        if ($userCategory) {
+            return $transactions->where('category_id', $userCategory->id);
+        }
+
+        $defaultCategory = Category::where('is_custom', false)
+            ->where('name', 'like', '%' . strtolower($category) . '%')
+            ->first();
+
+        if ($defaultCategory) {
+            return $transactions->where('category_id', $defaultCategory->id);
+        }
+
+        return $transactions->whereHas('category', function ($query) use ($category, $user) {
+            $query->where(function ($q) use ($category, $user) {
+                $q->whereHas('user', function ($userQuery) use ($user) {
+                    $userQuery->where('id', $user->id);
+                })
+                ->where('name', 'like', '%' . strtolower($category) . '%')
+                ->orWhere(function ($defaultQuery) use ($category) {
+                    $defaultQuery->where('is_custom', false)
+                        ->where('name', 'like', '%' . strtolower($category) . '%');
+                });
+            });
+        });
     }
 }

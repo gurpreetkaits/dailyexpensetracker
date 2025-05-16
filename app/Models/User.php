@@ -75,6 +75,21 @@ class User extends Authenticatable implements AuthMustVerifyEmail
         return $this->hasMany(RecurringExpense::class);
     }
 
+    public function categories()
+    {
+        return $this->hasMany(Category::class);
+    }
+
+    public function customCategories()
+    {
+        return $this->categories()->where('is_custom', true);
+    }
+
+    public function defaultCategories()
+    {
+        return $this->categories()->where('is_custom', false);
+    }
+
     public function getTotalExpenseDetails(): array
     {
         $expenses = RecurringExpense::where('user_id', $this->id)
