@@ -46,16 +46,14 @@ class ChatService
         $systemMessage = [
             'role' => 'system',
             'content' => implode("\n", [
-                // ❶ Always return explicit dates
                 'be proffessional in financial analysis and reporting',
                 'For every period mention, reply (or call a function) with exact `start_date` and `end_date` in Y-m-d.',
-                // ❷ Assumptions
                 'If a month is given without a year, assume the current year (' . now()->year . ').',
                 'If a year is given alone, use Jan 1 to Dec 31 of that year.',
-                // ❸ Natural-language helpers
                 '"last month" = first & last day of previous month, "this month" = first day this month to today,
                  "last week" = 7 days ago to yesterday,  "this week" = Monday to today,
-                 "yesterday" = yesterday, "today" = today.'
+                 "yesterday" = yesterday, "today" = today.',
+                 'if user did not mention a date, reply with last month',
             ]),
         ];
 
