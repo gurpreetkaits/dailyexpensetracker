@@ -22,7 +22,7 @@ class PolarConnector extends AbstractConnector
      */
     public function resolveBaseUrl(): string
     {
-        return config('services.polar.polar_url');
+        return 'https://api.polar.sh/v1';
     }
 
     /**
