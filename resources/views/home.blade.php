@@ -178,69 +178,92 @@
             </div>
         </div>
     </div>
-    <!-- PWA Installation Guide -->
-    <div id="installation" class="bg-emerald-50 py-16 scroll-mt-16">
+    <!-- YouTube Shorts Showcase -->
+    <div id="shorts" class="bg-emerald-50 py-16 scroll-mt-16">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 class="text-3xl font-bold text-center mb-8">Install Our App</h2>
-            <p class="text-center text-gray-600 mb-12">Get the best experience by installing Daily Expense Tracker on your mobile device</p>
+            <h2 class="text-3xl font-bold text-center mb-8">Watch Daily Expense Tracker in Action</h2>
+            <p class="text-center text-gray-600 mb-12">Check out our YouTube Shorts to see how Daily Expense Tracker can help you manage your finances better</p>
 
-            <div class="grid md:grid-cols-2 gap-12">
-                <!-- iOS Installation -->
-                <div class="bg-white p-6 rounded-xl shadow-sm">
-                    <h3 class="text-xl font-semibold mb-4 flex items-center">
-                        <svg class="w-6 h-6 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M12 2a7 7 0 017 7c0 2.38-1.19 4.47-3 5.74V17a2 2 0 01-2 2H8a2 2 0 01-2-2v-2.26C4.19 13.47 3 11.38 3 9a7 7 0 017-7z"/>
-                        </svg>
-                        Install on iOS
-                    </h3>
-                    <ol class="space-y-4">
-                        <li class="flex items-start">
-                            <span class="flex items-center justify-center w-6 h-6 bg-emerald-100 rounded-full mr-3 flex-shrink-0 text-emerald-600 text-sm">1</span>
-                            <p>Open Safari and visit the Daily Expense Tracker website</p>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="flex items-center justify-center w-6 h-6 bg-emerald-100 rounded-full mr-3 flex-shrink-0 text-emerald-600 text-sm">2</span>
-                            <p>Tap the Share button at the bottom of the browser</p>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="flex items-center justify-center w-6 h-6 bg-emerald-100 rounded-full mr-3 flex-shrink-0 text-emerald-600 text-sm">3</span>
-                            <p>Scroll down and tap "Add to Home Screen"</p>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="flex items-center justify-center w-6 h-6 bg-emerald-100 rounded-full mr-3 flex-shrink-0 text-emerald-600 text-sm">4</span>
-                            <p>Tap "Add" in the top right corner</p>
-                        </li>
-                    </ol>
-                </div>
+            @php
+                function getYoutubeVideoId($url) {
+                    $pattern = '/(?:youtube\.com\/shorts\/|youtu\.be\/)([a-zA-Z0-9_-]+)/';
+                    if (preg_match($pattern, $url, $matches)) {
+                        return $matches[1];
+                    }
+                    return null;
+                }
 
-                <!-- Android Installation -->
-                <div class="bg-white p-6 rounded-xl shadow-sm">
-                    <h3 class="text-xl font-semibold mb-4 flex items-center">
-                        <svg class="w-6 h-6 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
-                            <path d="M12 18h.01"/>
-                        </svg>
-                        Install on Android
-                    </h3>
-                    <ol class="space-y-4">
-                        <li class="flex items-start">
-                            <span class="flex items-center justify-center w-6 h-6 bg-emerald-100 rounded-full mr-3 flex-shrink-0 text-emerald-600 text-sm">1</span>
-                            <p>Open Chrome and visit the Daily Expense Tracker website</p>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="flex items-center justify-center w-6 h-6 bg-emerald-100 rounded-full mr-3 flex-shrink-0 text-emerald-600 text-sm">2</span>
-                            <p>Tap the three dots menu in the top right</p>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="flex items-center justify-center w-6 h-6 bg-emerald-100 rounded-full mr-3 flex-shrink-0 text-emerald-600 text-sm">3</span>
-                            <p>Tap "Install app" or "Add to Home screen"</p>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="flex items-center justify-center w-6 h-6 bg-emerald-100 rounded-full mr-3 flex-shrink-0 text-emerald-600 text-sm">4</span>
-                            <p>Follow the installation prompts</p>
-                        </li>
-                    </ol>
+                $shorts = [
+                    [
+                        'title' => 'How to Install PWA App on Android',
+                        'description' => 'Add to your home screen for the best experience',
+                        'link' => getYoutubeVideoId('https://youtube.com/shorts/4yDYxerAnHM')
+                    ],
+                    [
+                        'title' => 'How does AI work in Daily Expense Tracker',
+                        'description' => 'Get personalized spending insights improve your financial habits',
+                        'link' => getYoutubeVideoId('https://youtube.com/shorts/NEFURCY41oA')
+                    ]
+                ];
+            @endphp
+
+            <div class="relative">
+                <div class="md:hidden h-screen overflow-y-scroll snap-y snap-mandatory">
+                    @foreach($shorts as $short)
+                        <div class="h-screen snap-start flex items-center justify-center bg-black">
+                            <iframe class="w-full h-full"
+                                src="https://www.youtube.com/embed/{{ $short['link'] }}?autoplay=0&rel=0&modestbranding=1"
+                                title="{{ $short['title'] }}"
+                                frameborder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowfullscreen>
+                            </iframe>
+                        </div>
+                    @endforeach
                 </div>
+            
+                <div class="hidden md:block">
+                    <div class="overflow-x-auto pb-6 scrollbar-hide">
+                        <div class="flex gap-6 snap-x snap-mandatory" style="min-width: min-content;">
+                            @foreach($shorts as $short)
+                                <div class="flex-none w-[240px] sm:w-[280px] md:w-[320px] snap-center">
+                                    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                                        <div class="aspect-[9/16]">
+                                            <iframe class="w-full h-full"
+                                                src="https://www.youtube.com/embed/{{ $short['link'] }}?autoplay=0&rel=0&modestbranding=1"
+                                                title="{{ $short['title'] }}"
+                                                frameborder="0"
+                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                allowfullscreen>
+                                            </iframe>
+                                        </div>
+                                        <div class="p-3 border-t border-gray-100">
+                                            <h3 class="text-sm font-medium text-gray-900 truncate">{{ $short['title'] }}</h3>
+                                            <p class="text-xs text-gray-500 mt-0.5 line-clamp-2">{{ $short['description'] }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+            
+                    <!-- Scroll Indicators (only for desktop carousel) -->
+                    <div class="flex justify-center mt-6 gap-2">
+                        @foreach($shorts as $index => $short)
+                            <div class="w-2 h-2 rounded-full bg-emerald-200"></div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-8">
+                <a href="https://www.youtube.com/@Gurpreetsdevlife/shorts" target="_blank" 
+                    class="inline-flex items-center px-6 py-3 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors">
+                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                    </svg>
+                    Watch More Shorts
+                </a>
             </div>
         </div>
     </div>
