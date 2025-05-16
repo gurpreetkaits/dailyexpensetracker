@@ -1,35 +1,35 @@
-/* eslint-disable no-console */
+  /* eslint-disable no-console */
 
-import { register } from 'register-service-worker'
+  import { register } from 'register-service-worker'
 
-if (import.meta.env.NODE_ENV === 'production') {
-  register(`${import.meta.env.VITE_BACKEND_URL}service-worker.js`, {
-    ready () {
-      console.log(
-        'App is being served from cache by a service worker.\n' +
-        'For more details, visit https://goo.gl/AFskqB'
-      )
-    },
-    registered () {
-      console.log('Service worker has been registered.')
-    },
-    cached () {
-      console.log('Content has been cached for offline use.')
-    },
-    updatefound () {
-      console.log('New content is downloading.')
-    },
-    updated (registration) {
-      console.log('New content is available; please refresh.')
-      if (confirm('New version available. Reload now?')) {
-        window.location.reload()
+  if (import.meta.env.NODE_ENV === 'production') {
+    register(`${import.meta.env.VITE_BACKEND_URL}service-worker.js`, {
+      ready () {
+        console.log(
+          'App is being served from cache by a service worker.\n' +
+          'For more details, visit https://goo.gl/AFskqB'
+        )
+      },
+      registered () {
+        console.log('Service worker has been registered.')
+      },
+      cached () {
+        console.log('Content has been cached for offline use.')
+      },
+      updatefound () {
+        console.log('New content is available; please refresh.')
+        if (confirm('New version available. Reload now?')) {
+          window.location.reload()
+        }
+      },
+      updated (registration) {
+        registration.update()
+      },
+      offline () {
+        console.log('No internet connection found. App is running in offline mode.')
+      },
+      error (error) {
+        console.error('Error during service worker registration:', error)
       }
-    },
-    offline () {
-      console.log('No internet connection found. App is running in offline mode.')
-    },
-    error (error) {
-      console.error('Error during service worker registration:', error)
-    }
-  })
-}
+    })
+  }
