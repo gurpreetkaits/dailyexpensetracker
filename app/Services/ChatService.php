@@ -175,8 +175,10 @@ class ChatService
                     $endDate . ' 23:59:59'
                 ]);
 
+            if($category){
                 $transactions = $this->handleCategoryQuery($transactions, $category, Auth::user());
-                
+            }
+
                 Log::info($transactions->toRawSql());
             // Calculate analytics
             $totalIncome = $transactions->where('type','income')->sum('amount');
@@ -195,7 +197,7 @@ class ChatService
                         'end' => $endDate
                     ]
                 ],
-                'transactions' => $transactions->limit($limit)->get()
+                'transactions' => $transactions->take($limit)
             ];
 
             $history[] = [
