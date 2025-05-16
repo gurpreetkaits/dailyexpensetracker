@@ -48,7 +48,14 @@
                     <tr v-for="transaction in message.transactions" :key="transaction.id" class="hover:bg-gray-50">
                       <td class="px-2 py-1.5 text-[11px] text-gray-900 whitespace-nowrap">{{ formatDate(transaction.transaction_date) }}</td>
                       <td class="px-2 py-1.5 text-[11px] text-gray-900 whitespace-nowrap">{{ transaction.category }}</td>
-                      <td class="px-2 py-1.5 text-[11px] text-gray-900 truncate max-w-[80px]" :title="transaction.note">{{ transaction.note }}</td>
+                      <td class="px-2 py-1.5 text-[11px] text-gray-900 truncate max-w-[80px] relative"
+                          @mouseenter="showTooltip(transaction.id, transaction.note)"
+                          @mouseleave="hideTooltip">
+                        {{ transaction.note }}
+                        <div v-if="hoveredNoteId === transaction.id" class="absolute z-10 left-1/2 -translate-x-1/2 bottom-full mb-1 w-max max-w-xs bg-gray-900 text-white text-xs rounded px-2 py-1 shadow-lg pointer-events-none whitespace-pre-line">
+                          {{ hoveredNoteText }}
+                        </div>
+                      </td>
                       <td class="px-2 py-1.5 text-[11px] text-right whitespace-nowrap" :class="transaction.type === 'income' ? 'text-green-600' : 'text-red-600'">
                         {{ formatAmount(transaction.amount, transaction.type) }}
                       </td>
@@ -153,6 +160,8 @@ const showUpgradeModal = ref(false)
 const stripe = ref(null)
 const processingPayment = ref(false)
 const polarStore = usePolarStore()
+const hoveredNoteId = ref(null)
+const hoveredNoteText = ref('')
 
 onMounted(async () => {
   try {
@@ -266,5 +275,14 @@ const formatAmount = (amount, type = null) => {
     return `-${formattedAmount}`
   }
   return formattedAmount
+}
+
+const showTooltip = (id, note) => {
+  hoveredNoteId.value = id
+  hoveredNoteText.value = note
+}
+const hideTooltip = () => {
+  hoveredNoteId.value = null
+  hoveredNoteText.value = ''
 }
 </script>
