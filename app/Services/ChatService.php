@@ -47,6 +47,7 @@ class ChatService
         $systemMessage = [
             'role' => 'system',
             'content' => implode("\n", [
+                'today date:'. date('Y-m-d'),
                 'be proffessional in financial analysis and reporting',
                 'For every period mention, reply (or call a function) with exact `start_date` and `end_date` in Y-m-d.',
                 'If a month is given without a year, assume the current year (' . now()->year . ').',
@@ -158,6 +159,7 @@ class ChatService
             $hasCall   = !empty($callName);
         }
 
+        $transactions = [];
         if ($hasCall && $callName === 'get_recent_transactions') {
             // Get date range and other parameters with better defaults
             $startDate = $args['start_date'] ?? Carbon::now()->startOfMonth()->format('Y-m-d');
@@ -173,10 +175,9 @@ class ChatService
                     $endDate . ' 23:59:59'
                 ]);
 
-            $transactions = $this->handleCategoryQuery($transactions, $category, Auth::user());
-
-            $transactions = $transactions->get();
-
+                $transactions = $this->handleCategoryQuery($transactions, $category, Auth::user());
+                
+                Log::info($transactions->toRawSql());
             // Calculate analytics
             $totalIncome = $transactions->where('type','income')->sum('amount');
             $totalExpense = $transactions
@@ -194,7 +195,7 @@ class ChatService
                         'end' => $endDate
                     ]
                 ],
-                'transactions' => $transactions->take($limit)
+                'transactions' => $transactions->limit($limit)->get()
             ];
 
             $history[] = [
@@ -213,7 +214,6 @@ class ChatService
             $assistantRole    = $finalChoice['role'] ?? 'assistant';
             $responseToStore  = $finalResponse;
         } else {
-            // No function call; use direct content
             $assistantContent = $choice['content'] ?? '';
             $responseToStore  = $response;
         }
@@ -230,6 +230,7 @@ class ChatService
         return [
             'reply'           => $assistantContent,
             'conversation_id' => $conversation->id,
+            'transactions' => $transactions,
         ];
     }
 
@@ -240,6 +241,9 @@ class ChatService
 
     private function handleCategoryQuery($transactions, $category, $user)
     {
+        if(!$category){
+            return $transactions;
+        }
         $userCategory = $user->customCategories()
             ->where('name', 'like', '%' . strtolower($category) . '%')
             ->first();
