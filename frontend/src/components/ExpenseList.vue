@@ -387,30 +387,12 @@
       <Plus class="h-6 w-6" />
     </button>
     <!-- Start Desktop Model -->
-    <TransitionRoot appear :show="showDesktopModal" as="template">
-      <Dialog as="div" @close="closeModal" class="relative z-50 hidden md:block">
-        <TransitionChild enter="duration-200 ease-out" enter-from="opacity-0" enter-to="opacity-100"
-          leave="duration-200 ease-in" leave-from="opacity-100" leave-to="opacity-0">
-          <div class="fixed inset-0 bg-black/30 backdrop-blur-sm" />
-        </TransitionChild>
-
-        <div class="fixed inset-0 overflow-y-auto">
-          <div class="flex min-h-full items-center justify-center p-4">
-            <TransitionChild enter="duration-300 ease-out" enter-from="opacity-0 scale-95"
-              enter-to="opacity-100 scale-100" leave="duration-200 ease-in" leave-from="opacity-100 scale-100"
-              leave-to="opacity-0 scale-95">
-              <DialogPanel
-                class="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 shadow-xl transition-all">
-                <AddTransaction v-if="getActiveTab === 'daily'" @transaction-added="handleTransactionAdded"
-                  @remove="removeItem" :item="editingTransaction" @close="closeModal" />
-                <RecurringExpenseForm v-else :editingExpense="editingRecurring" :loading="saving"
-                  @save="handleRecurringExpenseSave" @delete="handleRecurringExpenseDelete" @cancel="closeModal" />
-              </DialogPanel>
-            </TransitionChild>
-          </div>
-        </div>
-      </Dialog>
-    </TransitionRoot>
+    <GlobalModal v-model="showDesktopModal" :title="getActiveTab === 'daily' ? (editingTransaction ? 'Edit Transaction' : 'New Transaction') : 'Recurring Expense'" size="max-w-md">
+      <template #default>
+        <AddTransaction v-if="getActiveTab === 'daily'" @transaction-added="handleTransactionAdded" @remove="removeItem" :item="editingTransaction" @close="closeModal" />
+        <RecurringExpenseForm v-else :editingExpense="editingRecurring" :loading="saving" @save="handleRecurringExpenseSave" @delete="handleRecurringExpenseDelete" @cancel="closeModal" />
+      </template>
+    </GlobalModal>
     <!-- End Desktop Model -->
     <!-- Bottom Sheet -->
     <BottomSheet v-model="showAddModal" class="md:hidden">
@@ -446,6 +428,7 @@ import { useSettingsStore } from '../store/settings';
 import { Dialog, DialogPanel, TransitionRoot, TransitionChild } from '@headlessui/vue'
 import { useRecurringExpenseStore } from '../store/recurringExpense';
 import { iconMixin } from '../mixins/iconMixin';
+import GlobalModal from './Global/GlobalModal.vue'
 export default {
   name: 'ExpenseList',
   mixins: [numberMixin,iconMixin],
@@ -462,7 +445,7 @@ export default {
     ArrowUpCircle,
     ArrowDownCircle,
     PiggyBank, RepeatIcon, CalendarClock,
-    Dialog, DialogPanel, TransitionRoot, TransitionChild, RecurringExpenseForm
+    Dialog, DialogPanel, TransitionRoot, TransitionChild, RecurringExpenseForm, GlobalModal
   },
   data() {
     return {
