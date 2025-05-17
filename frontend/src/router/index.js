@@ -69,11 +69,6 @@ const routes = [
     component: () => import("../views/ChatView.vue"),
     beforeEnter: requireAuth,
   },
-  {
-    path: "/dashboard",
-    component: () => import("../views/DesktopDashboardView.vue"),
-    beforeEnter: requireAuth,
-  },
     {
         path: "/admin-dashboard",
         component: () => import("../views/Admin/DashboardView.vue"),

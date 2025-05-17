@@ -1,131 +1,77 @@
 <template>
-    <div class="max-w-4xl mx-auto">
+     <div class="max-w-7xl mx-auto relative">
         <div class="space-y-4 relative pb-24 m-3">
-            <!-- Overview Card -->
-            <div class="bg-white rounded-xl shadow-sm p-4">
-                <div class="flex items-center justify-between mb-4">
-                    <div>
-                        <h2 class="text-xl font-semibold text-red-500">{{ formatCurrency(totalSpent, currencyCode) }}</h2>
-                        <p class="text-sm text-gray-500">Total Spent</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <!-- Left: Category Spendings Chart -->
+                <CategorySpendingsByChart
+                    :categories="topCategories"
+                    :loading="loading"
+                    :currency-code="currencyCode"
+                    :selected-filter="dateFilter"
+                    @filter-change="selectQuickFilter"
+                />
+                <!-- Right: Line Chart -->
+                <div>
+                    <div class="bg-white rounded-lg shadow-sm p-4 h-full flex flex-col mb-6 md:mb-0">
+                        <h3 class="text-base font-semibold mb-2">Monthly Spendings Comparison</h3>
+                        <v-chart :option="option" style="height: 350px;" />
                     </div>
-                    <div class="h-10 w-10 bg-red-100 rounded-full flex items-center justify-center">
-                        <ShoppingCart class="h-5 w-5 text-red-500" />
-                    </div>
-                </div>
-                <!-- Date Filter Pills -->
-                <div class="flex gap-2 overflow-x-auto">
-                    <button v-for="filter in quickFilters" :key="filter.value" @click="selectQuickFilter(filter.value)"
-                        class="px-3 py-1.5 rounded-full text-xs whitespace-nowrap transition-all" :class="dateFilter === filter.value ?
-                            'bg-blue-500 text-white' :
-                            'bg-gray-100 text-gray-600'">
-                        {{ filter.label }}
-                    </button>
-                </div>
-    
-                <!-- Custom Date Range (Simplified) -->
-                <div v-if="dateFilter === 'custom'" class="mt-3 space-y-2">
-                    <div class="grid grid-cols-2 gap-2">
-                        <input type="date" v-model="customStartDate"
-                            class="w-full p-1.5 text-xs border rounded-lg bg-gray-50">
-                        <input type="date" v-model="customEndDate"
-                            class="w-full p-1.5 text-xs border rounded-lg bg-gray-50">
-                    </div>
-                    <button @click="applyFilter" class="w-full bg-blue-500 text-white rounded-lg py-1.5 text-xs">
-                        Apply
-                    </button>
                 </div>
             </div>
-
-    
-            <!-- Category Breakdown -->
-            <div v-if="!loading" class="bg-white rounded-2xl shadow-lg p-6">
-                <h2 class="text-lg font-semibold mb-6">Top Categories</h2>
-                <div v-if="!topCategories.length" class="text-center py-8 text-gray-500 flex flex-col items-center">
-                    <ShoppingBag class="h-12 w-12 mb-3 text-gray-300" />
-                    No Spending Found :)
+            <!-- Add Transaction Bar -->
+            <div class="bg-white rounded-xl shadow-sm px-4 py-3 mb-4 flex items-center justify-between gap-2">
+                <div class="flex-shrink-0">
+                    <button @click="openAddModal" class="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-medium px-5 py-2 rounded-lg shadow transition-all">
+                        <Plus class="h-4 w-4" />
+                        Add Transaction
+                    </button>
                 </div>
-                <div class="space-y-6">
-                    <div v-for="category in topCategories" :key="category.id"
-                        class="space-y-2 hover:bg-gray-50 p-3 rounded-xl transition-colors cursor-pointer"
-                        @click="openCategoryTransactions(category)">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-full flex items-center justify-center"
-                                    :style="{ backgroundColor: category.color + '15', color: category.color }">
-                                    <component :is="getCategoryIcon(category)" class="h-5 w-5" />
-                                </div>
-                                <div>
-                                    <span class="font-medium text-gray-900">{{ category.name }}</span>
-                                    <p class="text-sm text-gray-500">{{ category.percentage }}% of spending</p>
-                                </div>
-                            </div>
-                            <span class="font-semibold text-gray-900">{{ formatCurrency(category.amount, currencyCode)
-                                }}</span>
-                        </div>
-                        <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
-                            <div class="h-full transition-all duration-500 rounded-full"
-                                :style="{ width: `${category.percentage}%`, backgroundColor: category.color }">
-                            </div>
-                        </div>
+                <div class="flex-shrink-0">
+                    <div v-if="totalPages > 1" class="flex items-center gap-1">
+                        <button @click="handlePageChange(currentPage - 1)" :disabled="currentPage === 1" class="px-2 py-1 rounded border text-sm disabled:opacity-50" :class="currentPage === 1 ? 'text-gray-400' : 'text-gray-700 hover:bg-gray-50'">Previous</button>
+                        <button v-for="page in displayedPages" :key="page" @click="handlePageChange(page)" class="px-2 py-1 rounded border text-sm" :class="currentPage === page ? 'bg-emerald-500 text-white border-emerald-500' : 'text-gray-700 hover:bg-gray-50'">{{ page }}</button>
+                        <button @click="handlePageChange(currentPage + 1)" :disabled="currentPage === totalPages" class="px-2 py-1 rounded border text-sm disabled:opacity-50" :class="currentPage === totalPages ? 'text-gray-400' : 'text-gray-700 hover:bg-gray-50'">Next</button>
                     </div>
-                    <!-- Category Transactions Modal (Desktop) -->
-                    <div v-if="showCategoryModal && !isMobile" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-                      <div class="bg-white rounded-xl shadow max-w-md w-full p-0 relative">
-                        <button @click="closeCategoryModal" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700">
-                          <CircleX class="h-6 w-6" />
-                        </button>
-                        <h3 class="text-base font-semibold px-4 pt-4 pb-2">Transactions for {{ selectedCategory?.name }}</h3>
-                        <div v-if="loadingCategoryTx" class="text-center py-8 text-gray-400">Loading...</div>
-                        <div v-else-if="categoryTxError" class="text-center py-8 text-red-400">{{ categoryTxError }}</div>
-                        <div v-else-if="categoryTransactions.length === 0" class="text-gray-500 text-center py-8">
-                          No transactions found for this category.
-                        </div>
-                        <div v-else class="divide-y divide-gray-100 max-h-80 overflow-y-auto">
-                          <div v-for="tx in categoryTransactions" :key="tx.id" class="py-2 px-4 flex items-center gap-2 text-xs">
-                            <div class="w-7 h-7 rounded-full flex items-center justify-center" :style="{ backgroundColor: selectedCategory.color + '15', color: selectedCategory.color }">
-                              <component :is="getCategoryIcon(selectedCategory)" class="h-4 w-4" />
-                            </div>
-                            <div class="flex-1 min-w-0">
-                              <div class="font-medium text-gray-900 truncate">{{ tx.note || 'No note' }}</div>
-                              <div class="text-xs text-gray-400 truncate">{{ formatDate(tx.transaction_date) }}</div>
-                            </div>
-                            <div class="text-right">
-                              <span class="font-medium text-red-600">-{{ formatCurrency(tx.amount, currencyCode) }}</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <!-- Category Transactions BottomSheet (Mobile) -->
-                    <BottomSheet v-if="showCategoryModal && isMobile" v-model="showCategoryModal">
-                      <div class="p-2">
-                        <div class="flex justify-between items-center mb-2">
-                          <h3 class="text-base font-semibold">Transactions for {{ selectedCategory?.name }}</h3>
-                          <button @click="closeCategoryModal" class="text-gray-400 hover:text-gray-700">
-                            <CircleX class="h-6 w-6" />
-                          </button>
-                        </div>
-                        <div v-if="loadingCategoryTx" class="text-center py-8 text-gray-400">Loading...</div>
-                        <div v-else-if="categoryTxError" class="text-center py-8 text-red-400">{{ categoryTxError }}</div>
-                        <div v-else-if="categoryTransactions.length === 0" class="text-gray-500 text-center py-8">
-                          No transactions found for this category.
-                        </div>
-                        <div v-else class="divide-y divide-gray-100 max-h-80 overflow-y-auto">
-                          <div v-for="tx in categoryTransactions" :key="tx.id" class="py-2 flex items-center gap-2 text-xs">
-                            <div class="w-7 h-7 rounded-full flex items-center justify-center" :style="{ backgroundColor: selectedCategory.color + '15', color: selectedCategory.color }">
-                              <component :is="getCategoryIcon(selectedCategory)" class="h-4 w-4" />
-                            </div>
-                            <div class="flex-1 min-w-0">
-                              <div class="font-medium text-gray-900 truncate">{{ tx.note || 'No note' }}</div>
-                              <div class="text-xs text-gray-400 truncate">{{ formatDate(tx.transaction_date) }}</div>
-                            </div>
-                            <div class="text-right">
-                              <span class="font-medium text-red-600">-{{ formatCurrency(tx.amount, currencyCode) }}</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </BottomSheet>
+                </div>
+            </div>
+            <!-- Transactions Table -->
+            <div>
+                <div v-if="paginatedTransactions.length > 0" class="bg-white rounded-xl shadow-sm p-4 overflow-x-auto min-h-[440px]">
+                    <table class="min-w-full text-sm">
+                        <thead>
+                            <tr class="text-gray-500 border-b">
+                                <th class="py-2 text-left font-medium">Category</th>
+                                <th class="py-2 text-left font-medium">Type</th>
+                                <th class="py-2 text-left font-medium">Note</th>
+                                <th class="py-2 text-left font-medium">Amount</th>
+                                <th class="py-2 text-left font-medium">Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="transaction in paginatedTransactions" :key="transaction.id" class="border-b last:border-0">
+                                <td class="py-2 flex items-center gap-2">
+                                    <div class="w-7 h-7 rounded-full flex items-center justify-center" :style="{
+                                        backgroundColor: (transaction.category?.color + '15') || (transaction.type === 'income' ? '#e6ffed' : '#ffeded'),
+                                        color: transaction.category?.color || (transaction.type === 'income' ? '#16a34a' : '#dc2626')
+                                    }">
+                                        <span class="text-lg">{{ getCategoryEmoji(transaction.category?.icon) }}</span>
+                                    </div>
+                                    <span>{{ transaction.category ? capitalizeFirstLetter(transaction.category.name) : '-' }}</span>
+                                </td>
+                                <td class="py-2">
+                                    <span :class="transaction.type === 'expense' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'" class="px-2 py-0.5 rounded-full text-xs capitalize">
+                                        {{ transaction.type }}
+                                    </span>
+                                </td>
+                                <td class="py-2">{{ transaction.note }}</td>
+                                <td class="py-2">{{ formatCurrency(transaction.amount, currencyCode) }}</td>
+                                <td class="py-2">{{ formatDate(transaction.transaction_date) }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div v-else class="bg-white rounded-xl shadow-sm p-4 flex flex-col items-center justify-center min-h-[440px]">
+                    <span class="text-gray-400 text-lg font-medium">No Transactions</span>
                 </div>
             </div>
         </div>
@@ -133,15 +79,6 @@
 </template>
 
 <script>
-import {
-    Calendar, Trash2, Plus, Car, ReceiptIcon, Video, BriefcaseMedical, Gift, Circle, CircleEllipsis, Pizza, CircleDollarSign
-    , HandCoins, Wallet, ChartCandlestick, Landmark,
-    Citrus, ShoppingBag, House, Receipt, Clapperboard, Plane, Contact,
-    Cross, ShoppingCart, Book, BriefcaseBusiness, BadgeDollarSign,
-    Dumbbell, CalendarDays,
-    Sparkle,
-    CircleDot, CircleX
-} from 'lucide-vue-next'
 import BottomSheet from '../components/BottomSheet.vue'
 import { mapActions, mapState } from 'pinia'
 import { useTransactionStore } from '../store/transaction'
@@ -150,19 +87,23 @@ import { numberMixin } from '../mixins/numberMixin'
 import axios from 'axios'
 import { getCategoryTransactions } from '../services/TransactionService'
 import { useNotifications } from '../composables/useNotifications'
+import AddTransaction from '../components/AddTransaction.vue'
+import CategorySpendingsByChart from '../components/Stats/CategorySpendingsByChart.vue'
+import VChart from 'vue-echarts'
+import * as echarts from 'echarts/core'
+import { LineChart } from 'echarts/charts'
+import { TitleComponent, TooltipComponent, GridComponent, LegendComponent } from 'echarts/components'
+import { CanvasRenderer } from 'echarts/renderers'
+import { iconMixin } from '../mixins/iconMixin'
+
+echarts.use([LineChart, TitleComponent, TooltipComponent, GridComponent, LegendComponent, CanvasRenderer])
 
 export default {
-    name: 'StatsPage',
+    name: 'StatsView',
     components: {
-        Calendar, Trash2, Plus, Car, ReceiptIcon, Video, BriefcaseMedical, Gift, Circle, CircleEllipsis, Pizza, CircleDollarSign
-        , HandCoins, Wallet, ChartCandlestick, Landmark,
-        Citrus, ShoppingBag, House, Receipt, Clapperboard, Plane, Contact,
-        Cross, ShoppingCart, Book, BriefcaseBusiness, BadgeDollarSign,
-        Dumbbell, CalendarDays,
-        Sparkle,
-        CircleDot, CircleX, BottomSheet
+         BottomSheet, AddTransaction, VChart, CategorySpendingsByChart
     },
-    mixins: [numberMixin],
+    mixins: [numberMixin, iconMixin],
     setup() {
         const { notify } = useNotifications()
         return { notify }
@@ -179,12 +120,30 @@ export default {
                 { label: 'Monthly', value: 'month' },
                 { label: 'Yearly', value: 'year' },
                 { label: 'Custom', value: 'custom' },
+                
             ],
             showCategoryModal: false,
             selectedCategory: null,
             categoryTransactions: [],
             loadingCategoryTx: false,
             categoryTxError: null,
+            monthlySpendings: [],
+            lastYearMonthlySpendings: [],
+            totalPages: 1,
+            currentPage: 1,
+            displayedPages: [],
+            paginatedTransactions: [],
+            option: {
+                title: { text: '' },
+                tooltip: { trigger: 'axis' },
+                legend: { data: ['2024', '2023'] },
+                xAxis: { type: 'category', data: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'] },
+                yAxis: { type: 'value' },
+                series: [
+                    { name: '2024', type: 'line', data: [] },
+                    { name: '2023', type: 'line', data: [] }
+                ]
+            }
         }
     },
 
@@ -257,7 +216,61 @@ export default {
                 end_date,
                 // add other filters if needed
             };
-        }
+        },
+
+        chartData() {
+            // Prepare data for chart
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+            const currentYearData = Array(12).fill(0)
+            const lastYearData = Array(12).fill(0)
+            this.monthlySpendings.forEach(m => {
+                const idx = months.indexOf(m.label)
+                if (idx !== -1) currentYearData[idx] = m.amount
+            })
+            this.lastYearMonthlySpendings.forEach(m => {
+                const idx = months.indexOf(m.label)
+                if (idx !== -1) lastYearData[idx] = m.amount
+            })
+            return {
+                labels: months,
+                datasets: [
+                    {
+                        label: `${new Date().getFullYear()}`,
+                        data: currentYearData,
+                        borderColor: '#2563eb',
+                        backgroundColor: 'rgba(37,99,235,0.1)',
+                        tension: 0.4,
+                        fill: false
+                    },
+                    {
+                        label: `${new Date().getFullYear() - 1}`,
+                        data: lastYearData,
+                        borderColor: '#f59e42',
+                        backgroundColor: 'rgba(245,158,66,0.1)',
+                        tension: 0.4,
+                        fill: false
+                    }
+                ]
+            }
+        },
+
+        chartOptions() {
+            return {
+                responsive: true,
+                plugins: {
+                    legend: { display: true },
+                    title: { display: true, text: 'Monthly Spendings Comparison' }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: value => this.formatCurrency(value, this.currencyCode)
+                        }
+                    }
+                }
+            }
+        },
     },
 
     methods: {
@@ -384,12 +397,225 @@ export default {
                 start_date: format(start),
                 end_date: format(end)
             };
-        }
+        },
+
+        async fetchMonthlySpendings() {
+            try {
+                // Fetch current year
+                const response = await axios.get('/api/transactions/monthly-spendings', {
+                    params: {
+                        ...this.getFilters,
+                        year: new Date().getFullYear()
+                    }
+                })
+                this.monthlySpendings = response.data.monthlySpendings
+                // Fetch last year
+                const lastYear = new Date().getFullYear() - 1
+                const responseLastYear = await axios.get('/api/transactions/monthly-spendings', {
+                    params: {
+                        ...this.getFilters,
+                        year: lastYear
+                    }
+                })
+                this.lastYearMonthlySpendings = responseLastYear.data.monthlySpendings
+            } catch (error) {
+                console.error('Error fetching monthly spendings:', error)
+                this.notify({
+                    title: 'Error',
+                    message: error.response?.data?.error || 'Failed to load monthly spendings',
+                    type: 'error'
+                })
+            }
+        },
+
+        async openAddModal() {
+            try {
+                await this.fetchMonthlySpendings();
+            } catch (error) {
+                console.error('Error opening add transaction modal:', error);
+                this.notify({
+                    title: 'Error',
+                    message: error.response?.data?.error || 'Failed to open add transaction modal',
+                    type: 'error'
+                });
+            }
+        },
+
+        handlePageChange(page) {
+            this.currentPage = page;
+            this.fetchMonthlySpendings();
+        },
+
+        getCategoryEmoji(icon) {
+            const emojis = {
+                '🍔': '🍔',
+                '🏠': '🏠',
+                '🚗': '🚗',
+                '🎉': '🎉',
+                '🍣': '🍣',
+                '🍷': '🍷',
+                '🍵': '🍵',
+                '🍴': '🍴',
+                '🎂': '🎂',
+                '🎓': '🎓',
+                '🏋️': '🏋️',
+                '🚴': '🚴',
+                '🏃': '🏃',
+                '🛌': '🛌',
+                '🍳': '🍳',
+                '🍕': '🍕',
+                '🍩': '🍩',
+                '🍪': '🍪',
+                '🍫': '🍫',
+                '🍬': '🍬',
+                '🍭': '🍭',
+                '🍮': '🍮',
+                '🍯': '🍯',
+                '🍰': '🍰',
+                '🍱': '🍱',
+                '🍲': '🍲',
+                '🍳': '🍳',
+                '🍴': '🍴',
+                '🍵': '🍵',
+                '🍶': '🍶',
+                '🍷': '🍷',
+                '🍸': '🍸',
+                '🍹': '🍹',
+                '🍺': '🍺',
+                '🍻': '🍻',
+                '🍼': '🍼',
+                '🎂': '🎂',
+                '🎃': '🎃',
+                '🎄': '🎄',
+                '🎅': '🎅',
+                '🎆': '🎆',
+                '🎇': '🎇',
+                '🎈': '🎈',
+                '🎉': '🎉',
+                '🎊': '🎊',
+                '🎋': '🎋',
+                '🎌': '🎌',
+                '🎍': '🎍',
+                '🎎': '🎎',
+                '🎏': '🎏',
+                '🎐': '🎐',
+                '🎑': '🎑',
+                '🎒': '🎒',
+                '🎓': '🎓',
+                '🎖': '🎖',
+                '🎗': '🎗',
+                '🎘': '🎘',
+                '🎙': '🎙',
+                '🎚': '🎚',
+                '🎛': '🎛',
+                '🎜': '🎜',
+                '🎝': '🎝',
+                '🎞': '🎞',
+                '🎟': '🎟',
+                '🎠': '🎠',
+                '🎡': '🎡',
+                '🎢': '🎢',
+                '🎣': '🎣',
+                '🎤': '🎤',
+                '🎥': '🎥',
+                '🎦': '🎦',
+                '🎧': '🎧',
+                '🎨': '🎨',
+                '🎩': '🎩',
+                '🎪': '🎪',
+                '🎫': '🎫',
+                '🎬': '🎬',
+                '🎭': '🎭',
+                '🎮': '🎮',
+                '🎯': '🎯',
+                '🎰': '🎰',
+                '🎱': '🎱',
+                '🎲': '🎲',
+                '🎳': '🎳',
+                '🎴': '🎴',
+                '🎵': '🎵',
+                '🎶': '🎶',
+                '🎷': '🎷',
+                '🎸': '🎸',
+                '🎹': '🎹',
+                '🎺': '🎺',
+                '🎻': '🎻',
+                '🎼': '🎼',
+                '🎽': '🎽',
+                '🎾': '🎾',
+                '🎿': '🎿',
+                '🏀': '🏀',
+                '🏁': '🏁',
+                '🏂': '🏂',
+                '🏃': '🏃',
+                '🏄': '🏄',
+                '🏅': '🏅',
+                '🏆': '🏆',
+                '🏇': '🏇',
+                '🏈': '🏈',
+                '🏉': '🏉',
+                '🏊': '🏊',
+                '🏋️': '🏋️',
+                '🏌': '🏌',
+                '🏍': '🏍',
+                '🏎': '🏎',
+                '🏏': '🏏',
+                '🏐': '🏐',
+                '🏑': '🏑',
+                '🏒': '🏒',
+                '🏓': '🏓',
+                '🏔': '🏔',
+                '🏕': '🏕',
+                '🏖': '🏖',
+                '🏗': '🏗',
+                '🏘': '🏘',
+                '🏙': '🏙',
+                '🏚': '🏚',
+                '🏛': '🏛',
+                '🏜': '🏜',
+                '🏝': '🏝',
+                '🏞': '🏞',
+                '🏟': '🏟',
+                '🏠': '🏠',
+                '🏡': '🏡',
+                '🏢': '🏢',
+                '🏣': '🏣',
+                '🏤': '🏤',
+                '🏥': '🏥',
+                '🏦': '🏦',
+                '🏧': '🏧',
+                '🏨': '🏨',
+                '🏩': '🏩',
+                '🏪': '🏪',
+                '🏫': '🏫',
+                '🏬': '🏬',
+                '🏭': '🏭',
+                '🏮': '🏮',
+                '🏯': '🏯',
+                '🏰': '🏰',
+                '🏱': '🏱',
+                '🏳': '🏳',
+                '🏴': '🏴',
+                '🏵': '🏵',
+                '🏶': '🏶',
+                '🏷': '🏷',
+                '🏸': '🏸',
+                '🏹': '🏹',
+                '🏺': '🏺',
+                '🏻': '🏻',
+                '🏼': '🏼',
+                '🏽': '🏽',
+                '🏾': '🏾',
+                '🏿': '🏿'
+            };
+            return emojis[icon] || '❓';
+        },
     },
 
     async created() {
         try {
             await this.fetchStats(this.getFilters)
+            await this.fetchMonthlySpendings()
         } catch (error) {
             console.error('Error in StatsView created:', error)
             this.notify({
