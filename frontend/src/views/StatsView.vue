@@ -35,37 +35,7 @@
                     </button>
                 </div>
             </div>
-            <!-- Financial Health Card -->
-            <div v-if="!loading" class="bg-white rounded-2xl shadow-lg p-6">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-semibold">Financial Health</h3>
-                    <div class="px-4 py-1 rounded-full text-sm font-medium" :class="{
-                        'bg-emerald-100 text-emerald-700': financialHealth === 'Excellent',
-                        'bg-blue-100 text-blue-700': financialHealth === 'Good',
-                        'bg-yellow-100 text-yellow-700': financialHealth === 'Fair',
-                        'bg-red-100 text-red-700': financialHealth === 'Poor'
-                    }">
-                        {{ financialHealth }}
-                    </div>
-                </div>
-                <div class="space-y-3">
-                    <div>
-                        <div class="flex justify-between items-center mb-2">
-                            <span class="text-sm text-gray-600">Savings Rate</span>
-                            <span class="text-sm font-medium">{{ savingsRate }}%</span>
-                        </div>
-                        <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
-                            <div class="h-full transition-all duration-500" :class="{
-                                'bg-emerald-500': savingsRate >= 20,
-                                'bg-blue-500': savingsRate >= 15 && savingsRate < 20,
-                                'bg-yellow-500': savingsRate >= 10 && savingsRate < 15,
-                                'bg-red-500': savingsRate < 10
-                            }" :style="{ width: `${savingsRate}%` }">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+
     
             <!-- Category Breakdown -->
             <div v-if="!loading" class="bg-white rounded-2xl shadow-lg p-6">
