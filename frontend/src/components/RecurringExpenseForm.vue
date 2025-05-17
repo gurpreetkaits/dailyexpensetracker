@@ -1,14 +1,6 @@
 <template>
     <div class="space-y-6">
-        <!-- Header -->
-        <div class="flex justify-between items-center">
-            <h2 class="text-xl font-semibold text-gray-900">
-                {{ editingExpense ? 'Edit Recurring' : 'New Recurring' }}
-            </h2>
-            <button @click="$emit('cancel')" class="text-gray-400 hover:text-gray-500">
-                <X class="h-5 w-5" />
-            </button>
-        </div>
+
 
         <form @submit.prevent="handleSubmit" class="grid grid-cols-2 gap-4 lg:px-2 lg:py-3">
             <!-- Expense Type -->

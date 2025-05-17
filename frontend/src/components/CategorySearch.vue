@@ -7,9 +7,13 @@
                 placeholder="Search category..." @focus="showCategoryDropdown = true" />
             <!-- Selected Category Icon -->
             <div v-if="selectedCategory" class="absolute left-2 top-1/2 -translate-y-1/2 flex items-center">
-                <span v-if="!selectableCategory" class="w-6 h-6 rounded-full flex items-center justify-center p-1"
-                    :style="{ backgroundColor: selectedCategory.color }">
-                    <component :is="selectedCategory.icon" class="w-4 h-4 text-white" />
+                <span v-if="!selectableCategory" 
+                    class="w-6 h-6 rounded-full flex items-center justify-center p-1"
+                    :style="{ backgroundColor: `${selectedCategory.color}` }">
+                    <span class="text-base" :style="{ color: selectedCategory.color }">
+                        {{ getCategoryEmoji(selectedCategory.icon) }}
+                    
+                    </span>
                 </span>
             </div>
             <!-- Clear Button -->
@@ -31,8 +35,10 @@
                     class="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 cursor-pointer">
                     <span class="flex items-center gap-2 w-full">
                         <span class="w-6 h-6 rounded-full flex items-center justify-center p-1"
-                            :style="{ backgroundColor: category.color }">
-                            <component :is="category.icon" class="w-4 h-4 text-white" />
+                            :style="{ backgroundColor: `${category.color}15` }">
+                            <span class="text-base" :style="{ color: category.color }">
+                                {{ getCategoryEmoji(category.icon) }}
+                            </span>
                         </span>
                         <span>{{ capitalizeFirstLetter(category.name) }}</span>
                     </span>
@@ -43,31 +49,21 @@
     </div>
 </template>
 <script>
-import {
-    Calendar, HandCoins, Wallet, ChartCandlestick, Landmark,
-    Citrus, ShoppingBag, House, Receipt, Clapperboard, Plane, Contact,
-    Cross, ShoppingCart, Book, Gift, BriefcaseBusiness, BadgeDollarSign, Car,
-    Dumbbell, Sparkle, CircleDot, CircleX
-} from 'lucide-vue-next'
 import { useCategoryStore } from '../store/category'
-import { numberMixin } from '../mixins/numberMixin';
-import { useSettingsStore } from '../store/settings';
-const iconMap = {
-    Wallet, HandCoins, ChartCandlestick, Landmark, Citrus,
-    ShoppingBag, House, Receipt, Clapperboard, Plane, Contact,
-    Cross, ShoppingCart, Book, Gift, BriefcaseBusiness,
-    BadgeDollarSign, Car, Dumbbell, Sparkle, CircleDot, CircleX
-}
+import { numberMixin } from '../mixins/numberMixin'
+import { useSettingsStore } from '../store/settings'
+import { emojiMixin } from '../mixins/emojiMixin'
+import { CircleX } from 'lucide-vue-next'
 
 export default {
     name: 'CategorySearch',
-    mixins:[
-        numberMixin
+    mixins: [
+        numberMixin,
+        emojiMixin
     ],
     components: {
-        ...iconMap
+        CircleX
     },
-
     props: {
         modelValue: {
             type: [String,Number],
@@ -86,7 +82,7 @@ export default {
     },
 
     data() {
-        const settingStore = useSettingsStore();
+        const settingStore = useSettingsStore()
         return {
             settingStore,
             categorySearch: '',
@@ -97,24 +93,21 @@ export default {
 
     computed: {
         categories() {
-            return this.settingStore.categories;
+            return this.settingStore.categories
         },
 
         loading() {
-            return this.settingStore.loading;
+            return this.settingStore.loading
         },
 
         filteredCategories() {
-            if (!this.categories || !this.categories.length) return [];
-            if (!this.categorySearch) return this.categories;
-
-            return this.categories.map(cat => ({
-                ...cat,
-                icon: iconMap[cat.icon]
-            })).filter(category =>
+            if (!this.categories || !this.categories.length) return []
+            if (!this.categorySearch) return this.categories
+                console.log('categories', this.categories)
+            return this.categories.filter(category =>
                 category.name.toLowerCase().includes(this.categorySearch.toLowerCase()) &&
                 category.type.toLowerCase() === this.formType.toLowerCase()
-            );
+            )
         }
     },
 
@@ -182,6 +175,10 @@ export default {
 
     beforeDestroy() {
         document.removeEventListener('click', this.handleClickOutside);
+    },
+    getCategoryEmoji(icon) {
+        if (!icon) return '📌'
+        return this.emojis.income[icon.toLowerCase()] || this.emojis.expense[icon.toLowerCase()] || '📌'
     }
 }
 </script>
@@ -192,5 +189,17 @@ export default {
 
 .h-4 {
     height: 1rem;
+}
+
+/* Add styles for emoji container */
+.text-base {
+    line-height: 1;
+    display: inline-block;
+    transform: translateY(1px);
+}
+
+/* Add transition for smoother color changes */
+.w-6 {
+    transition: background-color 0.2s ease;
 }
 </style>

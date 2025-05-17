@@ -1,14 +1,6 @@
 <!-- src/components/AddTransaction.vue -->
 <template>
     <div class="p-3">
-        <div class="flex justify-between items-center mb-4">
-            <h2 class="text-lg font-semibold text-gray-900">
-                {{ isNew ? 'New Transaction' : 'Edit Transaction' }}
-            </h2>
-            <button @click="$emit('close')" class="text-gray-400 hover:text-gray-500 border px-2 rounded-lg">
-                Close
-            </button>
-        </div>
         <!-- Type Toggle -->
         <div class="flex gap-2 mb-4">
             <button @click="type = 'expense'"
@@ -38,19 +30,10 @@
             </button>
         </div>
         <!-- Enhanced Date Input -->
-        <div class="grid grid-cols-2 gap-2">
+        <div class="grid grid-cols-1 gap-2 mb-3">
             <div>
                 <CategorySearch v-model="category" :selectableCategory="editableCategory" :formType="type" />
             </div>
-            <div>
-                <label class="text-xs font-medium text-gray-600">Transaction Date</label>
-                <div class="relative">
-                    <input v-model="date" type="date"
-                        class="w-full p-2.5 pl-9 text-sm focus:outline-none focus:ring-0 border border-gray-200 rounded-md bg-gray-50 focus:bg-white transition-colors mb-2"
-                        required />
-                </div>
-            </div>
-
         </div>
         <!-- Amount Input -->
         <div class="bg-gray-50 rounded-lg mb-3">
