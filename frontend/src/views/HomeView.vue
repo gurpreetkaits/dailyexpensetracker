@@ -27,17 +27,17 @@
       </div>
       <!-- Step 2: Happiness and Willingness to Pay -->
       <div v-if="surveyStep === 2">
-        <h3 class="text-xl font-semibold mb-4 text-gray-800">Quick Feedback</h3>
+        <h3 class="text-xl font-semibold mb-4 text-gray-800">Any</h3>
         <div class="mb-4">
           <p class="text-gray-700 mb-2">
             How much would you be comfortable paying if we serve you better? 
           </p>
           <input type="text" v-model="comfortablePay" placeholder="e.g. $5/month, $20/year, etc." class="w-full p-2 border rounded-lg text-sm focus:ring-emerald-500 focus:border-emerald-500" />
         </div>
-        <div class="mb-6">
+        <!-- <div class="mb-6">
           <label class="block text-sm font-medium text-gray-700 mb-1" for="feedbackText">Any other comments? (Optional)</label>
           <textarea v-model="feedbackText" id="feedbackText" rows="3" class="w-full p-2 border rounded-lg text-sm focus:ring-emerald-500 focus:border-emerald-500"></textarea>
-        </div>
+        </div> -->
         <button @click="submitSurvey" class="w-full bg-emerald-600 text-white p-3 rounded-lg hover:bg-emerald-700 transition-colors font-medium">
           Submit & Continue
         </button>
