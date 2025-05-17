@@ -5,13 +5,13 @@
                 <img src="{{ asset('images/dailyexpensetracker.png') }}" class="h-9 w-9 rounded-lg" alt="Logo" />
                 <span class="text-xl font-semibold text-gray-900 hidden sm:block">Daily Expense Tracker</span>
             </a>
-            <div class="flex items-center gap-4">
+            <div class="flex items-center gap-1">
                 <a href="{{ route('tools.index') }}"
-                   class="px-4 py-2 rounded-lg text-emerald-600 transition-colors">
+                   class="px-3 py-2 rounded-lg text-emerald-600 transition-colors">
                     Tools
                 </a>
                 <a href="{{ route('posts') }}"
-                    class="px-4 py-2 rounded-lg text-emerald-600 transition-colors">
+                    class="px-2 py-2 rounded-lg text-emerald-600 transition-colors">
                     Blogs
                 </a>
                 <a href="{{ config('app.frontend_url') }}/login"
