@@ -8,9 +8,13 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Repositories\StatsRepository;
 
 class StatsController extends Controller
 {
+    public function __construct(private StatsRepository $statsRepository)
+    {
+    }
     public function index()
     {
         if (auth()->user()?->email !== 'gurpreetkait.codes@gmail.com') {
@@ -185,5 +189,19 @@ class StatsController extends Controller
         } else {
             return ['status' => 'Poor', 'color' => 'red'];
         }
+    }
+
+    public function yearlyComparison(Request $request)
+    {
+        $validated = $request->validate([
+            'previous_year' => ['required', 'integer', 'min:2020', 'max:' . Carbon::now()->year],
+            'current_year' => ['required', 'integer', 'min:2020', 'max:' . Carbon::now()->year]
+        ]);
+        if ($validated['previous_year'] && $validated['current_year']) {
+            return response()->json($this->statsRepository->getYearlyComparison($validated['previous_year'], $validated['current_year']));
+        }
+        return response()->json([
+            'error' => 'Invalid request'
+        ], 400);
     }
 }

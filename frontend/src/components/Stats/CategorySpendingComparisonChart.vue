@@ -2,11 +2,11 @@
   <div class="bg-white rounded-lg shadow-sm p-4 h-full flex flex-col mb-6 md:mb-0">
       <h3 class="text-base font-semibold mb-2">Monthly Spendings Comparison</h3>
       <div class="flex gap-4 mb-4 items-center justify-center mt-10">
-        <select v-model="selectedYear1" class="px-3 py-1.5 rounded-full text-xs whitespace-nowrap transition-all min-w-[80px]">
+        <select v-model="selectedPreviousYear" class="px-3 py-1.5 rounded-full text-xs whitespace-nowrap transition-all min-w-[80px]">
           <option v-for="year in availableYears" :key="year" :value="year">{{ year }}</option>
         </select>
         <span class="text-gray-400">vs</span>
-        <select v-model="selectedYear2" class="px-3 py-1.5 rounded-full text-xs whitespace-nowrap transition-all min-w-[80px]">
+        <select v-model="selectedCurrentYear" class="px-3 py-1.5 rounded-full text-xs whitespace-nowrap transition-all min-w-[80px]">
           <option v-for="year in availableYears" :key="year" :value="year">{{ year }}</option>
         </select>
       </div>
@@ -18,6 +18,8 @@
 
 <script>
 import VChart from 'vue-echarts'
+import { useStatsStore } from '../../store/stats'
+import { mapActions, mapState } from 'pinia'
 // import axios from 'axios'
 
 export default {
@@ -45,10 +47,8 @@ export default {
     const currentYear = new Date().getFullYear()
     return {
       availableYears: [currentYear, currentYear - 1, currentYear - 2, currentYear - 3],
-      selectedYear1: currentYear,
-      selectedYear2: currentYear - 1,
-      monthlySpendings: [],
-      lastYearMonthlySpendings: [],
+      selectedPreviousYear: currentYear - 1,
+      selectedCurrentYear: currentYear,
       option: {
         title: { text: '' },
         tooltip: { trigger: 'axis' },
@@ -59,80 +59,47 @@ export default {
       }
     }
   },
+  computed: {
+    ...mapState(useStatsStore, ['currentYearData', 'previousYearData'])
+  },
   watch: {
-    filter: {
-      immediate: true,
-      handler() {
-        this.fetchMonthlySpendings()
-      }
-    },
-    getFilters: {
-      deep: true,
-      handler() {
-        this.fetchMonthlySpendings()
-      }
-    },
-    selectedYear1() {
-      this.fetchMonthlySpendings()
-    },
-    selectedYear2() {
-      this.fetchMonthlySpendings()
-    }
+    selectedPreviousYear: 'fetchMonthlySpendings',
+    selectedCurrentYear: 'fetchMonthlySpendings',
+    currentYearData: 'updateChart',
+    previousYearData: 'updateChart'
   },
   methods: {
+    ...mapActions(useStatsStore, ['getYearlyComparison']),
     async fetchMonthlySpendings() {
-      // Dummy data for testing
-      // In real use, fetch for selectedYear1 and selectedYear2
-      if (this.selectedYear1 === this.selectedYear2) {
+      if (this.selectedPreviousYear === this.selectedCurrentYear) {
         this.option = { ...this.option, series: [], legend: { data: [] } }
         return
       }
-      const dummyData = {
-        [new Date().getFullYear()]: [
-          { label: 'Jan', amount: 1200 },
-           { label: 'Feb', amount: 900 },
-            { label: 'Mar', amount: 1500 },
-             { label: 'Apr', amount: 800 },
-          { label: 'May', amount: 1100 }, 
-          { label: 'Jun', amount: 950 },
-           { label: 'Jul', amount: 1300 },
-            { label: 'Aug', amount: 1000 },
-          { label: 'Sep', amount: 1400 },
-           { label: 'Oct', amount: 1200 },
-            { label: 'Nov', amount: 1600 },
-             { label: 'Dec', amount: 1700 }
-        ],
-        [new Date().getFullYear() - 1]: [
-          { label: 'Jan', amount: 1000 }, { label: 'Feb', amount: 1100 }, { label: 'Mar', amount: 1200 }, { label: 'Apr', amount: 900 },
-          { label: 'May', amount: 1000 }, { label: 'Jun', amount: 1050 }, { label: 'Jul', amount: 1200 }, { label: 'Aug', amount: 950 },
-          { label: 'Sep', amount: 1100 }, { label: 'Oct', amount: 1150 }, { label: 'Nov', amount: 1300 }, { label: 'Dec', amount: 1400 }
-        ],
-        [new Date().getFullYear() - 2]: [
-          { label: 'Jan', amount: 800 }, { label: 'Feb', amount: 850 }, { label: 'Mar', amount: 900 }, { label: 'Apr', amount: 950 },
-          { label: 'May', amount: 1000 }, { label: 'Jun', amount: 1050 }, { label: 'Jul', amount: 1100 }, { label: 'Aug', amount: 1150 },
-          { label: 'Sep', amount: 1200 }, { label: 'Oct', amount: 1250 }, { label: 'Nov', amount: 1300 }, { label: 'Dec', amount: 1350 }
-        ],
-        [new Date().getFullYear() - 3]: [
-          { label: 'Jan', amount: 700 }, { label: 'Feb', amount: 750 }, { label: 'Mar', amount: 800 }, { label: 'Apr', amount: 850 },
-          { label: 'May', amount: 900 }, { label: 'Jun', amount: 950 }, { label: 'Jul', amount: 1000 }, { label: 'Aug', amount: 1050 },
-          { label: 'Sep', amount: 1100 }, { label: 'Oct', amount: 1150 }, { label: 'Nov', amount: 1200 }, { label: 'Dec', amount: 1250 }
-        ]
-      }
+      await this.getYearlyComparison(this.selectedPreviousYear, this.selectedCurrentYear)
+      // updateChart will be called by watcher
+    },
+    updateChart() {
       const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-      const year1Data = Array(12).fill(0)
-      const year2Data = Array(12).fill(0)
-      dummyData[this.selectedYear1].forEach(m => {
-        const idx = months.indexOf(m.label)
-        if (idx !== -1) year1Data[idx] = m.amount
-      })
-      dummyData[this.selectedYear2].forEach(m => {
-        const idx = months.indexOf(m.label)
-        if (idx !== -1) year2Data[idx] = m.amount
-      })
+      const previousYear = Array(12).fill(0)
+      const currentYear = Array(12).fill(0)
+
+      if (Array.isArray(this.previousYearData)) {
+        this.previousYearData.forEach(m => {
+          const idx = months.indexOf(m.month)
+          if (idx !== -1) previousYear[idx] = m.amount
+        })
+      }
+      if (Array.isArray(this.currentYearData)) {
+        this.currentYearData.forEach(m => {
+          const idx = months.indexOf(m.month)
+          if (idx !== -1) currentYear[idx] = m.amount
+        })
+      }
+
       this.option = {
         title: { text: '' },
         tooltip: { trigger: 'axis' },
-        legend: { data: [String(this.selectedYear1), String(this.selectedYear2)] },
+        legend: { data: [String(this.selectedPreviousYear), String(this.selectedCurrentYear)] },
         xAxis: { type: 'category', data: months },
         yAxis: {
           type: 'value',
@@ -141,11 +108,14 @@ export default {
           }
         },
         series: [
-          { name: String(this.selectedYear1), type: 'line', data: year1Data },
-          { name: String(this.selectedYear2), type: 'line', data: year2Data }
+          { name: String(this.selectedPreviousYear), type: 'line', data: previousYear },
+          { name: String(this.selectedCurrentYear), type: 'line', data: currentYear }
         ]
       }
     }
+  },
+  async mounted() {
+    await this.fetchMonthlySpendings()
   }
 }
 </script>

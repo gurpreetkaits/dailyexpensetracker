@@ -25,7 +25,7 @@ Route::get('/user', function (Request $request) {
 Route::middleware('auth:sanctum')->group(function () {
     //Load Stats
     Route::get('transactions/stats', [StatsController::class, 'showStats']);
-
+    Route::get('/stats/yearly-comparison', [StatsController::class, 'yearlyComparison']);
     // Subscription Routes
     // Route::prefix('subscription')->group(function () {
     //     Route::post('checkout', [SubscriptionController::class, 'createCheckoutSession']);
