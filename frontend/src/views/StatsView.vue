@@ -89,7 +89,6 @@ import { getCategoryTransactions } from '../services/TransactionService'
 import { useNotifications } from '../composables/useNotifications'
 import AddTransaction from '../components/AddTransaction.vue'
 import CategorySpendingsByChart from '../components/Stats/CategorySpendingsByChart.vue'
-import VChart from 'vue-echarts'
 import * as echarts from 'echarts/core'
 import { LineChart } from 'echarts/charts'
 import { TitleComponent, TooltipComponent, GridComponent, LegendComponent } from 'echarts/components'
@@ -102,7 +101,7 @@ echarts.use([LineChart, TitleComponent, TooltipComponent, GridComponent, LegendC
 export default {
     name: 'StatsView',
     components: {
-         BottomSheet, AddTransaction, VChart, CategorySpendingsByChart, CategorySpendingComparisonChart
+         BottomSheet, AddTransaction, CategorySpendingsByChart, CategorySpendingComparisonChart
     },
     mixins: [numberMixin, iconMixin],
     setup() {
