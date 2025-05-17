@@ -275,11 +275,11 @@
                     class="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-all cursor-pointer"
                     @click="editTransaction(transaction)">
                     <div class="flex items-center gap-3">
-                      <div class="w-10 h-10 rounded-full flex items-center justify-center"
-                        :style="{ backgroundColor: `${transaction.category?.color}` || '#fee2e2' }">
-                        <span class="text-lg" :style="{ color: transaction.category?.color || '#dc2626' }">
-                          {{ getCategoryEmoji(transaction.category?.icon) }}
-                        </span>
+                      <div class="w-10 h-10 rounded-full flex items-center justify-center" :style="{
+                        backgroundColor: (transaction.category?.color + '15') || '#fee2e2',
+                        color: transaction.category?.color || '#dc2626'
+                      }">
+                        <component :is="transaction.category?.icon || 'ShoppingBag'" class="h-5 w-5" />
                       </div>
                       <div class="flex-1 min-w-0">
                         <h4 class="font-medium text-gray-900 truncate">
@@ -307,11 +307,11 @@
                     class="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-all cursor-pointer"
                     @click="editTransaction(transaction)">
                     <div class="flex items-center gap-3">
-                      <div class="w-10 h-10 rounded-full flex items-center justify-center"
-                        :style="{ backgroundColor: `${transaction.category?.color}` || '#dcfce7' }">
-                        <span class="text-lg" :style="{ color: transaction.category?.color || '#16a34a' }">
-                          {{ getCategoryEmoji(transaction.category?.icon) }}
-                        </span>
+                      <div class="w-10 h-10 rounded-full flex items-center justify-center" :style="{
+                        backgroundColor: (transaction.category?.color + '15') || '#dcfce7',
+                        color: transaction.category?.color || '#16a34a'
+                      }">
+                        <component :is="transaction.category?.icon || 'CircleDollarSign'" class="h-5 w-5" />
                       </div>
                       <div class="flex-1 min-w-0">
                         <h4 class="font-medium text-gray-900 truncate">
@@ -349,18 +349,15 @@
                 class="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-all"
                 @click="editTransaction(transaction)">
                 <div class="flex items-center gap-3">
-                  <div class="w-10 h-10 rounded-full flex items-center justify-center"
-                    :style="{ 
-                      backgroundColor: `${transaction.category?.color}` || 
-                        (transaction.type === 'income' ? '#dcfce7' : '#fee2e2')
-                    }">
-                    <span class="text-lg" 
-                      :style="{ 
-                        color: transaction.category?.color || 
-                          (transaction.type === 'income' ? '#16a34a' : '#dc2626')
-                      }">
-                      {{ getCategoryEmoji(transaction.category?.icon) }}
-                    </span>
+                  <div class="w-10 h-10 rounded-full flex items-center justify-center" :style="{
+                    backgroundColor: (transaction.category?.color + '15') ||
+                      (transaction.type === 'income' ? '#dcfce7' : '#fee2e2'),
+                    color: transaction.category?.color ||
+                      (transaction.type === 'income' ? '#16a34a' : '#dc2626')
+                  }">
+                    <component
+                      :is="transaction.category?.icon || (transaction.type === 'income' ? 'CircleDollarSign' : 'ShoppingBag')"
+                      class="h-5 w-5" />
                   </div>
                   <div class="flex-1 min-w-0">
                     <h4 class="font-medium text-gray-900 truncate">
@@ -370,7 +367,8 @@
                   </div>
                   <div class="text-right">
                     <p class="font-medium" :class="transaction.type === 'expense' ? 'text-red-600' : 'text-green-600'">
-                      {{ transaction.type === 'expense' ? '-' : '+' }}{{ formatCurrency(transaction.amount, currencyCode) }}
+                      {{ transaction.type === 'expense' ? '-' : '+' }}{{ formatCurrency(transaction.amount,
+                        currencyCode) }}
                     </p>
                     <p class="text-sm text-gray-400">{{ formatDate(transaction.transaction_date) }}</p>
                   </div>
@@ -389,32 +387,30 @@
       <Plus class="h-6 w-6" />
     </button>
     <!-- Start Desktop Model -->
-    <Teleport to="body">
-      <transition name="fade">
-        <div v-if="showDesktopModal" class="fixed inset-0 bg-black bg-opacity-50 z-40" @click="closeModal"></div>
-      </transition>
-      <transition name="modal">
-        <div v-if="showDesktopModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-auto">
-            <!-- Header -->
-            <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-              <h3 class="text-lg font-semibold text-gray-900">{{ getActiveTab === 'daily' ? (editingTransaction ? 'Edit Transaction' : 'New Transaction') : 'Recurring Expense' }}</h3>
-              <button @click="closeModal" class="text-gray-400 hover:text-gray-500">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-            <!-- Content -->
-            <div class="px-6 py-4">
-              <AddTransaction v-if="getActiveTab === 'daily'" @transaction-added="handleTransactionAdded" @remove="removeItem" :item="editingTransaction" @close="closeModal" />
-              <RecurringExpenseForm v-else :editingExpense="editingRecurring" :loading="saving" @save="handleRecurringExpenseSave" @delete="handleRecurringExpenseDelete" @cancel="closeModal" />
-            </div>
-            <!-- Footer (custom buttons are inside AddTransaction/RecurringExpenseForm) -->
+    <TransitionRoot appear :show="showDesktopModal" as="template">
+      <Dialog as="div" @close="closeModal" class="relative z-50 hidden md:block">
+        <TransitionChild enter="duration-200 ease-out" enter-from="opacity-0" enter-to="opacity-100"
+          leave="duration-200 ease-in" leave-from="opacity-100" leave-to="opacity-0">
+          <div class="fixed inset-0 bg-black/30 backdrop-blur-sm" />
+        </TransitionChild>
+
+        <div class="fixed inset-0 overflow-y-auto">
+          <div class="flex min-h-full items-center justify-center p-4">
+            <TransitionChild enter="duration-300 ease-out" enter-from="opacity-0 scale-95"
+              enter-to="opacity-100 scale-100" leave="duration-200 ease-in" leave-from="opacity-100 scale-100"
+              leave-to="opacity-0 scale-95">
+              <DialogPanel
+                class="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 shadow-xl transition-all">
+                <AddTransaction v-if="getActiveTab === 'daily'" @transaction-added="handleTransactionAdded"
+                  @remove="removeItem" :item="editingTransaction" @close="closeModal" />
+                <RecurringExpenseForm v-else :editingExpense="editingRecurring" :loading="saving"
+                  @save="handleRecurringExpenseSave" @delete="handleRecurringExpenseDelete" @cancel="closeModal" />
+              </DialogPanel>
+            </TransitionChild>
           </div>
         </div>
-      </transition>
-    </Teleport>
+      </Dialog>
+    </TransitionRoot>
     <!-- End Desktop Model -->
     <!-- Bottom Sheet -->
     <BottomSheet v-model="showAddModal" class="md:hidden">
@@ -431,32 +427,36 @@
 </template>
 <script>
 import {
-  Calendar, Trash2, Plus, ReceiptIcon, Video, BriefcaseMedical, Gift, Circle, CircleEllipsis, Pizza, CircleDollarSign,
-  HandCoins, Wallet, ChartCandlestick, Landmark, Receipt, Clapperboard, Plane, Contact,
-  Cross, ShoppingCart, Book, BriefcaseBusiness, BadgeDollarSign, Car, SearchIcon,
+  Calendar, Trash2, Plus, Car, ReceiptIcon, Video, BriefcaseMedical, Gift, Circle, CircleEllipsis, Pizza, CircleDollarSign
+  , HandCoins, Wallet, ChartCandlestick, Landmark,
+  Citrus, ShoppingBag, House, Receipt, Clapperboard, Plane, Contact,
+  Cross, ShoppingCart, Book, BriefcaseBusiness, BadgeDollarSign,
+  Dumbbell,
+  Sparkle,SearchIcon,
   CircleDot, CircleX, TrendingUp, TrendingDown, ArrowUpCircle, ArrowDownCircle, PiggyBank, CalendarClock, RepeatIcon
 } from 'lucide-vue-next'
 import BottomSheet from './BottomSheet.vue'
 import AddTransaction from './AddTransaction.vue'
 import RecurringExpenseForm from './RecurringExpenseForm.vue'
-import { useTransactionStore } from '../store/transaction'
-import { mapActions, mapState } from 'pinia'
-import { numberMixin } from '../mixins/numberMixin'
-import { deleteTransaction, getTransactionById } from '../services/TransactionService'
-import { useSettingsStore } from '../store/settings'
+import { useTransactionStore } from '../store/transaction';
+import { mapActions, mapState } from 'pinia';
+import { numberMixin } from '../mixins/numberMixin';
+import { deleteTransaction, getTransactionById } from '../services/TransactionService';
+import { useSettingsStore } from '../store/settings';
 import { Dialog, DialogPanel, TransitionRoot, TransitionChild } from '@headlessui/vue'
-import { useRecurringExpenseStore } from '../store/recurringExpense'
-import { emojiMixin } from '../mixins/emojiMixin'
-
+import { useRecurringExpenseStore } from '../store/recurringExpense';
+import { iconMixin } from '../mixins/iconMixin';
 export default {
   name: 'ExpenseList',
-  mixins: [numberMixin, emojiMixin],
+  mixins: [numberMixin,iconMixin],
   components: {
-    Calendar, Trash2, Plus, ReceiptIcon, Video, BriefcaseMedical, Gift, Circle, CircleEllipsis, Pizza, CircleDollarSign,
+    Calendar, Trash2, Plus, ShoppingBag, ReceiptIcon, Video, BriefcaseMedical, Gift, Circle, CircleEllipsis, Pizza, CircleDollarSign,
     BottomSheet,
     AddTransaction, HandCoins, Wallet, ChartCandlestick, Landmark,
-    Receipt, Clapperboard, Plane, Contact,
-    Cross, ShoppingCart, Book, BriefcaseBusiness, BadgeDollarSign, Car, SearchIcon,
+    Citrus, House, Receipt, Clapperboard, Plane, Contact,
+    Cross, ShoppingCart, Book, BriefcaseBusiness, BadgeDollarSign, Car,SearchIcon,
+    Dumbbell,
+    Sparkle,
     CircleDot, CircleX, TrendingUp,
     TrendingDown,
     ArrowUpCircle,
@@ -691,12 +691,7 @@ export default {
       }
     },
     async editTransaction(transaction) {
-      const tx = await getTransactionById(transaction.id)
-      // Find the full category object by id
-      const fullCategory = this.categories.find(cat => cat.id === tx.category)
-      // If tx.category is an object, use as is; if it's an id, replace with full object
-      tx.category = typeof tx.category === 'object' ? tx.category : fullCategory
-      this.editingTransaction = tx
+      this.editingTransaction = await getTransactionById(transaction.id)
       if (window.innerWidth >= 768) {
         this.showDesktopModal = true
       } else {
@@ -809,17 +804,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-/* Add styles for emoji container */
-.text-lg {
-  line-height: 1;
-  display: inline-block;
-  transform: translateY(1px);
-}
-
-/* Add transition for smoother color changes */
-.w-10 {
-  transition: background-color 0.2s ease;
-}
-</style>

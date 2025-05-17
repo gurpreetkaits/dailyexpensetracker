@@ -19,21 +19,13 @@
       </div>
 
       <!-- Categories List -->
-      <div v-if="categories && categories.length > 0" class="bg-white rounded-lg shadow divide-y divide-gray-200">
-        <div v-for="category in categories" :key="category.id"
+      <div class="bg-white rounded-lg shadow divide-y divide-gray-200">
+        <div v-for="category in paginatedCategories" :key="category.id"
              class="py-2 px-3 flex items-center justify-between hover:bg-gray-50">
           <div class="flex items-center gap-2">
-            <div
-              class="h-7 w-7 rounded-full flex items-center justify-center"
-              :style="{
-                backgroundColor: `${category.color}`,
-                color: category.color
-              }"
-            >
-              <span class="text-lg">
-                {{ getCategoryEmoji(category.icon) }}
-                <span style="display:none">{{ console.log('category.icon in list:', category.icon) }}</span>
-              </span>
+            <div class="h-7 w-7 rounded-full flex items-center justify-center shrink-0"
+                 :style="getCategoryColor(category.color)">
+              <component :is="category.icon || 'ShoppingBag'" class="h-4 w-4 text-white" />
             </div>
             <div>
               <div class="font-medium text-gray-900 text-sm">{{ category.name }}</div>
@@ -64,7 +56,7 @@
       </div>
 
       <!-- Empty State -->
-      <div v-else class="text-center py-8">
+      <div v-if="categories.length === 0" class="text-center py-8">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
         </svg>
@@ -79,7 +71,7 @@
       </div>
 
       <!-- Pagination -->
-      <div v-if="categories && categories.length > 0 && totalPages > 1" class="mt-4 flex items-center justify-between">
+      <div v-if="totalPages > 1" class="mt-4 flex items-center justify-between">
         <div class="text-sm text-gray-500">
           Showing {{ startIndex }}-{{ endIndex }} of {{ totalItems }}
         </div>
@@ -147,25 +139,24 @@
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">Icon</label>
             <div class="grid grid-cols-6 gap-2 max-h-48 overflow-y-auto p-1">
-              <button v-for="(emoji, name) in availableEmojis"
-                      :key="name"
+              <button v-for="icon in icons" :key="icon.name"
                       type="button"
-                      @click="selectIcon(name)"
-                      class="h-10 w-10 rounded-lg flex items-center justify-center hover:bg-gray-100 transition-colors text-lg"
-                      :class="categoryForm.icon === name ? 'bg-emerald-50 text-emerald-600 ring-2 ring-emerald-500' : 'text-gray-600'">
-                {{ emoji }}
+                      @click="categoryForm.icon = icon.name"
+                      class="h-10 w-10 rounded-lg flex items-center justify-center hover:bg-gray-100 transition-colors"
+                      :class="categoryForm.icon === icon.name ? 'bg-emerald-50 text-emerald-600' : 'text-gray-600'">
+                <component :is="icon.component" class="h-5 w-5" />
               </button>
             </div>
           </div>
         </form>
         <template #footer>
-          <button @click="closeModal"
+          <button @click="showAddModal = false"
                   class="px-3 py-1.5 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
             Cancel
           </button>
           <button @click="handleSubmit"
                   class="ml-3 px-3 py-1.5 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-emerald-500 hover:bg-emerald-600"
-                  :disabled="isSubmitting || !categoryForm.name.trim()">
+                  :disabled="isSubmitting">
             {{ isSubmitting ? 'Saving...' : 'Save' }}
           </button>
         </template>
@@ -202,24 +193,23 @@
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">Icon</label>
               <div class="grid grid-cols-6 gap-2 max-h-48 overflow-y-auto p-1">
-                <button v-for="(emoji, name) in availableEmojis"
-                        :key="name"
+                <button v-for="icon in icons" :key="icon.name"
                         type="button"
-                        @click="selectIcon(name)"
-                        class="h-10 w-10 rounded-lg flex items-center justify-center hover:bg-gray-100 transition-colors text-lg"
-                        :class="categoryForm.name === name ? 'bg-emerald-50 text-emerald-600 ring-2 ring-emerald-500' : 'text-gray-600'">
-                  {{ emoji }}
+                        @click="categoryForm.icon = icon.name"
+                        class="h-10 w-10 rounded-lg flex items-center justify-center hover:bg-gray-100 transition-colors"
+                        :class="categoryForm.icon === icon.name ? 'bg-emerald-50 text-emerald-600' : 'text-gray-600'">
+                  <component :is="icon.component" class="h-5 w-5" />
                 </button>
               </div>
             </div>
             <div class="flex gap-3 mt-6">
-              <button @click="closeModal"
+              <button @click="showAddModal = false"
                       class="flex-1 px-3 py-1.5 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
                 Cancel
               </button>
               <button @click="handleSubmit"
                       class="flex-1 px-3 py-1.5 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-emerald-500 hover:bg-emerald-600"
-                      :disabled="isSubmitting || !categoryForm.name.trim()">
+                      :disabled="isSubmitting">
                 {{ isSubmitting ? 'Saving...' : 'Save' }}
               </button>
             </div>
@@ -231,19 +221,30 @@
 </template>
 
 <script>
-import { ref, computed, onMounted, reactive } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import GlobalModal from '../../components/Global/GlobalModal.vue'
 import BottomSheet from '../../components/BottomSheet.vue'
 import { useWindowSize } from '@vueuse/core'
 import { useCategoryStore } from '../../store/category'
 import { useNotifications } from '../../composables/useNotifications'
-import { emojiMixin } from '../../mixins/emojiMixin'
+import {
+  ShoppingBag, Home, Car, Plane, Utensils, Coffee,
+  ShoppingCart, Gift, Heart, Book, GraduationCap, Briefcase,
+  Dumbbell, Music, GamepadIcon, Phone, Wifi, Zap,
+  Droplet, Pill, Stethoscope, Bus, Train, Ship,
+  CircleDollarSign, PiggyBank, Wallet, CreditCard, BanknoteIcon
+} from 'lucide-vue-next'
 
 export default {
   name: 'CategoriesView',
   components: {
     GlobalModal,
-    BottomSheet
+    BottomSheet,
+    ShoppingBag, Home, Car, Plane, Utensils, Coffee,
+    ShoppingCart, Gift, Heart, Book, GraduationCap, Briefcase,
+    Dumbbell, Music, GamepadIcon, Phone, Wifi, Zap,
+    Droplet, Pill, Stethoscope, Bus, Train, Ship,
+    CircleDollarSign, PiggyBank, Wallet, CreditCard, BanknoteIcon
   },
   setup() {
     const loading = ref(false)
@@ -255,77 +256,57 @@ export default {
     const categoryStore = useCategoryStore()
     const { notify } = useNotifications()
 
-    // Create a reactive reference to emojiMixin data
-    const emojiData = reactive(emojiMixin.data())
+    // Pagination
+    const currentPage = ref(1)
+    const itemsPerPage = computed(() => categoryStore.pagination.per_page)
+    const totalItems = computed(() => categoryStore.pagination.total)
+    const totalPages = computed(() => categoryStore.pagination.last_page)
+    const startIndex = computed(() => categoryStore.pagination.from)
+    const endIndex = computed(() => categoryStore.pagination.to)
 
-    // Simplified emoji functions with error handling
-    const getCategoryEmoji = (icon) => {
-      console.log('getCategoryEmoji called with icon:', icon)
-      try {
-        const data = emojiMixin.data()
-        const emoji = data.emojis.income[icon] || data.emojis.expense[icon] || '📌'
-        console.log('emoji found:', emoji)
-        return emoji
-      } catch (e) {
-        console.log('getCategoryEmoji error:', e)
-        return '📌'
-      }
-    }
-
-    // Initialize categoryForm with default values
     const categoryForm = ref({
       name: '',
       type: 'expense',
       color: '#10B981',
-      icon: 'shopping'
+      icon: 'ShoppingBag'
     })
 
-    // Make all emojis available and reactive
-    const availableEmojis = computed(() => {
-      const data = emojiMixin.data()
-      return {
-        ...data.emojis.income,
-        ...data.emojis.expense
-      }
-    })
-
-    // Handle icon selection
-    const selectIcon = (iconName) => {
-      console.log('Selecting icon:', iconName) // Debug log
-      categoryForm.value.icon = iconName
-    }
-
-    // Reset form when modal is closed
-    const closeModal = () => {
-      showAddModal.value = false
-      resetForm()
-    }
-
-    // Reset form with default values
-    const resetForm = () => {
-      categoryForm.value = {
-        name: '',
-        type: 'expense',
-        color: '#10B981',
-        icon: 'shopping'
-      }
-      editingCategory.value = null
-    }
-
-    // Pagination
-    const currentPage = ref(1)
-    const itemsPerPage = computed(() => categoryStore.pagination?.per_page || 10)
-    const totalItems = computed(() => categoryStore.pagination?.total || 0)
-    const totalPages = computed(() => categoryStore.pagination?.last_page || 1)
-    const startIndex = computed(() => categoryStore.pagination?.from || 0)
-    const endIndex = computed(() => categoryStore.pagination?.to || 0)
+    const icons = [
+      { name: 'ShoppingBag', component: ShoppingBag },
+      { name: 'Home', component: Home },
+      { name: 'Car', component: Car },
+      { name: 'Plane', component: Plane },
+      { name: 'Utensils', component: Utensils },
+      { name: 'Coffee', component: Coffee },
+      { name: 'ShoppingCart', component: ShoppingCart },
+      { name: 'Gift', component: Gift },
+      { name: 'Heart', component: Heart },
+      { name: 'Book', component: Book },
+      { name: 'GraduationCap', component: GraduationCap },
+      { name: 'Briefcase', component: Briefcase },
+      { name: 'Dumbbell', component: Dumbbell },
+      { name: 'Music', component: Music },
+      { name: 'GamepadIcon', component: GamepadIcon },
+      { name: 'Phone', component: Phone },
+      { name: 'Wifi', component: Wifi },
+      { name: 'Zap', component: Zap },
+      { name: 'Droplet', component: Droplet },
+      { name: 'Pill', component: Pill },
+      { name: 'Stethoscope', component: Stethoscope },
+      { name: 'Bus', component: Bus },
+      { name: 'Train', component: Train },
+      { name: 'Ship', component: Ship },
+      { name: 'CircleDollarSign', component: CircleDollarSign },
+      { name: 'PiggyBank', component: PiggyBank },
+      { name: 'Wallet', component: Wallet },
+      { name: 'CreditCard', component: CreditCard },
+      { name: 'BanknoteIcon', component: BanknoteIcon }
+    ]
 
     // Computed properties for categories and pagination
-    const categories = computed(() => categoryStore.categories || [])
+    const categories = computed(() => categoryStore.categories)
 
     const displayedPages = computed(() => {
-      if (!totalPages.value) return []
-      
       const pages = []
       const maxVisiblePages = 5
       let start = Math.max(1, currentPage.value - Math.floor(maxVisiblePages / 2))
@@ -402,6 +383,16 @@ export default {
       }
     }
 
+    const resetForm = () => {
+      categoryForm.value = {
+        name: '',
+        type: 'expense',
+        color: '#10B981',
+        icon: 'ShoppingBag'
+      }
+      editingCategory.value = null
+    }
+
     const handlePageChange = async (page) => {
       currentPage.value = page
       loading.value = true
@@ -440,6 +431,7 @@ export default {
       editingCategory,
       categoryForm,
       categories,
+      icons,
       isMobile,
       currentPage,
       totalPages,
@@ -453,31 +445,8 @@ export default {
       handleSubmit,
       handlePageChange,
       totalItems,
-      itemsPerPage,
-      getCategoryEmoji,
-      selectIcon,
-      closeModal,
-      availableEmojis
+      itemsPerPage
     }
   }
 }
 </script>
-
-<style scoped>
-/* Add styles for emoji container */
-.text-lg {
-  line-height: 1;
-  display: inline-block;
-  transform: translateY(1px);
-}
-
-/* Add transition for smoother color changes */
-.h-7 {
-  transition: background-color 0.2s ease;
-}
-
-/* Add styles for selected icon */
-.ring-2 {
-  transition: all 0.2s ease;
-}
-</style>

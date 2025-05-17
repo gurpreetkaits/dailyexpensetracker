@@ -105,7 +105,6 @@ export const useSettingsStore = defineStore("settings", {
       this.loading = true;
       try {
         const response = await getCategories();
-        console.log('response', response)
         this.categories = response;
       } catch (error) {
         console.error("Error fetching categories:", error);

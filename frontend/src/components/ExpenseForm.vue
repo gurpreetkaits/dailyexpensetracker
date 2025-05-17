@@ -8,7 +8,7 @@
             @click="$emit('close')"
             class="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100 transition-colors"
           >
-            ❌
+            <X class="h-4 w-4" />
           </button>
         </div>
 
@@ -24,7 +24,7 @@
                 class="p-2 text-sm rounded-md transition-colors"
                 :class="form.type === 'expense' ? 'bg-red-50 text-red-600' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'"
               >
-                💸 Expense
+                Expense
               </button>
               <button
                 type="button"
@@ -32,7 +32,7 @@
                 class="p-2 text-sm rounded-md transition-colors"
                 :class="form.type === 'income' ? 'bg-green-50 text-green-600' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'"
               >
-                💰 Income
+                Income
               </button>
             </div>
           </div>
@@ -41,7 +41,7 @@
           <div class="space-y-1">
             <label class="text-xs font-medium text-gray-600">Amount</label>
             <div class="relative">
-              <span class="absolute left-2.5 top-1/2 transform -translate-y-1/2 text-gray-400">💵</span>
+              <DollarSign class="absolute left-2.5 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input
                 v-model="form.amount"
                 type="number"
@@ -64,45 +64,39 @@
               required
             >
               <option value="" disabled>Select a category</option>
-              <option
-                v-for="category in filteredCategories"
-                :key="category.id"
-                :value="category.id"
-                class="py-1"
-              >
-                {{ getEmoji(category.type, category.icon) }} {{ category.name }}
-              </option>
+                <option
+                  v-for="category in filteredCategories"
+                  :key="category.id"
+                  :value="category.id"
+                  class="py-1"
+                >
+                  {{ category.name }}
+                </option>
             </select>
           </div>
 
           <!-- Note Input -->
           <div class="space-y-1">
             <label class="text-xs font-medium text-gray-600">Note (Optional)</label>
-            <div class="relative">
-              <span class="absolute left-2.5 top-1/2 transform -translate-y-1/2 text-gray-400">📝</span>
-              <input
-                v-model="form.note"
-                type="text"
-                class="w-full p-2.5 pl-9 text-sm border rounded-md bg-gray-50 focus:bg-white
-                       focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                placeholder="Add a note..."
-              />
-            </div>
+            <input
+              v-model="form.note"
+              type="text"
+              class="w-full p-2.5 text-sm border rounded-md bg-gray-50 focus:bg-white
+                     focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              placeholder="Add a note..."
+            />
           </div>
 
           <!-- Date Input -->
           <div class="space-y-1">
             <label class="text-xs font-medium text-gray-600">Date</label>
-            <div class="relative">
-              <span class="absolute left-2.5 top-1/2 transform -translate-y-1/2 text-gray-400">📅</span>
-              <input
-                v-model="form.date"
-                type="date"
-                class="w-full p-2.5 pl-9 text-sm border rounded-md bg-gray-50 focus:bg-white
-                       focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                required
-              />
-            </div>
+            <input
+              v-model="form.date"
+              type="date"
+              class="w-full p-2.5 text-sm border rounded-md bg-gray-50 focus:bg-white
+                     focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              required
+            />
           </div>
 
           <!-- Action Buttons -->
@@ -114,7 +108,7 @@
                      focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500
                      transition-colors"
             >
-              ❌ Cancel
+              Cancel
             </button>
             <button
               type="submit"
@@ -122,7 +116,7 @@
                      hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500
                      focus:ring-offset-2 transition-colors"
             >
-              💾 Save Transaction
+              Save Transaction
             </button>
           </div>
         </form>
@@ -132,7 +126,7 @@
 
   <script setup>
   import { reactive, computed } from 'vue'
-  import { emojiMixin } from '../mixins/emojiMixin'
+  import { X, DollarSign } from 'lucide-vue-next'
 
   const props = defineProps({
     isVisible: Boolean,
@@ -144,12 +138,6 @@
 
   const emit = defineEmits(['close', 'save'])
 
-  // Create a reactive reference to emojiMixin data
-  const emojiData = reactive(emojiMixin.data())
-
-  // Get the methods from emojiMixin
-  const { getEmoji, getAllEmojis, getTypeEmojis, getCategoryEmoji } = emojiMixin.methods
-
   const form = reactive({
     type: 'expense',
     amount: '',
@@ -159,14 +147,8 @@
   })
 
   const filteredCategories = computed(() => {
-    const categories = props.categories.filter(cat => cat.type.toLowerCase() === form.type.toLowerCase())
-    console.log('Categories with emojis:', categories.map(cat => ({
-      name: cat.name,
-      type: cat.type,
-      icon: cat.icon,
-      emoji: getEmoji(cat.type, cat.icon)
-    })))
-    return categories
+    console.log("filteredCategories", props.categories)
+    return props.categories.filter(cat => cat.type.toLowerCase() === form.type.toLowerCase())
   })
 
   const handleSubmit = () => {

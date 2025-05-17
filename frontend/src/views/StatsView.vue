@@ -35,6 +35,37 @@
                     </button>
                 </div>
             </div>
+            <!-- Financial Health Card -->
+            <div v-if="!loading" class="bg-white rounded-2xl shadow-lg p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold">Financial Health</h3>
+                    <div class="px-4 py-1 rounded-full text-sm font-medium" :class="{
+                        'bg-emerald-100 text-emerald-700': financialHealth === 'Excellent',
+                        'bg-blue-100 text-blue-700': financialHealth === 'Good',
+                        'bg-yellow-100 text-yellow-700': financialHealth === 'Fair',
+                        'bg-red-100 text-red-700': financialHealth === 'Poor'
+                    }">
+                        {{ financialHealth }}
+                    </div>
+                </div>
+                <div class="space-y-3">
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm text-gray-600">Savings Rate</span>
+                            <span class="text-sm font-medium">{{ savingsRate }}%</span>
+                        </div>
+                        <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+                            <div class="h-full transition-all duration-500" :class="{
+                                'bg-emerald-500': savingsRate >= 20,
+                                'bg-blue-500': savingsRate >= 15 && savingsRate < 20,
+                                'bg-yellow-500': savingsRate >= 10 && savingsRate < 15,
+                                'bg-red-500': savingsRate < 10
+                            }" :style="{ width: `${savingsRate}%` }">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
     
             <!-- Category Breakdown -->
             <div v-if="!loading" class="bg-white rounded-2xl shadow-lg p-6">
@@ -50,8 +81,8 @@
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-3">
                                 <div class="w-10 h-10 rounded-full flex items-center justify-center"
-                                    :style="{ backgroundColor: category.color, color: category.color }">
-                                    <span class="text-lg">{{ getCategoryEmoji(category.icon) }}</span>
+                                    :style="{ backgroundColor: category.color + '15', color: category.color }">
+                                    <component :is="getCategoryIcon(category)" class="h-5 w-5" />
                                 </div>
                                 <div>
                                     <span class="font-medium text-gray-900">{{ category.name }}</span>
@@ -81,8 +112,8 @@
                         </div>
                         <div v-else class="divide-y divide-gray-100 max-h-80 overflow-y-auto">
                           <div v-for="tx in categoryTransactions" :key="tx.id" class="py-2 px-4 flex items-center gap-2 text-xs">
-                            <div class="w-7 h-7 rounded-full flex items-center justify-center" :style="{ backgroundColor: selectedCategory.color, color: selectedCategory.color }">
-                              <span class="text-lg">{{ getCategoryEmoji(selectedCategory.icon) }}</span>
+                            <div class="w-7 h-7 rounded-full flex items-center justify-center" :style="{ backgroundColor: selectedCategory.color + '15', color: selectedCategory.color }">
+                              <component :is="getCategoryIcon(selectedCategory)" class="h-4 w-4" />
                             </div>
                             <div class="flex-1 min-w-0">
                               <div class="font-medium text-gray-900 truncate">{{ tx.note || 'No note' }}</div>
@@ -111,8 +142,8 @@
                         </div>
                         <div v-else class="divide-y divide-gray-100 max-h-80 overflow-y-auto">
                           <div v-for="tx in categoryTransactions" :key="tx.id" class="py-2 flex items-center gap-2 text-xs">
-                            <div class="w-7 h-7 rounded-full flex items-center justify-center" :style="{ backgroundColor: selectedCategory.color, color: selectedCategory.color }">
-                              <span class="text-lg">{{ getCategoryEmoji(selectedCategory.icon) }}</span>
+                            <div class="w-7 h-7 rounded-full flex items-center justify-center" :style="{ backgroundColor: selectedCategory.color + '15', color: selectedCategory.color }">
+                              <component :is="getCategoryIcon(selectedCategory)" class="h-4 w-4" />
                             </div>
                             <div class="flex-1 min-w-0">
                               <div class="font-medium text-gray-900 truncate">{{ tx.note || 'No note' }}</div>
@@ -149,7 +180,6 @@ import { numberMixin } from '../mixins/numberMixin'
 import axios from 'axios'
 import { getCategoryTransactions } from '../services/TransactionService'
 import { useNotifications } from '../composables/useNotifications'
-import { emojiMixin } from '../mixins/emojiMixin'
 
 export default {
     name: 'StatsPage',
@@ -162,15 +192,10 @@ export default {
         Sparkle,
         CircleDot, CircleX, BottomSheet
     },
-    mixins: [numberMixin, emojiMixin],
+    mixins: [numberMixin],
     setup() {
         const { notify } = useNotifications()
-        const getCategoryEmoji = (icon) => {
-            if (!icon) return '📌'
-            const data = emojiMixin.data()
-            return data.emojis.income[icon] || data.emojis.expense[icon] || '📌'
-        }
-        return { notify, getCategoryEmoji }
+        return { notify }
     },
     data() {
         return {
@@ -270,6 +295,10 @@ export default {
 
         formatNumber(value) {
             return new Intl.NumberFormat('en-IN').format(value)
+        },
+
+        getCategoryIcon(category) {
+            return category.icon
         },
 
         getHealthColor(health) {

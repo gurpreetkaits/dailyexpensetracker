@@ -38,7 +38,7 @@ export default {
             navigation: [
                 { path: '/overview', name: 'Overview', icon: Home, show: true },
                 { path: '/stats', name: 'Stats', icon: BarChart, show: true },
-                // {path: '/dashboard', name: 'Stats', icon: Home, show: true , beta: true},
+                {path: '/dashboard', name: 'Stats', icon: Home, show: true , beta: true},
                 { path: '/chat', name: 'Chat', icon: MessageCircle, show: true,  premium: true},
                 { path: '/plans', name: 'Plans', icon: Star, show: true, beta: true },
                 { path: '/settings', name: 'Settings', icon: Settings, show: true },
