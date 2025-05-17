@@ -89,9 +89,18 @@ export default {
       }
       const dummyData = {
         [new Date().getFullYear()]: [
-          { label: 'Jan', amount: 1200 }, { label: 'Feb', amount: 900 }, { label: 'Mar', amount: 1500 }, { label: 'Apr', amount: 800 },
-          { label: 'May', amount: 1100 }, { label: 'Jun', amount: 950 }, { label: 'Jul', amount: 1300 }, { label: 'Aug', amount: 1000 },
-          { label: 'Sep', amount: 1400 }, { label: 'Oct', amount: 1200 }, { label: 'Nov', amount: 1600 }, { label: 'Dec', amount: 1700 }
+          { label: 'Jan', amount: 1200 },
+           { label: 'Feb', amount: 900 },
+            { label: 'Mar', amount: 1500 },
+             { label: 'Apr', amount: 800 },
+          { label: 'May', amount: 1100 }, 
+          { label: 'Jun', amount: 950 },
+           { label: 'Jul', amount: 1300 },
+            { label: 'Aug', amount: 1000 },
+          { label: 'Sep', amount: 1400 },
+           { label: 'Oct', amount: 1200 },
+            { label: 'Nov', amount: 1600 },
+             { label: 'Dec', amount: 1700 }
         ],
         [new Date().getFullYear() - 1]: [
           { label: 'Jan', amount: 1000 }, { label: 'Feb', amount: 1100 }, { label: 'Mar', amount: 1200 }, { label: 'Apr', amount: 900 },

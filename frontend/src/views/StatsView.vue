@@ -115,7 +115,6 @@ export default {
             customStartDate: '',
             customEndDate: '',
             quickFilters: [
-                // { label: 'Today', value: 'today' },
                 { label: 'Weekly', value: 'week' },
                 { label: 'Monthly', value: 'month' },
                 { label: 'Yearly', value: 'year' },
