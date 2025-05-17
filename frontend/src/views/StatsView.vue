@@ -11,12 +11,12 @@
                     @filter-change="selectQuickFilter"
                 />
                 <!-- Right: Line Chart -->
-                <div>
-                    <div class="bg-white rounded-lg shadow-sm p-4 h-full flex flex-col mb-6 md:mb-0">
-                        <h3 class="text-base font-semibold mb-2">Monthly Spendings Comparison</h3>
-                        <v-chart :option="option" style="height: 350px;" />
-                    </div>
-                </div>
+                <CategorySpendingComparisonChart
+                  :filter="dateFilter"
+                  :get-filters="getFilters"
+                  :currency-code="currencyCode"
+                  :format-currency="formatCurrency"
+                />
             </div>
             <!-- Add Transaction Bar -->
             <div class="bg-white rounded-xl shadow-sm px-4 py-3 mb-4 flex items-center justify-between gap-2">
@@ -95,13 +95,14 @@ import { LineChart } from 'echarts/charts'
 import { TitleComponent, TooltipComponent, GridComponent, LegendComponent } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
 import { iconMixin } from '../mixins/iconMixin'
+import CategorySpendingComparisonChart from '../components/Stats/CategorySpendingComparisonChart.vue'
 
 echarts.use([LineChart, TitleComponent, TooltipComponent, GridComponent, LegendComponent, CanvasRenderer])
 
 export default {
     name: 'StatsView',
     components: {
-         BottomSheet, AddTransaction, VChart, CategorySpendingsByChart
+         BottomSheet, AddTransaction, VChart, CategorySpendingsByChart, CategorySpendingComparisonChart
     },
     mixins: [numberMixin, iconMixin],
     setup() {
@@ -127,23 +128,10 @@ export default {
             categoryTransactions: [],
             loadingCategoryTx: false,
             categoryTxError: null,
-            monthlySpendings: [],
-            lastYearMonthlySpendings: [],
             totalPages: 1,
             currentPage: 1,
             displayedPages: [],
             paginatedTransactions: [],
-            option: {
-                title: { text: '' },
-                tooltip: { trigger: 'axis' },
-                legend: { data: ['2024', '2023'] },
-                xAxis: { type: 'category', data: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'] },
-                yAxis: { type: 'value' },
-                series: [
-                    { name: '2024', type: 'line', data: [] },
-                    { name: '2023', type: 'line', data: [] }
-                ]
-            }
         }
     },
 
@@ -216,60 +204,6 @@ export default {
                 end_date,
                 // add other filters if needed
             };
-        },
-
-        chartData() {
-            // Prepare data for chart
-            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-            const currentYearData = Array(12).fill(0)
-            const lastYearData = Array(12).fill(0)
-            this.monthlySpendings.forEach(m => {
-                const idx = months.indexOf(m.label)
-                if (idx !== -1) currentYearData[idx] = m.amount
-            })
-            this.lastYearMonthlySpendings.forEach(m => {
-                const idx = months.indexOf(m.label)
-                if (idx !== -1) lastYearData[idx] = m.amount
-            })
-            return {
-                labels: months,
-                datasets: [
-                    {
-                        label: `${new Date().getFullYear()}`,
-                        data: currentYearData,
-                        borderColor: '#2563eb',
-                        backgroundColor: 'rgba(37,99,235,0.1)',
-                        tension: 0.4,
-                        fill: false
-                    },
-                    {
-                        label: `${new Date().getFullYear() - 1}`,
-                        data: lastYearData,
-                        borderColor: '#f59e42',
-                        backgroundColor: 'rgba(245,158,66,0.1)',
-                        tension: 0.4,
-                        fill: false
-                    }
-                ]
-            }
-        },
-
-        chartOptions() {
-            return {
-                responsive: true,
-                plugins: {
-                    legend: { display: true },
-                    title: { display: true, text: 'Monthly Spendings Comparison' }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: value => this.formatCurrency(value, this.currencyCode)
-                        }
-                    }
-                }
-            }
         },
     },
 
@@ -399,38 +333,9 @@ export default {
             };
         },
 
-        async fetchMonthlySpendings() {
-            try {
-                // Fetch current year
-                const response = await axios.get('/api/transactions/monthly-spendings', {
-                    params: {
-                        ...this.getFilters,
-                        year: new Date().getFullYear()
-                    }
-                })
-                this.monthlySpendings = response.data.monthlySpendings
-                // Fetch last year
-                const lastYear = new Date().getFullYear() - 1
-                const responseLastYear = await axios.get('/api/transactions/monthly-spendings', {
-                    params: {
-                        ...this.getFilters,
-                        year: lastYear
-                    }
-                })
-                this.lastYearMonthlySpendings = responseLastYear.data.monthlySpendings
-            } catch (error) {
-                console.error('Error fetching monthly spendings:', error)
-                this.notify({
-                    title: 'Error',
-                    message: error.response?.data?.error || 'Failed to load monthly spendings',
-                    type: 'error'
-                })
-            }
-        },
-
         async openAddModal() {
             try {
-                await this.fetchMonthlySpendings();
+                // Fetch monthly spendings logic
             } catch (error) {
                 console.error('Error opening add transaction modal:', error);
                 this.notify({
@@ -443,7 +348,7 @@ export default {
 
         handlePageChange(page) {
             this.currentPage = page;
-            this.fetchMonthlySpendings();
+            // Fetch monthly spendings logic
         },
 
         getCategoryEmoji(icon) {
@@ -615,7 +520,6 @@ export default {
     async created() {
         try {
             await this.fetchStats(this.getFilters)
-            await this.fetchMonthlySpendings()
         } catch (error) {
             console.error('Error in StatsView created:', error)
             this.notify({
