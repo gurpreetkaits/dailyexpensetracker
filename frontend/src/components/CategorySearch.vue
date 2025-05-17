@@ -52,17 +52,19 @@ import {
 import { useCategoryStore } from '../store/category'
 import { numberMixin } from '../mixins/numberMixin';
 import { useSettingsStore } from '../store/settings';
+import { iconMixin } from '../mixins/iconMixin';
 const iconMap = {
     Wallet, HandCoins, ChartCandlestick, Landmark, Citrus,
     ShoppingBag, House, Receipt, Clapperboard, Plane, Contact,
-    Cross, ShoppingCart, Book, Gift, BriefcaseBusiness,
+    Cross, ShoppingCart, Book, Gift, BriefcaseBusiness,Calendar,
     BadgeDollarSign, Car, Dumbbell, Sparkle, CircleDot, CircleX
 }
 
 export default {
     name: 'CategorySearch',
     mixins:[
-        numberMixin
+        numberMixin,
+        iconMixin
     ],
     components: {
         ...iconMap
