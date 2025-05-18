@@ -31,7 +31,7 @@ export default {
       default: 'month'
     },
     getFilters: {
-      type: Function,
+      type: Object,
       required: true
     },
     currencyCode: {

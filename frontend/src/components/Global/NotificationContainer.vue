@@ -7,7 +7,9 @@
             :title="n.title"
             :message="n.message"
             :time-ago="n.timeAgo"
-            :avatar="n.avatar"
+            :styles="n.styles"
+            :progress="n.progress"
+            :fade-out="n.fadeOut"
             @closed="dismiss(n.id)"
         />
     </div>

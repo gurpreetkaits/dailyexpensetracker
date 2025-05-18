@@ -8,6 +8,7 @@ export const usePolarStore = defineStore('polar', {
         subscriptionStatus: null,
         loading: false,
         error: null,
+        lastFetched: null,
     }),
 
     getters: {
@@ -20,17 +21,32 @@ export const usePolarStore = defineStore('polar', {
         subscriptionPlan: (state) => {
             return state.subscription?.plan_type || null;
         },
+        shouldRefetchSubscription: (state) => {
+            if (!state.lastFetched) return true;
+            const fiveMinutes = 5 * 60 * 1000;
+            return Date.now() - state.lastFetched > fiveMinutes;
+        }
     },
 
     actions: {
         async verifyCheckoutSession(checkoutId) {
             const response = await verifyCheckoutSession(checkoutId);
             console.log('verifyCheckoutSession', response);
+            if(response.success) {
+                this.subscription = response.subscription;
+                this.subscriptionStatus = response.subscription.status;
+            } else {
+                this.error = response.message;
+            }
         },
-        async fetchSubscriptionStatus() {
+        async fetchSubscriptionStatus(force = false) {
             const authStore = useAuthStore();
             if (!authStore.isAuthenticated) {
                 this.subscription = null;
+                return;
+            }
+
+            if (!force && !this.shouldRefetchSubscription) {
                 return;
             }
 
@@ -43,6 +59,7 @@ export const usePolarStore = defineStore('polar', {
                 if (response.subscription) {
                     this.subscriptionStatus = response.subscription?.status;
                     this.subscription = response?.subscription;
+                    this.lastFetched = Date.now();
                 } else {
                     this.error = response.message;
                 }
@@ -54,8 +71,8 @@ export const usePolarStore = defineStore('polar', {
             }
         },
 
-        async initiateCheckout() {
-            const checkoutUrl = getCheckoutUrl();
+        async initiateCheckout(type) {
+            const checkoutUrl = getCheckoutUrl(type);
             if (!checkoutUrl) {
                 throw new Error('Checkout URL not configured');
             }
@@ -85,7 +102,9 @@ export const usePolarStore = defineStore('polar', {
 
         clearSubscription() {
             this.subscription = null;
+            this.subscriptionStatus = null;
             this.error = null;
+            this.lastFetched = null;
         },
     },
 });

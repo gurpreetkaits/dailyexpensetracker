@@ -54,24 +54,20 @@
                   <div class="space-y-3">
                     <div class="flex items-start gap-3">
                       <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                      <p class="text-sm text-gray-600">Advanced expense analytics and insights (AI)</p>
+                      <p class="text-sm text-gray-600">Advanced analytics and insights using AI</p>
                     </div>
                     <div class="flex items-start gap-3">
                       <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                      <p class="text-sm text-gray-600">AI Access (Know yourself better)</p>
+                      <p class="text-sm text-gray-600">Weekly/Monthly Email Reports</p>
                     </div>
+                    <div class="flex items-start gap-3">
+                          <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                          <p class="text-sm text-gray-600">Import Statements Using (Excel)</p>
+                      </div>
                     <div class="flex items-start gap-3">
                       <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
                       <p class="text-sm text-gray-600">Priority support and updates</p>
                     </div>
-                    <div class="flex items-start gap-3">
-                      <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                      <p class="text-sm text-gray-600">Request any new feature</p>
-                    </div>
-                      <div class="flex items-start gap-3">
-                          <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                          <p class="text-sm text-gray-600">Free access to future features</p>
-                      </div>
                   </div>
 
                   <div class="mt-6 flex flex-col gap-3">

@@ -83,6 +83,8 @@ class PolarService
                     'status' => 'active',
                     'quantity' => 1,
                     'trial_ends_at' => null,
+                    'polar_subscription_id' => $subscription->subscription_id ?? null,
+                    'amount' => $subscription->amount ?? 0,
                     'ends_at' => $subscription->ends_at ? Carbon::parse($subscription->ends_at)->format('Y-m-d H:i:s') : null,
                     'canceled_at' => $subscription->canceled_at ? Carbon::parse($subscription->canceled_at)->format('Y-m-d H:i:s') : null,
                     'response' => json_encode($checkoutSession, JSON_THROW_ON_ERROR)
@@ -100,7 +102,8 @@ class PolarService
                         'polar_id' => $checkoutSession['id'] ?? null,
                         'product_id' => $checkoutSession['product']['id'],
                         'plan_id' => $checkoutSession['product_price']['id'],
-                        'quantity' => 1
+                        'quantity' => 1,
+                        'amount' => $subscription->amount ?? 0
                     ];
 
                     PolarSubscriptionItem::updateOrCreate(

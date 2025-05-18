@@ -11,6 +11,7 @@ class PolarSubscription extends Model
     protected $fillable = [
         'user_id',
         'name',
+        'amount',
         'polar_id',
         'plan_id',
         'status',

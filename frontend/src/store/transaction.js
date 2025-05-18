@@ -6,8 +6,9 @@ import {
   saveTransaction,
   updateTransaction,
   getTransactionStats,
-searchTransactions
+  searchTransactions
 } from "../services/TransactionService";
+import axios from "axios";
 
 export const useTransactionStore = defineStore("transaction", {
   state: () => ({
@@ -107,13 +108,21 @@ export const useTransactionStore = defineStore("transaction", {
     removeTransaction(id) {
       this.transactions = this.transactions.filter((t) => t.id !== id);
     },
-      async searchTransactions(query, dateFilter) {
-          try {
-              this.transactions = await searchTransactions(query, dateFilter);
-          } catch (error) {
-              console.error('Error in search transactions:', error);
-              throw error;
-          }
-      },
+    async searchTransactions(query, dateFilter) {
+      try {
+        this.transactions = await searchTransactions(query, dateFilter);
+      } catch (error) {
+        console.error('Error in search transactions:', error);
+        throw error;
+      }
+    },
+    async importTransactions(transactions) {
+      try {
+        const response = await axios.post('/api/transactions/import', { transactions })
+        return response.data
+      } catch (error) {
+        throw error
+      }
+    }
   },
 });

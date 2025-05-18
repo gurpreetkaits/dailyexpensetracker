@@ -18,61 +18,16 @@
                   :format-currency="formatCurrency"
                 />
             </div>
-            <!-- Add Transaction Bar -->
-            <div class="bg-white rounded-xl shadow-sm px-4 py-3 mb-4 flex items-center justify-between gap-2">
-                <div class="flex-shrink-0">
-                    <button @click="openAddModal" class="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-medium px-5 py-2 rounded-lg shadow transition-all">
-                        <Plus class="h-4 w-4" />
-                        Add Transaction
-                    </button>
-                </div>
-                <div class="flex-shrink-0">
-                    <div v-if="totalPages > 1" class="flex items-center gap-1">
-                        <button @click="handlePageChange(currentPage - 1)" :disabled="currentPage === 1" class="px-2 py-1 rounded border text-sm disabled:opacity-50" :class="currentPage === 1 ? 'text-gray-400' : 'text-gray-700 hover:bg-gray-50'">Previous</button>
-                        <button v-for="page in displayedPages" :key="page" @click="handlePageChange(page)" class="px-2 py-1 rounded border text-sm" :class="currentPage === page ? 'bg-emerald-500 text-white border-emerald-500' : 'text-gray-700 hover:bg-gray-50'">{{ page }}</button>
-                        <button @click="handlePageChange(currentPage + 1)" :disabled="currentPage === totalPages" class="px-2 py-1 rounded border text-sm disabled:opacity-50" :class="currentPage === totalPages ? 'text-gray-400' : 'text-gray-700 hover:bg-gray-50'">Next</button>
-                    </div>
-                </div>
-            </div>
             <!-- Transactions Table -->
             <div>
-                <div v-if="paginatedTransactions.length > 0" class="bg-white rounded-xl shadow-sm p-4 overflow-x-auto min-h-[440px]">
-                    <table class="min-w-full text-sm">
-                        <thead>
-                            <tr class="text-gray-500 border-b">
-                                <th class="py-2 text-left font-medium">Category</th>
-                                <th class="py-2 text-left font-medium">Type</th>
-                                <th class="py-2 text-left font-medium">Note</th>
-                                <th class="py-2 text-left font-medium">Amount</th>
-                                <th class="py-2 text-left font-medium">Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="transaction in paginatedTransactions" :key="transaction.id" class="border-b last:border-0">
-                                <td class="py-2 flex items-center gap-2">
-                                    <div class="w-7 h-7 rounded-full flex items-center justify-center" :style="{
-                                        backgroundColor: (transaction.category?.color + '15') || (transaction.type === 'income' ? '#e6ffed' : '#ffeded'),
-                                        color: transaction.category?.color || (transaction.type === 'income' ? '#16a34a' : '#dc2626')
-                                    }">
-                                        <span class="text-lg">{{ getCategoryEmoji(transaction.category?.icon) }}</span>
-                                    </div>
-                                    <span>{{ transaction.category ? capitalizeFirstLetter(transaction.category.name) : '-' }}</span>
-                                </td>
-                                <td class="py-2">
-                                    <span :class="transaction.type === 'expense' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'" class="px-2 py-0.5 rounded-full text-xs capitalize">
-                                        {{ transaction.type }}
-                                    </span>
-                                </td>
-                                <td class="py-2">{{ transaction.note }}</td>
-                                <td class="py-2">{{ formatCurrency(transaction.amount, currencyCode) }}</td>
-                                <td class="py-2">{{ formatDate(transaction.transaction_date) }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div v-else class="bg-white rounded-xl shadow-sm p-4 flex flex-col items-center justify-center min-h-[440px]">
-                    <span class="text-gray-400 text-lg font-medium">No Transactions</span>
-                </div>
+                <TransactionListings
+                    :transactions="paginatedTransactions"
+                    :total-pages="totalPages"
+                    :current-page="currentPage"
+                    :displayed-pages="displayedPages"
+                    :currency-code="currencyCode"
+                    @page-change="handlePageChange"
+                />
             </div>
         </div>
     </div>
@@ -83,11 +38,11 @@ import BottomSheet from '../components/BottomSheet.vue'
 import { mapActions, mapState } from 'pinia'
 import { useTransactionStore } from '../store/transaction'
 import { useSettingsStore } from '../store/settings'
+import { usePolarStore } from '../store/polar'
 import { numberMixin } from '../mixins/numberMixin'
 import axios from 'axios'
 import { getCategoryTransactions } from '../services/TransactionService'
 import { useNotifications } from '../composables/useNotifications'
-import AddTransaction from '../components/AddTransaction.vue'
 import CategorySpendingsByChart from '../components/Stats/CategorySpendingsByChart.vue'
 import * as echarts from 'echarts/core'
 import { LineChart } from 'echarts/charts'
@@ -95,18 +50,20 @@ import { TitleComponent, TooltipComponent, GridComponent, LegendComponent } from
 import { CanvasRenderer } from 'echarts/renderers'
 import { iconMixin } from '../mixins/iconMixin'
 import CategorySpendingComparisonChart from '../components/Stats/CategorySpendingComparisonChart.vue'
+import TransactionListings from '../components/Stats/TransactionListings.vue'
 
 echarts.use([LineChart, TitleComponent, TooltipComponent, GridComponent, LegendComponent, CanvasRenderer])
 
 export default {
     name: 'StatsView',
     components: {
-         BottomSheet, AddTransaction, CategorySpendingsByChart, CategorySpendingComparisonChart
+         BottomSheet, CategorySpendingsByChart, CategorySpendingComparisonChart, TransactionListings
     },
     mixins: [numberMixin, iconMixin],
     setup() {
         const { notify } = useNotifications()
-        return { notify }
+        const polarStore = usePolarStore()
+        return { notify, polarStore }
     },
     data() {
         return {
@@ -196,17 +153,16 @@ export default {
         },
 
         getFilters() {
-            let { start_date, end_date } = this.getDateRangeFromType(this.dateFilter);
+            const { start_date, end_date } = this.getDateRangeFromType(this.dateFilter)
             return {
                 start_date,
-                end_date,
-                // add other filters if needed
-            };
+                end_date
+            }
         },
     },
 
     methods: {
-        ...mapActions(useTransactionStore, ['fetchStats']),
+        ...mapActions(useTransactionStore, ['fetchStats', 'importTransactions']),
 
         formatNumber(value) {
             return new Intl.NumberFormat('en-IN').format(value)
@@ -331,192 +287,32 @@ export default {
             };
         },
 
-        async openAddModal() {
+        handlePageChange(page) {
+            this.currentPage = page
+            this.fetchMonthlySpendings()
+        },
+
+        async fetchMonthlySpendings() {
             try {
-                // Fetch monthly spendings logic
+                await this.fetchStats(this.getFilters)
             } catch (error) {
-                console.error('Error opening add transaction modal:', error);
+                console.error('Error fetching monthly spendings:', error)
                 this.notify({
                     title: 'Error',
-                    message: error.response?.data?.error || 'Failed to open add transaction modal',
+                    message: error.response?.data?.error || 'Failed to load monthly spendings',
                     type: 'error'
-                });
+                })
             }
-        },
-
-        handlePageChange(page) {
-            this.currentPage = page;
-            // Fetch monthly spendings logic
-        },
-
-        getCategoryEmoji(icon) {
-            const emojis = {
-                '🍔': '🍔',
-                '🏠': '🏠',
-                '🚗': '🚗',
-                '🎉': '🎉',
-                '🍣': '🍣',
-                '🍷': '🍷',
-                '🍵': '🍵',
-                '🍴': '🍴',
-                '🎂': '🎂',
-                '🎓': '🎓',
-                '🏋️': '🏋️',
-                '🚴': '🚴',
-                '🏃': '🏃',
-                '🛌': '🛌',
-                '🍳': '🍳',
-                '🍕': '🍕',
-                '🍩': '🍩',
-                '🍪': '🍪',
-                '🍫': '🍫',
-                '🍬': '🍬',
-                '🍭': '🍭',
-                '🍮': '🍮',
-                '🍯': '🍯',
-                '🍰': '🍰',
-                '🍱': '🍱',
-                '🍲': '🍲',
-                '🍳': '🍳',
-                '🍴': '🍴',
-                '🍵': '🍵',
-                '🍶': '🍶',
-                '🍷': '🍷',
-                '🍸': '🍸',
-                '🍹': '🍹',
-                '🍺': '🍺',
-                '🍻': '🍻',
-                '🍼': '🍼',
-                '🎂': '🎂',
-                '🎃': '🎃',
-                '🎄': '🎄',
-                '🎅': '🎅',
-                '🎆': '🎆',
-                '🎇': '🎇',
-                '🎈': '🎈',
-                '🎉': '🎉',
-                '🎊': '🎊',
-                '🎋': '🎋',
-                '🎌': '🎌',
-                '🎍': '🎍',
-                '🎎': '🎎',
-                '🎏': '🎏',
-                '🎐': '🎐',
-                '🎑': '🎑',
-                '🎒': '🎒',
-                '🎓': '🎓',
-                '🎖': '🎖',
-                '🎗': '🎗',
-                '🎘': '🎘',
-                '🎙': '🎙',
-                '🎚': '🎚',
-                '🎛': '🎛',
-                '🎜': '🎜',
-                '🎝': '🎝',
-                '🎞': '🎞',
-                '🎟': '🎟',
-                '🎠': '🎠',
-                '🎡': '🎡',
-                '🎢': '🎢',
-                '🎣': '🎣',
-                '🎤': '🎤',
-                '🎥': '🎥',
-                '🎦': '🎦',
-                '🎧': '🎧',
-                '🎨': '🎨',
-                '🎩': '🎩',
-                '🎪': '🎪',
-                '🎫': '🎫',
-                '🎬': '🎬',
-                '🎭': '🎭',
-                '🎮': '🎮',
-                '🎯': '🎯',
-                '🎰': '🎰',
-                '🎱': '🎱',
-                '🎲': '🎲',
-                '🎳': '🎳',
-                '🎴': '🎴',
-                '🎵': '🎵',
-                '🎶': '🎶',
-                '🎷': '🎷',
-                '🎸': '🎸',
-                '🎹': '🎹',
-                '🎺': '🎺',
-                '🎻': '🎻',
-                '🎼': '🎼',
-                '🎽': '🎽',
-                '🎾': '🎾',
-                '🎿': '🎿',
-                '🏀': '🏀',
-                '🏁': '🏁',
-                '🏂': '🏂',
-                '🏃': '🏃',
-                '🏄': '🏄',
-                '🏅': '🏅',
-                '🏆': '🏆',
-                '🏇': '🏇',
-                '🏈': '🏈',
-                '🏉': '🏉',
-                '🏊': '🏊',
-                '🏋️': '🏋️',
-                '🏌': '🏌',
-                '🏍': '🏍',
-                '🏎': '🏎',
-                '🏏': '🏏',
-                '🏐': '🏐',
-                '🏑': '🏑',
-                '🏒': '🏒',
-                '🏓': '🏓',
-                '🏔': '🏔',
-                '🏕': '🏕',
-                '🏖': '🏖',
-                '🏗': '🏗',
-                '🏘': '🏘',
-                '🏙': '🏙',
-                '🏚': '🏚',
-                '🏛': '🏛',
-                '🏜': '🏜',
-                '🏝': '🏝',
-                '🏞': '🏞',
-                '🏟': '🏟',
-                '🏠': '🏠',
-                '🏡': '🏡',
-                '🏢': '🏢',
-                '🏣': '🏣',
-                '🏤': '🏤',
-                '🏥': '🏥',
-                '🏦': '🏦',
-                '🏧': '🏧',
-                '🏨': '🏨',
-                '🏩': '🏩',
-                '🏪': '🏪',
-                '🏫': '🏫',
-                '🏬': '🏬',
-                '🏭': '🏭',
-                '🏮': '🏮',
-                '🏯': '🏯',
-                '🏰': '🏰',
-                '🏱': '🏱',
-                '🏳': '🏳',
-                '🏴': '🏴',
-                '🏵': '🏵',
-                '🏶': '🏶',
-                '🏷': '🏷',
-                '🏸': '🏸',
-                '🏹': '🏹',
-                '🏺': '🏺',
-                '🏻': '🏻',
-                '🏼': '🏼',
-                '🏽': '🏽',
-                '🏾': '🏾',
-                '🏿': '🏿'
-            };
-            return emojis[icon] || '❓';
-        },
+        }
     },
 
     async created() {
         try {
+
+            // Initialize subscription status first
+            await this.polarStore.fetchSubscriptionStatus(true)
+            
+            // Then fetch stats
             await this.fetchStats(this.getFilters)
         } catch (error) {
             console.error('Error in StatsView created:', error)

@@ -6,8 +6,8 @@
         <div class="p-4 border-b border-gray-100 flex items-center justify-between">
           <div class="flex items-center gap-2">
             <img src="../assets/images/monkey-assistant.png" alt="Dex" class="w-6 h-6" />
-            <h2 class="text-lg font-semibold text-gray-900">
-              Dex 
+            <h2 class="text-lg font-semibold text-gray-900 gap-1">
+              Dex <span class=" bg-blue-100 text-blue-600 text-[10px] px-1.5 py-0.5 rounded-full">PRO</span>
             </h2>
           </div>
         </div>
@@ -147,6 +147,7 @@ import { usePolarStore } from '../store/polar'
 import UpgradeModal from '../components/UpgradeModal.vue'
 import {useRoute} from "vue-router";
 import { format } from 'date-fns'
+import { Sparkle } from 'lucide-vue-next'
 
 const inputMessage = ref('')
 const chatStore = useChatStore()
@@ -169,16 +170,24 @@ onMounted(async () => {
     const checkoutId = route.query?.checkout_id
     if(checkoutId) {
       await polarStore.verifyCheckoutSession(checkoutId)
+      console.log('polarStore.hasActiveSubscription', polarStore.hasActiveSubscription)
+      if (polarStore.hasActiveSubscription) {
+        notify({
+          title: 'Subscription Activated',
+          message: 'Welcome to the Pro plan!',
+          type: 'success'
+        })
+      }
     } else {
+      // Only fetch if needed (will use cached data if recent)
       await polarStore.fetchSubscriptionStatus()
-    }
-
-    if (!polarStore.hasActiveSubscription) {
-      notify({
-        title: 'Basic Plan',
-        message: 'Upgrade to Pro for advanced features',
-        type: 'info'
-      })
+      if (!hasActiveSubscription.value) {
+        notify({
+          title: 'Basic Plan',
+          message: 'Upgrade to Pro for advanced features',
+          type: 'info'
+        })
+      }
     }
   } catch (error) {
     console.error('Subscription status error:', error)

@@ -1,15 +1,15 @@
 <template>
-  <div class="max-w-4xl mx-auto p-2 mb-12 min-w-full">
+  <div class="max-w-5xl mx-auto p-4 mb-12 min-w-full">
     <!-- Current Plan Status -->
-    <div class="bg-white rounded-lg shadow mb-4">
-      <div class="p-4">
-        <div class="flex items-center justify-between mb-4">
+    <div class="bg-white rounded-lg shadow mb-6">
+      <div class="p-6">
+        <div class="flex items-center justify-between mb-6">
           <div>
-            <h2 class="text-xl font-semibold text-gray-900">Current Plan</h2>
-            <p class="text-sm text-gray-600 mt-0.5">Manage your subscription</p>
+            <h2 class="text-2xl font-bold text-gray-900">Choose Your Plan</h2>
+            <p class="text-sm text-gray-600 mt-1">Select the plan that best fits your needs</p>
           </div>
           <div class="flex items-center gap-2">
-            <span class="px-2 py-0.5 rounded-full text-xs font-medium"
+            <span class="px-3 py-1 rounded-full text-sm font-medium"
               :class="hasActiveSubscription ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800'">
               {{ hasActiveSubscription ? 'Pro Plan Active' : 'Basic Plan' }}
             </span>
@@ -17,22 +17,22 @@
         </div>
 
         <!-- Plan Cards -->
-        <div class="flex flex-col md:flex-row md:grid md:grid-cols-2 gap-3">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
           <!-- Basic Plan Card -->
-          <div class="rounded-lg border p-4 flex flex-col justify-between"
+          <div class="rounded-xl border p-6 flex flex-col justify-between transition-all duration-200 hover:shadow-lg"
             :class="!hasActiveSubscription ? 'bg-blue-50 border-blue-500 ring-1 ring-blue-500' : 'bg-gray-50 border-gray-200'">
             <div>
-              <div class="flex items-center justify-between mb-1">
-                <span class="text-xs font-medium text-gray-500">Basic</span>
-                <span v-if="!hasActiveSubscription" class="text-blue-600 text-xs font-semibold">Current</span>
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-medium text-gray-500">Basic</span>
+                <span v-if="!hasActiveSubscription" class="text-blue-600 text-sm font-semibold">Current</span>
               </div>
-              <h3 class="text-lg font-bold text-gray-900 mb-1">Basic Plan</h3>
-              <p class="text-2xl font-bold text-gray-900 mb-2">$0<span
-                  class="text-base font-normal text-gray-600">/month</span></p>
+              <h3 class="text-xl font-bold text-gray-900 mb-2">Basic Plan</h3>
+              <p class="text-3xl font-bold text-gray-900 mb-1">$0<span class="text-base font-normal text-gray-600">/month</span></p>
+              <p class="text-sm text-gray-500 mb-4">Perfect for getting started</p>
               <div class="space-y-3">
                 <div class="flex items-start gap-3">
                   <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                  <p class="text-sm text-gray-600">Basic expense tracking and budgeting</p>
+                  <p class="text-sm text-gray-600">Basic expense tracking</p>
                 </div>
                 <div class="flex items-start gap-3">
                   <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
@@ -49,46 +49,102 @@
               </div>
             </div>
           </div>
-          <!-- Pro Plan Card -->
-          <div class="rounded-lg border p-4 flex flex-col justify-between"
+
+          <!-- Monthly Pro Plan Card -->
+          <div class="rounded-xl border p-6 flex flex-col justify-between transition-all duration-200 hover:shadow-lg relative"
             :class="hasActiveSubscription ? 'bg-blue-50 border-blue-500 ring-1 ring-blue-500' : 'bg-gray-50 border-gray-200'">
-            <div>
-              <div class="flex items-center justify-between mb-1">
-                <span class="text-xs font-medium"
-                  :class="hasActiveSubscription ? 'text-blue-700' : 'text-gray-500'">Pro</span>
-                <span v-if="hasActiveSubscription" class="text-blue-600 text-xs font-semibold">Current</span>
-              </div>
-              <h3 class="text-lg font-bold text-gray-900 mb-1">Pro Plan</h3>
-              <p class="text-2xl font-bold text-gray-900 mb-2">$4.99<span
-                  class="text-base font-normal text-gray-600">/month</span></p>
-                  <div class="space-y-3">
-                    <div class="flex items-start gap-3">
-                      <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                      <p class="text-sm text-gray-600">Advanced expense analytics and insights (AI)</p>
-                    </div>
-                    <div class="flex items-start gap-3">
-                      <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                      <p class="text-sm text-gray-600">AI Access (Know yourself better)</p>
-                    </div>
-                    <div class="flex items-start gap-3">
-                      <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                      <p class="text-sm text-gray-600">Priority support and updates</p>
-                    </div>
-                    <div class="flex items-start gap-3">
-                      <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                      <p class="text-sm text-gray-600">Request any new feature</p>
-                    </div>
-                      <div class="flex items-start gap-3">
-                          <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                          <p class="text-sm text-gray-600">Free access to future updates</p>
-                      </div>
-                  </div>
+            <div class="absolute -top-3 left-1/2 -translate-x-1/2">
+              <span class="bg-blue-600 text-white text-xs font-semibold px-3 py-1 rounded-full">Most Popular</span>
             </div>
-            <div class="mt-6 flex flex-col gap-3">
-              <button v-if="!hasActiveSubscription" @click="handleSubscription"
-                class="w-full rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-medium" :class="hasActiveSubscription ? 'text-blue-700' : 'text-gray-500'">Pro Monthly</span>
+                <span v-if="hasActiveSubscription" class="text-blue-600 text-sm font-semibold">Current</span>
+              </div>
+              <h3 class="text-xl font-bold text-gray-900 mb-2">Pro Plan</h3>
+              <p class="text-3xl font-bold text-gray-900 mb-1">${{ monthlyPlanPrice }}<span class="text-base font-normal text-gray-600">/month</span></p>
+              <p class="text-sm text-gray-500 mb-4">Billed monthly</p>
+              <div class="space-y-3">
+                <div class="flex items-start gap-3">
+                  <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                  <p class="text-sm text-gray-600">Advanced AI-powered analytics</p>
+                </div>
+                <div class="flex items-start gap-3">
+                  <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                  <p class="text-sm text-gray-600">Weekly/Monthly Email Reports</p>
+                </div>
+                <div class="flex items-start gap-3">
+                  <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                  <p class="text-sm text-gray-600">Import Statements (Excel)</p>
+                </div>
+                <div class="flex items-start gap-3">
+                  <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                  <p class="text-sm text-gray-600">Priority support</p>
+                </div>
+                <div class="flex items-start gap-3">
+                  <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                  <p class="text-sm text-gray-600">Free future updates</p>
+                </div>
+              </div>
+            </div>
+            <div class="mt-6">
+              <button v-if="!hasActiveSubscription" @click="handleSubscription('monthly')"
+                class="w-full rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 transition-colors"
                 :disabled="processingPayment">
-                {{ processingPayment ? 'Processing...' : 'Upgrade Now' }}
+                {{ processingPayment ? 'Processing...' : 'Start Monthly Plan' }}
+              </button>
+              <button v-else @click="handleManageSubscription"
+                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50">
+                Manage Subscription
+              </button>
+            </div>
+          </div>
+
+          <!-- Yearly Pro Plan Card -->
+          <div class="rounded-xl border p-6 flex flex-col justify-between transition-all duration-200 hover:shadow-lg relative"
+            :class="hasActiveSubscription ? 'bg-blue-50 border-blue-500 ring-1 ring-blue-500' : 'bg-gray-50 border-gray-200'">
+            <div class="absolute -top-3 left-1/2 -translate-x-1/2">
+              <span class="bg-green-600 text-white text-xs font-semibold px-3 py-1 rounded-full">Save 17%</span>
+            </div>
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-medium" :class="hasActiveSubscription ? 'text-blue-700' : 'text-gray-500'">Pro Yearly</span>
+                <span v-if="hasActiveSubscription" class="text-blue-600 text-sm font-semibold">Current</span>
+              </div>
+              <h3 class="text-xl font-bold text-gray-900 mb-2">Pro Plan</h3>
+              <div class="flex items-baseline gap-1 mb-1">
+                <p class="text-3xl font-bold text-gray-900">${{ yearlyPlanPrice }}</p>
+                <p class="text-base font-normal text-gray-600">/year</p>
+              </div>
+              <p class="text-sm text-gray-500 mb-4">Just ${{ (yearlyPlanPrice / 12).toFixed(2) }}/month, billed annually</p>
+              <div class="space-y-3">
+                <div class="flex items-start gap-3">
+                  <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                  <p class="text-sm text-gray-600">All Monthly Pro features</p>
+                </div>
+                <div class="flex items-start gap-3">
+                  <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                  <p class="text-sm text-gray-600">2 months free</p>
+                </div>
+                <div class="flex items-start gap-3">
+                  <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                  <p class="text-sm text-gray-600">Priority feature requests</p>
+                </div>
+                <div class="flex items-start gap-3">
+                  <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                  <p class="text-sm text-gray-600">Early access to new features</p>
+                </div>
+                <div class="flex items-start gap-3">
+                  <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                  <p class="text-sm text-gray-600">Free future updates</p>
+                </div>
+              </div>
+            </div>
+            <div class="mt-6">
+              <button v-if="!hasActiveSubscription" @click="handleSubscription('yearly')"
+                class="w-full rounded-lg bg-green-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600 transition-colors"
+                :disabled="processingPayment">
+                {{ processingPayment ? 'Processing...' : 'Start Yearly Plan' }}
               </button>
               <button v-else @click="handleManageSubscription"
                 class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50">
@@ -117,11 +173,11 @@
             <tr v-if="polarStore.subscription" class="border-b last:border-0">
               <td class="py-1.5 px-2">Pro Plan</td>
               <td class="py-1.5 px-2">
-                ${{ polarStore.subscription.items?.[0]?.amount || 4.99 }}
+                ${{ polarStore.subscription.amount / 100 || 4.99 }}
               </td>
               <td class="py-1.5 px-2">{{ polarStore.subscription.created_at ? new Date(polarStore.subscription.created_at).toLocaleDateString() : '' }}</td>
               <td class="py-1.5 px-2">
-                <span :class="polarStore.subscription.status === 'active' ? 'text-blue-600' : 'text-red-500'">
+                <span :class="polarStore.subscription.status === 'active' ? 'text-blue-600 capitalize' : 'text-red-500 capitalize'">
                   {{ polarStore.subscription.status }}
                 </span>
               </td>
@@ -149,6 +205,9 @@ const polarStore = usePolarStore()
 const { notify } = useNotifications()
 const hasActiveSubscription = computed(() => polarStore.hasActiveSubscription)
 const processingPayment = ref(false)
+
+const monthlyPlanPrice = 2.99
+const yearlyPlanPrice = 29.9
 
 const currentPage = ref(1)
 const totalPages = computed(() => polarStore.subscription?.total_pages || 1)
@@ -181,6 +240,7 @@ onMounted(async () => {
     const checkoutId = route.query?.checkout_id
     if (checkoutId) {
       await polarStore.verifyCheckoutSession(checkoutId)
+      console.log('polarStore.hasActiveSubscription', polarStore.hasActiveSubscription)
       if (polarStore.hasActiveSubscription) {
         notify({
           title: 'Subscription Activated',
@@ -196,13 +256,7 @@ onMounted(async () => {
       }
     } else {
       await polarStore.fetchSubscriptionStatus()
-      if (hasActiveSubscription.value) {
-        notify({
-          title: 'Subscription Active',
-          message: 'You are currently on the Pro plan',
-          type: 'success'
-        })
-      } else {
+      if (!hasActiveSubscription.value) {
         notify({
           title: 'Basic Plan',
           message: 'Upgrade to Pro for advanced features',
@@ -220,11 +274,11 @@ onMounted(async () => {
   }
 })
 
-const handleSubscription = async () => {
+const handleSubscription = async (planType) => {
   if (processingPayment.value) return
   processingPayment.value = true
   try {
-    await polarStore.initiateCheckout()
+    await polarStore.initiateCheckout(planType)
   } catch (error) {
     console.error('Subscription error:', error)
     notify({

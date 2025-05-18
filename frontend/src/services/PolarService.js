@@ -5,8 +5,14 @@ export const getSubscriptionStatus = async () => {
     return data;
 };
 
-export const getCheckoutUrl = () => {
-    return import.meta.env.VITE_POLAR_CHECKOUT_URL;
+export const getCheckoutUrl = (type) => {
+    if(type === 'monthly') {
+        return import.meta.env.VITE_POLAR_CHECKOUT_URL_MONTHLY;
+    } else if(type === 'yearly') {
+        return import.meta.env.VITE_POLAR_CHECKOUT_URL_YEARLY;
+    } else {
+        return import.meta.env.VITE_POLAR_CHECKOUT_URL_MONTHLY;
+    }
 };
 
 export const verifyCheckoutSession = async (checkoutId) => {
