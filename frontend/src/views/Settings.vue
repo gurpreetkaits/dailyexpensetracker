@@ -1,6 +1,6 @@
 <!-- src/views/SettingsView.vue -->
 <template>
-  <div class="max-w-4xl mx-auto py-8">
+  <div class=" mx-auto py-8">
     <div class="flex flex-col md:flex-row gap-6">
       <!-- Tabs -->
       <div class="md:w-1/4 w-full flex md:flex-col flex-row gap-2 md:gap-4">
