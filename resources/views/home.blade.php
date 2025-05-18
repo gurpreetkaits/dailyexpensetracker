@@ -156,6 +156,19 @@
                         </div>
                     </div>
                 </div>
+                  <!-- Feature 6 -->
+                  <div class="group bg-white p-3 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300 hover:-translate-y-1">
+                    <div class="flex items-start gap-3">
+                        <span class="text-xl">💾</span>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-1.5 mb-0.5">
+                                <h3 class="text-sm font-medium text-gray-900 truncate">Import Transactions</h3>
+                                <span class="flex-shrink-0 px-1.5 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">Pro</span>
+                            </div>
+                            <p class="text-xs text-gray-600 line-clamp-2">Import transactions from CSV, Excel</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
