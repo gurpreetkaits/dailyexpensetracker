@@ -21,3 +21,5 @@ Route::controller(ToolsController::class)->prefix('tools')->group(function () {
     Route::get('/simple-interest-calculator', 'simpleInterestCalculator')->name('tools.simple-interest-calculator');
     Route::get('sip-calculator', 'sipCalculator')->name('tools.sip-calculator');
 });
+
+include 'mobile.php';
