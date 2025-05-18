@@ -22,4 +22,4 @@ Route::controller(ToolsController::class)->prefix('tools')->group(function () {
     Route::get('sip-calculator', 'sipCalculator')->name('tools.sip-calculator');
 });
 
-include 'mobile.php';
+include __DIR__. '/mobile.php';
