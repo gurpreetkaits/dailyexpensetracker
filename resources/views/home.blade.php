@@ -55,8 +55,11 @@
                 </div>
             </div>
             <!-- Right: Interactive Mobile Demo -->
-            <div class="flex-1 flex justify-center items-center w-full">
-                @include('components.hero-demo')
+            <div class="flex-1 flex justify-center items-center w-full relative">
+                <div class="relative flex-1 flex justify-center items-center w-full">
+                    <img src="{{ asset('images/dailyexpensetracker-mobile.png') }}" alt="Mobile App Preview" class="w-[280px] h-[560px] object-contain z-10" />
+                    @include('components.floating-cards')
+                </div>
             </div>
         </div>
     </div>
