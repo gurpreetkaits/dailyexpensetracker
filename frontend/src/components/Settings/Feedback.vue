@@ -48,13 +48,14 @@ export default {
 <template>
     <form @submit.prevent="handleSaveSettings">
         <div>
-            <textarea required placeholder="Let us know any feature requests or improvements!" class="w-full px-3 py-1 bg-transparent text-gray-800
-                               border rounded-md focus:bg-white
-                               text-sm focus:ring-0 transition-colors" v-model="feedback"></textarea>
+            <textarea required placeholder="Let us know any feature requests or improvements!"
+                class="w-full rounded-lg bg-gray-50 border-none focus:ring-2 focus:ring-blue-500 p-3 text-base text-gray-800 transition-all resize-none min-h-[90px]"
+                v-model="feedback"></textarea>
         </div>
         <button type="submit"
-                class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg flex items-center gap-2 disabled:opacity-50"
-                :disabled="isSaving">
+                :disabled="isSaving"
+                class="w-full py-2.5 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2"
+                :class="isSaving ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-blue-50 text-blue-600 hover:bg-blue-100'">
           <span v-if="isSaving"
                 class="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
             {{ isSaving ? 'Sending...' : 'Send' }}

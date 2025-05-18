@@ -1,138 +1,185 @@
 <!-- src/views/SettingsView.vue -->
 <template>
-  <div class="max-w-2xl mx-auto p-4 mb-10">
-    <!-- Loading State -->
-    <div v-if="loading" class="flex justify-center py-4">
-      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-    </div>
-
-    <template v-else>
-      <!-- Show main settings menu only when not in a sub-route -->
-      <template v-if="$route.path === '/settings'">
-        <!-- Account Settings -->
-        <div class="bg-white rounded-lg shadow mb-6">
-          <div class="p-4 border-b">
-            <h2 class="text-lg font-semibold text-gray-800">Account</h2>
-          </div>
-          <div class="p-4">
-            <div class="space-y-4">
-              <router-link to="/settings/account" class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                <div class="flex items-center gap-3">
-                  <div class="p-2 bg-blue-100 rounded-lg">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 class="font-medium text-gray-900">Account Settings</h3>
-                    <p class="text-sm text-gray-500">Manage your preferences and feedback</p>
-                  </div>
-                </div>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                </svg>
-              </router-link>
+  <div class="max-w-4xl mx-auto py-8">
+    <div class="flex flex-col md:flex-row gap-6">
+      <!-- Tabs -->
+      <div class="md:w-1/4 w-full flex md:flex-col flex-row gap-2 md:gap-4">
+        <button
+          class="w-full py-2.5 rounded-lg text-sm font-medium transition-all text-left md:text-base md:px-4 px-2"
+          :class="selectedTab === 'general' ? 'bg-blue-50 text-blue-600' : 'bg-gray-50 text-gray-700 hover:bg-gray-100'"
+          @click="selectedTab = 'general'"
+        >
+          General Settings
+        </button>
+        <button
+          class="w-full py-2.5 rounded-lg text-sm font-medium transition-all text-left md:text-base md:px-4 px-2"
+          :class="selectedTab === 'feedback' ? 'bg-blue-50 text-blue-600' : 'bg-gray-50 text-gray-700 hover:bg-gray-100'"
+          @click="selectedTab = 'feedback'"
+        >
+          Feedback
+        </button>
+      </div>
+      <!-- Tab Content -->
+      <div class="flex-1">
+        <div v-if="selectedTab === 'general'">
+          <!-- Currency Card -->
+          <div class="bg-white rounded-lg shadow hover:shadow-lg transition-all p-6 mb-6">
+            <div class="pb-4 border-b">
+              <h2 class="text-xl font-semibold text-gray-800">General Settings</h2>
             </div>
-          </div>
-        </div>
-
-        <!-- Premium Features -->
-        <div class="bg-white rounded-lg shadow mb-6">
-          <div class="p-4 border-b">
-            <h2 class="text-lg font-semibold text-emerald-600">Premium Features</h2>
-          </div>
-          <div class="p-4">
-            <div class="space-y-4">
-              <!-- Categories Management -->
-              <router-link to="/categories" class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                <div class="flex items-center gap-3">
-                  <div class="p-2 bg-emerald-100 rounded-lg">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 class="font-medium text-gray-900">Custom Categories</h3>
-                    <p class="text-sm text-gray-500">Manage your custom expense categories</p>
-                  </div>
-                </div>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                </svg>
-              </router-link>
-
-              <!-- Multi Wallet Management -->
-              <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <div class="flex items-center gap-3">
-                  <div class="p-2 bg-emerald-100 rounded-lg">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 class="font-medium text-gray-900">Multi Wallet</h3>
-                    <p class="text-sm text-gray-500">Manage multiple wallets and accounts</p>
-                    <span class="inline-block mt-1 px-2 py-0.5 text-xs font-medium bg-emerald-100 text-emerald-800 rounded-full">Coming Soon</span>
-                  </div>
-                </div>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                </svg>
+            <div class="pt-6 space-y-6">
+              <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-700">Currency</label>
+                <p class="text-sm text-gray-500">Select your preferred currency</p>
+                <select v-model="selectedCurrency"
+                        class="mt-1 rounded-lg border border-gray-200 bg-gray-50 p-3 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base transition-all">
+                  <option v-for="curr in currencies" :key="curr.code" :value="curr.code">
+                    {{ curr.code }} - {{ curr.name }} ({{ curr.symbol }})
+                  </option>
+                </select>
               </div>
-
-              <!-- Upgrade to Pro -->
-              <router-link to="/plans" class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                <div class="flex items-center gap-3">
-                  <div class="p-2 bg-emerald-100 rounded-lg">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 class="font-medium text-gray-900">Active Plans</h3>
-                    <p class="text-sm text-gray-500">See all premium features</p>
-                  </div>
-                </div>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                </svg>
-              </router-link>
+              <button @click="handleSaveSettings"
+                      :disabled="isSaving"
+                      class="w-full py-2.5 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2"
+                      :class="isSaving ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-blue-50 text-blue-600 hover:bg-blue-100'">
+                <span v-if="isSaving"
+                      class="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                {{ isSaving ? 'Saving...' : 'Save Changes' }}
+              </button>
+            </div>
+          </div>
+          <!-- Danger Zone -->
+          <div class="bg-white rounded-lg shadow hover:shadow-lg transition-all p-6">
+            <div class="pb-4 border-b">
+              <h2 class="text-xl font-semibold text-red-600">Danger Zone</h2>
+            </div>
+            <div class="pt-6">
+              <button @click="showResetDialog = true"
+                      class="w-full py-2.5 rounded-lg text-sm font-medium transition-all bg-red-50 text-red-500 hover:bg-red-100 flex items-center justify-center gap-2">
+                Reset All Transactions
+              </button>
             </div>
           </div>
         </div>
-
-        <!-- Sponsor Section -->
-        <div class="bg-white rounded-lg shadow mb-6">
-          <div class="p-4 border-b">
-            <h2 class="text-lg font-semibold">Sponsor My Work</h2>
-          </div>
-          <div class="p-4 flex flex-col items-center">
-            <p class="mb-3 text-gray-700 text-center">
-              If this app saves you time or helps you manage your money, you can support its development!
-            </p>
-            <a href="https://buymeacoffee.com/gurpreetkash" target="_blank" rel="noopener"
-               class="inline-block bg-yellow-400 hover:bg-yellow-500 text-white font-bold py-2 px-6 rounded-lg text-lg transition-colors">
-              🍕 Buy Me a Pizza
-            </a>
+        <div v-else-if="selectedTab === 'feedback'">
+          <div class="bg-white rounded-lg shadow hover:shadow-lg transition-all p-6">
+            <div class="pb-4 border-b">
+              <h2 class="text-xl font-semibold text-gray-800">Feedback</h2>
+            </div>
+            <div class="pt-6">
+              <form @submit.prevent="handleSendFeedback">
+                <div>
+                  <textarea required placeholder="Let us know any feature requests or improvements!"
+                    class="w-full rounded-lg bg-gray-50 border-none focus:ring-2 focus:ring-blue-500 p-3 text-base text-gray-800 transition-all resize-none min-h-[90px]"
+                    v-model="feedback"></textarea>
+                </div>
+                <button type="submit"
+                        :disabled="isSendingFeedback"
+                        class="w-full py-2.5 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2"
+                        :class="isSendingFeedback ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-blue-50 text-blue-600 hover:bg-blue-100'">
+                  <span v-if="isSendingFeedback"
+                        class="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                  {{ isSendingFeedback ? 'Sending...' : 'Send' }}
+                </button>
+              </form>
+            </div>
           </div>
         </div>
-      </template>
-
-      <!-- Router view for nested routes -->
-      <router-view v-else></router-view>
-    </template>
+        <!-- Reset Dialog -->
+        <div v-if="showResetDialog" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div class="bg-white p-8 rounded-lg max-w-md w-full mx-4">
+            <h3 class="text-xl font-bold mb-3 text-gray-900">Are you sure?</h3>
+            <p class="text-gray-600 mb-6">This action cannot be undone. This will permanently delete all your transaction history.</p>
+            <div class="flex justify-end gap-3">
+              <button @click="showResetDialog = false"
+                      class="px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200">
+                Cancel
+              </button>
+              <button @click="handleReset"
+                      class="px-4 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200">
+                Reset Transactions
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
+import { useSettingsStore } from '../store/settings'
+import { storeFeedback, fetchCurrencies, resetUserTransactions } from '../services/SettingsService'
+import { mapState, mapActions } from 'pinia'
 import { ref } from 'vue'
 
 export default {
   name: 'Settings',
-  setup() {
-    const loading = ref(false)
+  data() {
     return {
-      loading
+      selectedTab: 'general',
+      isSaving: false,
+      loading: false,
+      currencies: [],
+      selectedCurrency: '',
+      showResetDialog: false,
+      feedback: '',
+      isSendingFeedback: false
+    }
+  },
+  computed: {
+    ...mapState(useSettingsStore, ['currency', 'currencyCode'])
+  },
+  methods: {
+    ...mapActions(useSettingsStore, ['addSettings', 'fetchSettings']),
+    async handleSaveSettings() {
+      try {
+        this.isSaving = true
+        let params = {
+          currency_code: this.selectedCurrency,
+          reminders: false
+        }
+        await this.addSettings(params)
+      } catch (e) {
+        console.log(e)
+      } finally {
+        this.isSaving = false
+      }
+    },
+    async handleReset() {
+      this.loading = true
+      try {
+        await resetUserTransactions()
+        this.showResetDialog = false
+      } catch (error) {
+        console.error(error)
+      } finally {
+        this.loading = false
+      }
+    },
+    async handleSendFeedback() {
+      if (!this.feedback) return
+      this.isSendingFeedback = true
+      try {
+        await storeFeedback({ feedback: this.feedback })
+        this.feedback = ''
+      } catch (e) {
+        console.log(e)
+      } finally {
+        this.isSendingFeedback = false
+      }
+    }
+  },
+  async created() {
+    try {
+      this.loading = true
+      this.currencies = await fetchCurrencies()
+      await this.fetchSettings()
+      this.selectedCurrency = this.currencyCode || this.currency || (this.currencies[0] && this.currencies[0].code) || ''
+    } catch (error) {
+      console.log(error)
+    } finally {
+      this.loading = false
     }
   }
 }

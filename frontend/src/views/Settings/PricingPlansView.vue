@@ -243,7 +243,7 @@ onMounted(async () => {
       console.log('polarStore.hasActiveSubscription', polarStore.hasActiveSubscription)
       if (polarStore.hasActiveSubscription) {
         notify({
-          title: 'Subscription Activated',
+          title: 'Activated',
           message: 'Welcome to the Pro plan!',
           type: 'success'
         })
@@ -258,7 +258,7 @@ onMounted(async () => {
       await polarStore.fetchSubscriptionStatus()
       if (!hasActiveSubscription.value) {
         notify({
-          title: 'Basic Plan',
+          title: '',
           message: 'Upgrade to Pro for advanced features',
           type: 'info'
         })
@@ -295,7 +295,7 @@ const handleManageSubscription = () => {
   try {
     notify({
       title: 'Coming Soon',
-      message: 'Subscription management portal will be available soon',
+      message: '',
       type: 'info'
     })
   } catch (error) {
