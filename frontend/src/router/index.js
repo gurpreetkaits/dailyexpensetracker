@@ -55,11 +55,6 @@ const routes = [
     beforeEnter: requireAuth
   },
   {
-    path: "/plans",
-    component: () => import("../views/Settings/PricingPlansView.vue"),
-    beforeEnter: requireAuth
-  },
-  {
     path: "/stats",
     component: () => import("../views/StatsView.vue"),
     beforeEnter: requireAuth,

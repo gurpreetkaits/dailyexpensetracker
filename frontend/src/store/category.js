@@ -39,14 +39,15 @@ export const useCategoryStore = defineStore("category", {
                 const response = await getUserCategories(page);
                 this.categories = response.data;
                 this.pagination = {
-                    current_page: response.data.current_page,
-                    per_page: response.data.per_page,
-                    total: response.data.total,
-                    last_page: response.data.last_page,
-                    from: response.data.from,
-                    to: response.data.to
+                    current_page: response.current_page,
+                    per_page: response.per_page,
+                    total: response.total,
+                    last_page: response.last_page,
+                    from: response.from,
+                    to: response.to,
+                    links: response.links
                 };
-                return response.data;
+                return response;
             } catch (error) {
                 this.error = error.message;
                 console.error("Error fetching categories:", error);

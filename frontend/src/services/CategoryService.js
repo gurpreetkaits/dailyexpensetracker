@@ -5,8 +5,8 @@ export const getCategories = async () => {
   return data;
 };
 
-export const getUserCategories = async () => {
-    const { data } = await axiosConf.get('/api/user-categories');
+export const getUserCategories = async (page = 1) => {
+    const { data } = await axiosConf.get(`/api/user-categories?page=${page}`);
     return data;
 };
 

@@ -10,46 +10,14 @@
           </div>
           <div class="flex items-center gap-2">
             <span class="px-3 py-1 rounded-full text-sm font-medium"
-              :class="hasActiveSubscription ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800'">
-              {{ hasActiveSubscription ? 'Pro Plan Active' : 'Basic Plan' }}
+              :class="hasActiveSubscription ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'">
+              {{ hasActiveSubscription ? 'Pro Plan Active' : 'No Active Plan' }}
             </span>
           </div>
         </div>
 
         <!-- Plan Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <!-- Basic Plan Card -->
-          <div class="rounded-xl border p-6 flex flex-col justify-between transition-all duration-200 hover:shadow-lg"
-            :class="!hasActiveSubscription ? 'bg-blue-50 border-blue-500 ring-1 ring-blue-500' : 'bg-gray-50 border-gray-200'">
-            <div>
-              <div class="flex items-center justify-between mb-2">
-                <span class="text-sm font-medium text-gray-500">Basic</span>
-                <span v-if="!hasActiveSubscription" class="text-blue-600 text-sm font-semibold">Current</span>
-              </div>
-              <h3 class="text-xl font-bold text-gray-900 mb-2">Basic Plan</h3>
-              <p class="text-3xl font-bold text-gray-900 mb-1">$0<span class="text-base font-normal text-gray-600">/month</span></p>
-              <p class="text-sm text-gray-500 mb-4">Perfect for getting started</p>
-              <div class="space-y-3">
-                <div class="flex items-start gap-3">
-                  <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                  <p class="text-sm text-gray-600">Basic expense tracking</p>
-                </div>
-                <div class="flex items-start gap-3">
-                  <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                  <p class="text-sm text-gray-600">Default categories</p>
-                </div>
-                <div class="flex items-start gap-3">
-                  <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                  <p class="text-sm text-gray-600">Basic monthly reports</p>
-                </div>
-                <div class="flex items-start gap-3">
-                  <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                  <p class="text-sm text-gray-600">Single wallet</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <!-- Monthly Pro Plan Card -->
           <div class="rounded-xl border p-6 flex flex-col justify-between transition-all duration-200 hover:shadow-lg relative"
             :class="hasActiveSubscription ? 'bg-blue-50 border-blue-500 ring-1 ring-blue-500' : 'bg-gray-50 border-gray-200'">
@@ -62,7 +30,7 @@
                 <span v-if="hasActiveSubscription" class="text-blue-600 text-sm font-semibold">Current</span>
               </div>
               <h3 class="text-xl font-bold text-gray-900 mb-2">Pro Plan</h3>
-              <p class="text-3xl font-bold text-gray-900 mb-1">${{ monthlyPlanPrice }}<span class="text-base font-normal text-gray-600">/month</span></p>
+              <p class="text-3xl font-bold text-gray-900 mb-1">{{ monthlyPrice }}<span class="text-base font-normal text-gray-600">/month</span></p>
               <p class="text-sm text-gray-500 mb-4">Billed monthly</p>
               <div class="space-y-3">
                 <div class="flex items-start gap-3">
@@ -113,10 +81,10 @@
               </div>
               <h3 class="text-xl font-bold text-gray-900 mb-2">Pro Plan</h3>
               <div class="flex items-baseline gap-1 mb-1">
-                <p class="text-3xl font-bold text-gray-900">${{ yearlyPlanPrice }}</p>
+                <p class="text-3xl font-bold text-gray-900">{{ yearlyPrice }}</p>
                 <p class="text-base font-normal text-gray-600">/year</p>
               </div>
-              <p class="text-sm text-gray-500 mb-4">Just ${{ (yearlyPlanPrice / 12).toFixed(2) }}/month, billed annually</p>
+              <p class="text-sm text-gray-500 mb-4">Just {{ monthlyEquivalent }}/month, billed annually</p>
               <div class="space-y-3">
                 <div class="flex items-start gap-3">
                   <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
@@ -173,7 +141,7 @@
             <tr v-if="polarStore.subscription" class="border-b last:border-0">
               <td class="py-1.5 px-2">Pro Plan</td>
               <td class="py-1.5 px-2">
-                ${{ polarStore.subscription.amount / 100 || 4.99 }}
+                {{ formatPrice(polarStore.subscription.amount / 100 || 4.99) }}
               </td>
               <td class="py-1.5 px-2">{{ polarStore.subscription.created_at ? new Date(polarStore.subscription.created_at).toLocaleDateString() : '' }}</td>
               <td class="py-1.5 px-2">
@@ -198,6 +166,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { usePolarStore } from '../../store/polar'
 import { useNotifications } from '../../composables/useNotifications'
 import { CheckCircle } from 'lucide-vue-next'
+import { useCurrency } from '../../composables/useCurrency'
 
 const route = useRoute()
 const router = useRouter()
@@ -206,8 +175,14 @@ const { notify } = useNotifications()
 const hasActiveSubscription = computed(() => polarStore.hasActiveSubscription)
 const processingPayment = ref(false)
 
-const monthlyPlanPrice = 2.99
-const yearlyPlanPrice = 29.9
+const { 
+    isLoading: isLoadingCurrency,
+    monthlyPrice,
+    yearlyPrice,
+    monthlyEquivalent,
+    fetchUserLocation,
+    currency
+} = useCurrency()
 
 const currentPage = ref(1)
 const totalPages = computed(() => polarStore.subscription?.total_pages || 1)
@@ -235,6 +210,7 @@ const handlePageChange = async (page) => {
 }
 
 onMounted(async () => {
+  await fetchUserLocation()
   try {
     const route = useRoute()
     const checkoutId = route.query?.checkout_id
@@ -306,6 +282,10 @@ const handleManageSubscription = () => {
       type: 'error'
     })
   }
+}
+
+const formatPrice = (price) => {
+  return new Intl.NumberFormat(currency, { style: 'currency', currency }).format(price)
 }
 </script>
 
