@@ -21,15 +21,16 @@
             <!-- Left: Headline, Description, Button -->
             <div class="flex-1 flex flex-col justify-center items-center sm:items-center lg:items-start text-center sm:text-center lg:text-left max-w-xl w-full">
                 <h1 class="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">
-                    Track Your Money,<br>
-                    <span class="text-emerald-500">Simplify Your Life</span>
+                    Premium Expense Tracking,<br>
+                    <span class="text-emerald-500">Simplified</span>
                 </h1>
                 <p class="text-lg text-gray-600 mb-8 max-w-2xl">
-                    Effortlessly track your expenses, understand your spending patterns, and make better financial decisions
+                    Join our premium community of smart savers. Get access to powerful expense tracking tools, AI insights, and detailed analytics to make better financial decisions.
                 </p>
-                <a href="{{ config('app.frontend_url') }}/login"
+                <a href="#pricing" 
                     class="inline-block bg-emerald-500 text-white px-8 py-3 rounded-lg hover:bg-emerald-600 transition-colors text-center">
-                    Join {{$totalUsers}}+ Smart Savers                 </a>
+                    Start Your Premium Journey
+                </a>
                 <!-- Recent Users Section -->
                 <div class="mt-8">
                     <p class="text-sm text-gray-500 mb-2">Joined by people who care about their finances</p>
@@ -188,9 +189,9 @@
         <div class="max-w-7xl mx-auto px-8 sm:px-12 lg:px-20 relative z-10">
             <h2 class="text-3xl font-bold text-center mb-12 flex items-center justify-center gap-2">
                 <span class="inline-block animate-bounce">💸</span>
-                Simple, Transparent Pricing
+                Premium Subscription Plans
             </h2>
-            <p class="text-center text-gray-600 mb-8">All purchases are handled securely through the app</p>
+            <p class="text-center text-gray-600 mb-8">Choose a plan to get started with premium expense tracking</p>
             <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
                 @php
                     $pricingData = app(App\Http\Controllers\PricingController::class)->getPricingData(request());
@@ -207,7 +208,7 @@
                             <span class="text-4xl font-bold text-gray-900">{{ $pricingData['monthly']['formatted'] }}</span>
                             <span class="text-gray-600">/month</span>
                         </div>
-                        <ul class="space-y-3">
+                        <ul class="space-y-3 mb-6">
                             <li class="flex items-center gap-2 text-sm text-gray-600">
                                 <span class="text-lg">✅</span>
                                 <span>Track daily expenses</span>
@@ -233,10 +234,14 @@
                                 <span>Weekly & monthly reports</span>
                             </li>
                             <li class="flex items-center gap-2 text-sm text-gray-600">
-                                <span class="text-lg">❌</span>
-                                <span>Priority support</span>
+                                <span class="text-lg">✅</span>
+                                <span>Cloud backup across devices</span>
                             </li>
                         </ul>
+                        <a href="{{ config('app.frontend_url') }}/login" 
+                           class="block w-full py-3 px-4 text-center rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition-colors">
+                            Subscribe Monthly
+                        </a>
                     </div>
                 </div>
                 <!-- Yearly Pro Plan -->
@@ -254,7 +259,7 @@
                             <span class="text-gray-600">/year</span>
                             <div class="text-sm text-gray-500 mt-1">{{ $pricingData['monthly_equivalent']['formatted'] }}/month, billed annually</div>
                         </div>
-                        <ul class="space-y-3">
+                        <ul class="space-y-3 mb-6">
                             <li class="flex items-center gap-2 text-sm text-gray-600">
                                 <span class="text-lg">✅</span>
                                 <span>Track daily expenses</span>
@@ -280,14 +285,14 @@
                                 <span>Weekly & monthly reports</span>
                             </li>
                             <li class="flex items-center gap-2 text-sm text-gray-600">
-                                <span class="text-lg">✅</span>
-                                <span>Priority support</span>
-                            </li>
-                            <li class="flex items-center gap-2 text-sm text-gray-600">
                                 <span class="text-lg">💡</span>
                                 <span>Save 17% compared to monthly</span>
                             </li>
                         </ul>
+                        <a href="{{ config('app.frontend_url') }}/login" 
+                           class="block w-full py-3 px-4 text-center rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition-colors">
+                            Subscribe Yearly
+                        </a>
                     </div>
                 </div>
             </div>
@@ -297,16 +302,20 @@
                 <h3 class="text-xl font-semibold text-center mb-8">Frequently Asked Questions</h3>
                 <div class="space-y-4">
                     <div class="bg-white rounded-lg p-4 shadow-sm">
-                        <h4 class="font-medium text-gray-900 mb-2">How do I upgrade to Pro?</h4>
-                        <p class="text-sm text-gray-600">You can upgrade to Pro directly from within the app. Open the app and tap on the upgrade option in your profile settings.</p>
+                        <h4 class="font-medium text-gray-900 mb-2">Is this a subscription-only service?</h4>
+                        <p class="text-sm text-gray-600">Yes, Daily Expense Tracker is now a premium subscription service. You'll need an active subscription to access all features and track your expenses.</p>
+                    </div>
+                    <div class="bg-white rounded-lg p-4 shadow-sm">
+                        <h4 class="font-medium text-gray-900 mb-2">How do I subscribe?</h4>
+                        <p class="text-sm text-gray-600">Choose either the monthly or yearly plan above and click the subscribe button. You'll be guided through the registration and subscription process.</p>
                     </div>
                     <div class="bg-white rounded-lg p-4 shadow-sm">
                         <h4 class="font-medium text-gray-900 mb-2">What payment methods are accepted?</h4>
-                        <p class="text-sm text-gray-600">All purchases are processed through the App Store or Google Play Store, using your existing payment methods.</p>
+                        <p class="text-sm text-gray-600">We accept all major credit cards and PayPal. All payments are processed securely through our payment provider.</p>
                     </div>
                     <div class="bg-white rounded-lg p-4 shadow-sm">
-                        <h4 class="font-medium text-gray-900 mb-2">How do I manage my subscription?</h4>
-                        <p class="text-sm text-gray-600">You can manage your subscription through your App Store or Google Play Store account settings.</p>
+                        <h4 class="font-medium text-gray-900 mb-2">Can I cancel my subscription?</h4>
+                        <p class="text-sm text-gray-600">Yes, you can cancel your subscription at any time. Your access will continue until the end of your current billing period.</p>
                     </div>
                 </div>
             </div>
