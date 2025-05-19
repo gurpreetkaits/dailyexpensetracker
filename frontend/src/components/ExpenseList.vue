@@ -727,6 +727,7 @@ export default {
         } else {
           await this.addTransaction(params)
           // await this.fetchTransactions(this.dateFilter)
+          await this.fetchWallets();
           await this.fetchBarTransactions(this.periodTab, [this.selectedBar.start, this.selectedBar.end])
         }
         this.editingTransaction = null
