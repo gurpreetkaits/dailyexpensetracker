@@ -182,11 +182,11 @@ onMounted(async () => {
       // Only fetch if needed (will use cached data if recent)
       await polarStore.fetchSubscriptionStatus()
       if (!hasActiveSubscription.value) {
-        notify({
-          title: 'Basic Plan',
-          message: 'Upgrade to Pro for advanced features',
-          type: 'info'
-        })
+        // notify({
+        //   title: 'Basic Plan',
+        //   message: 'Upgrade to Pro for advanced features',
+        //   type: 'info'
+        // })
       }
     }
   } catch (error) {
