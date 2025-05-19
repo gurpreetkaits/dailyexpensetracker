@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-4xl mx-auto p-4 mb-10">
+  <div class=" mx-auto p-4 mb-10">
     <!-- Header with Add Button and Pagination -->
     <div class="bg-white rounded-xl shadow-sm p-4 mb-4">
       <div class="flex justify-between items-center">
@@ -12,7 +12,7 @@
             Add
           </button>
         </div>
-        
+
         <!-- Pagination -->
         <div v-if="totalPages > 1" class="flex items-center gap-4">
           <div class="text-sm text-gray-500">
@@ -25,8 +25,8 @@
                     :disabled="!link.url"
                     class="px-3 py-1.5 rounded-lg border text-sm font-medium transition-colors disabled:opacity-50"
                     :class="[
-                      link.active 
-                        ? 'bg-emerald-500 text-white border-emerald-500' 
+                      link.active
+                        ? 'bg-emerald-500 text-white border-emerald-500'
                         : 'text-gray-700 border-gray-300 hover:bg-gray-50',
                       !link.url ? 'text-gray-400 border-gray-200' : ''
                     ]"
@@ -66,7 +66,7 @@
                 </div>
               </td>
               <td class="py-2">
-                <span :class="category.type === 'expense' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'" 
+                <span :class="category.type === 'expense' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'"
                       class="px-2 py-0.5 rounded-full text-xs capitalize">
                   {{ category.type }}
                 </span>
@@ -126,8 +126,8 @@
     >
       <form @submit.prevent="handleSubmit" class="space-y-5">
         <div>
-          <input 
-            type="text" 
+          <input
+            type="text"
             v-model="categoryForm.name"
             placeholder="Category name"
             class="w-full px-3 py-2 border-0 border-b border-gray-200 focus:ring-0 focus:border-emerald-500 text-sm"
@@ -136,18 +136,18 @@
         </div>
         <div class="flex gap-4">
           <label class="flex items-center gap-2 cursor-pointer">
-            <input 
-              type="radio" 
-              v-model="categoryForm.type" 
+            <input
+              type="radio"
+              v-model="categoryForm.type"
               value="expense"
               class="w-4 h-4 text-emerald-500 border-gray-300 focus:ring-emerald-500"
             />
             <span class="text-sm text-gray-700">Expense</span>
           </label>
           <label class="flex items-center gap-2 cursor-pointer">
-            <input 
-              type="radio" 
-              v-model="categoryForm.type" 
+            <input
+              type="radio"
+              v-model="categoryForm.type"
               value="income"
               class="w-4 h-4 text-emerald-500 border-gray-300 focus:ring-emerald-500"
             />
@@ -157,7 +157,7 @@
         <div>
           <div class="text-sm text-gray-700 mb-2">Color</div>
           <div class="grid grid-cols-8 gap-2">
-            <button v-for="color in colors" 
+            <button v-for="color in colors"
                     :key="color"
                     type="button"
                     @click="categoryForm.color = color"
@@ -172,7 +172,7 @@
         <div>
           <div class="text-sm text-gray-700 mb-2">Icon</div>
           <div class="grid grid-cols-8 gap-2 max-h-40 overflow-y-auto p-1">
-            <button v-for="icon in icons" 
+            <button v-for="icon in icons"
                     :key="icon.name"
                     type="button"
                     @click="categoryForm.icon = icon.name"
@@ -206,7 +206,7 @@
       leave-from-class="transform scale-100 opacity-100"
       leave-to-class="transform scale-95 opacity-0"
     >
-      <div v-if="showDeleteDialog" 
+      <div v-if="showDeleteDialog"
            class="fixed inset-0 z-50 overflow-y-auto bg-black/50 backdrop-blur-sm"
            @click="showDeleteDialog = false">
         <div class="flex min-h-full items-center justify-center p-4">
@@ -430,7 +430,7 @@ export default {
       if (!url) return
       const page = new URL(url).searchParams.get('page')
       if (!page) return
-      
+
       loading.value = true
       try {
         await categoryStore.fetchCategories(page)

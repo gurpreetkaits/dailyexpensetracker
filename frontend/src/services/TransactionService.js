@@ -59,3 +59,12 @@ export const getCategoryTransactions = async (filters) => {
   const { data } = await axiosConf.get(`/api/get-transactions?${objectToQueryString(filters)}`);
   return data;
 };
+
+export const getActivityBarDataV2 = async (period, bar = null) => {
+  let url = `/api/transactions/activity-bar-data-v2?period=${period}`
+  if (bar) {
+    url += `&bar=${encodeURIComponent(JSON.stringify(bar))}`
+  }
+  const { data } = await axiosConf.get(url)
+  return data
+}

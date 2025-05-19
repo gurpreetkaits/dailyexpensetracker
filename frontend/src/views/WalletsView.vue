@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-4xl mx-auto p-4 mb-10">
+  <div class="mx-auto p-4 mb-10">
     <!-- Header with Add Button and Pagination -->
     <div class="bg-white rounded-xl shadow-sm p-4 mb-4">
       <div class="flex justify-between items-center">
@@ -54,7 +54,7 @@
       <template v-if="!loading">
         <!-- Mobile View -->
         <div v-if="wallets.length > 0" class="md:hidden space-y-3">
-          <div v-for="wallet in wallets" :key="wallet.id" 
+          <div v-for="wallet in wallets" :key="wallet.id"
                class="bg-gray-50 rounded-lg p-4 space-y-3">
             <div class="flex items-center justify-between">
               <button @click="openWalletDrawer(wallet)"

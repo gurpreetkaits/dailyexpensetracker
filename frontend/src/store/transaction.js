@@ -6,7 +6,8 @@ import {
   saveTransaction,
   updateTransaction,
   getTransactionStats,
-  searchTransactions
+  searchTransactions,
+  getActivityBarDataV2
 } from "../services/TransactionService";
 import axios from "axios";
 
@@ -28,6 +29,9 @@ export const useTransactionStore = defineStore("transaction", {
     currentYear: new Date().getFullYear(),
     userStats: [],
     totalBalance: 0,
+    activityBarDataV2: [],
+    barTransactions: [],
+    selectedBar: null,
   }),
   getters: {
     getFilteredIncome() {
@@ -122,6 +126,34 @@ export const useTransactionStore = defineStore("transaction", {
         return response.data
       } catch (error) {
         throw error
+      }
+    },
+    async fetchActivityBarDataV2(period) {
+      this.loading = true;
+      try {
+        const { data } = await getActivityBarDataV2(period);
+        console.log('data',data)
+        this.activityBarDataV2 = data;
+        if (data.length > 0) {
+          this.selectedBar = { start: data[data.length - 1].start, end: data[data.length - 1].end };
+        } else {
+          this.selectedBar = null;
+        }
+      } catch (e) {
+        console.error('fetchActivityBarDataV2:', e);
+      } finally {
+        this.loading = false;
+      }
+    },
+    async fetchBarTransactions(period, bar) {
+      this.loading = true;
+      try {
+        const { barTransactions } = await getActivityBarDataV2(period, bar);
+        this.barTransactions = barTransactions;
+      } catch (e) {
+        console.error('fetchBarTransactions:', e);
+      } finally {
+        this.loading = false;
       }
     }
   },

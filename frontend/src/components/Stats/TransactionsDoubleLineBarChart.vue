@@ -1,108 +1,83 @@
 <template>
-  <div class="bg-white rounded-xl shadow-sm p-4 h-full flex flex-col">
-    <div class="flex items-center justify-between mb-2">
-      <h3 class="text-base font-semibold">Activity</h3>
-      <select v-model="selectedPeriod" class="text-xs bg-gray-50 border border-gray-100 rounded-lg px-2 py-1 text-gray-600">
-        <option value="week">D</option>
-        <option value="month">M</option>
-        <option value="year">Y</option>
-      </select>
+  <div>
+    <div class="flex items-center gap-2 mb-4">
+      <button
+        v-for="tab in periodTabs"
+        :key="tab.value"
+        @click="$emit('period-change', tab.value)"
+        class="px-2 py-0.5 rounded-full text-xs font-medium transition-all"
+        :class="period === tab.value ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'"
+        style="min-width: 2.5rem;"
+      >
+        {{ tab.label }}
+      </button>
     </div>
-    <div class="flex-1 min-h-[180px]">
-      <v-chart :option="chartOption" autoresize />
-    </div>
+    <v-chart :option="option" autoresize style="height: 300px; width: 100%;" />
   </div>
 </template>
 
-<script>
-import { ref, computed, watch } from 'vue'
-import VChart from 'vue-echarts'
+<script setup>
+import { computed } from 'vue'
 import { use } from 'echarts/core'
-import { CanvasRenderer } from 'echarts/renderers'
-import { BarChart, LineChart } from 'echarts/charts'
+import VChart from 'vue-echarts'
+import { BarChart } from 'echarts/charts'
 import { GridComponent, TooltipComponent, LegendComponent } from 'echarts/components'
+import { CanvasRenderer } from 'echarts/renderers'
 
-use([CanvasRenderer, BarChart, LineChart, GridComponent, TooltipComponent, LegendComponent])
+use([BarChart, GridComponent, TooltipComponent, LegendComponent, CanvasRenderer])
 
-export default {
-  name: 'TransactionsDoubleLineBarChart',
-  components: { VChart },
-  props: {
-    chartData: {
-      type: Array,
-      required: true
-    },
-    currencyCode: {
-      type: String,
-      required: true
-    }
+const props = defineProps({
+  chartData: {
+    type: Array,
+    default: () => []
   },
-  setup(props) {
-    const selectedPeriod = ref('month')
-
-    const chartOption = computed(() => {
-      const categories = props.chartData.map(item => item.label)
-      const incomeData = props.chartData.map(item => item.income)
-      const expenseData = props.chartData.map(item => item.expense)
-      return {
-        tooltip: {
-          trigger: 'axis',
-          formatter: params => {
-            const [income, expense] = params
-            return `
-              <b>${income.axisValue}</b><br/>
-              <span style='color:#10b981'>Income:</span> ${formatCurrency(income.data, props.currencyCode)}<br/>
-              <span style='color:#ef4444'>Expense:</span> ${formatCurrency(expense.data, props.currencyCode)}
-            `
-          }
-        },
-        legend: {
-          data: ['Income', 'Expense']
-        },
-        grid: {
-          left: '3%',
-          right: '4%',
-          bottom: '8%',
-          containLabel: true
-        },
-        xAxis: {
-          type: 'category',
-          data: categories,
-          axisLabel: { fontSize: 11 }
-        },
-        yAxis: {
-          type: 'value',
-          axisLabel: {
-            formatter: value => formatCurrency(value, props.currencyCode)
-          }
-        },
-        series: [
-          {
-            name: 'Income',
-            type: 'bar',
-            data: incomeData,
-            itemStyle: { color: '#4CAF51' + 80 }
-          },
-          {
-            name: 'Expense',
-            type: 'bar',
-            data: expenseData,
-            itemStyle: { color: '#ef4444' + 80 }
-          }
-        ]
-      }
-    })
-
-    function formatCurrency(amount, currency) {
-      return new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: currency || 'USD',
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      }).format(amount)
-    }
-
-    return { selectedPeriod, chartOption }
+  currencyCode: {
+    type: String,
+    default: 'INR'
+  },
+  period: {
+    type: String,
+    default: 'W'
+  },
+  selectedBar: {
+    type: Object,
+    default: null
   }
-}
+})
+
+const periodTabs = [
+  { label: 'W', value: 'W' },
+  { label: 'M', value: 'M' },
+  { label: 'Y', value: 'Y' },
+  { label: 'ALL', value: 'ALL' }
+]
+
+const option = computed(() => {
+  const categories = props.chartData.map(bar => bar.label)
+  const income = props.chartData.map(bar => bar.income)
+  const expense = props.chartData.map(bar => bar.expense)
+
+  return {
+    tooltip: { trigger: 'axis' },
+    legend: { data: ['Income', 'Expense'] },
+    grid: { left: 20, right: 20, bottom: 40, top: 40, containLabel: true },
+    xAxis: { type: 'category', data: categories },
+    yAxis: { type: 'value' },
+    series: [
+      {
+        name: 'Income',
+        type: 'bar',
+        data: income,
+        itemStyle: { color: '#22c55e' },
+        barGap: 0
+      },
+      {
+        name: 'Expense',
+        type: 'bar',
+        data: expense,
+        itemStyle: { color: '#ef4444' }
+      }
+    ]
+  }
+})
 </script>

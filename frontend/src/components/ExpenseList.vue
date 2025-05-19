@@ -2,71 +2,22 @@
   <div class="space-y-4 relative pb-24 m-3">
     <!-- Start New Overview Card -->
     <template v-if="getActiveTab === 'daily'">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-        <!-- Overview Card -->
-        <div class="bg-white rounded-xl shadow-sm p-4 flex flex-col justify-between">
-          <div>
-            <div class="flex items-center justify-end mb-3">
-              <h2 class="text-sm font-medium text-gray-700"></h2>
-              <div class="relative mr-2">
-                <template v-if="showSearch">
-                  <div class="flex items-center bg-gray-50 border border-gray-100 rounded-lg">
-                    <input
-                      v-model="searchQuery"
-                      type="text"
-                      @keydown="handleSearch"
-                      placeholder="Search by note..."
-                      class="text-xs px-2 py-1 bg-transparent outline-none w-40 rounded-md"
-                    />
-                    <button
-                      @click="showSearch = false; searchQuery = ''"
-                      class="p-1 text-gray-400 hover:text-gray-600"
-                    >
-                      <CircleX class="h-4 w-4" />
-                    </button>
-                  </div>
-                </template>
-                <button
-                  v-else
-                  @click="showSearch = true"
-                  class="p-1 text-gray-500 hover:text-gray-700"
-                >
-                  <SearchIcon class="h-4 w-4" />
-                </button>
-              </div>
-              <select v-model="dateFilter"
-                class="text-xs bg-gray-50 border border-gray-100 rounded-lg px-2 py-1 text-gray-600">
-                <option value="Today">Today</option>
-                <option value="Weekly">This Week</option>
-                <option value="Yesterday">Yesterday</option>
-                <option value="Monthly">This Month</option>
-                <option value="Yearly">This Year</option>
-              </select>
-            </div>
-            <div class="bg-gray-50 rounded-lg p-3">
-              <div class="flex justify-between mb-2">
-                <span class="text-xs font-medium text-gray-700">{{ dateFilter }} Earnings</span>
-                <p class="text-sm font-medium text-green-700">
-                  {{ formatCurrency(getFilteredIncome, currencyCode) }}
-                </p>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-xs font-medium text-gray-700">{{ dateFilter }} Expenses</span>
-                <p class="text-sm font-medium text-red-700">
-                  {{ formatCurrency(getFilteredExpenses, currencyCode) }}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 bg-white rounded-xl shadow-sm p-4">
         <!-- Activity Card -->
-        <div>
-          <TransactionsDoubleLineBarChart :chartData="activityChartData" :currencyCode="currencyCode" />
+        <div class="h-[300px] ">
+          <TransactionsDoubleLineBarChart
+            :chartData="activityBarDataV2"
+            :currencyCode="currencyCode"
+            :period="periodTab"
+            :selectedBar="selectedBar"
+            @period-change="handlePeriodChange"
+            @bar-click="handleBarClick"
+          />
         </div>
         <!-- Recent Wallet Card -->
         <div
           v-if="recentWallet"
-          class="relative overflow-hidden rounded-xl p-4 flex flex-col justify-between"
+          class="relative overflow-hidden rounded-xl p-4 flex flex-col justify-between h-[300px]"
           :class="{
             'bg-gradient-to-br from-emerald-500 to-emerald-600': recentWallet.type === 'bank',
             'bg-gradient-to-br from-blue-500 to-blue-600': recentWallet.type === 'card',
@@ -291,7 +242,7 @@
             <!-- Desktop View -->
             <div class="hidden sm:block">
               <!-- Empty State for Desktop -->
-              <div v-if="!transactions || transactions.length === 0 && !saving"
+              <div v-if="!barTransactions || barTransactions.length === 0 && !saving"
                 class="flex flex-col items-center justify-center py-12 px-4 bg-white rounded-xl shadow-sm">
                 <Receipt class="h-16 w-16 text-gray-300 mb-4" />
                 <h3 class="text-lg font-medium text-gray-900 mb-2">
@@ -310,7 +261,7 @@
                     <ArrowDownCircle class="h-4 w-4 text-red-500" />
                     Expenses
                   </h3>
-                  <div v-for="transaction in filteredTransactions.filter(t => t.type === 'expense')" :key="transaction.id"
+                  <div v-for="transaction in barTransactions.filter(t => t.type === 'expense')" :key="transaction.id"
                     class="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-all cursor-pointer"
                     @click="editTransaction(transaction)">
                     <div class="flex items-center gap-3">
@@ -342,7 +293,7 @@
                     <ArrowUpCircle class="h-4 w-4 text-green-500" />
                     Income
                   </h3>
-                  <div v-for="transaction in filteredTransactions.filter(t => t.type === 'income')" :key="transaction.id"
+                  <div v-for="transaction in barTransactions.filter(t => t.type === 'income')" :key="transaction.id"
                     class="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-all cursor-pointer"
                     @click="editTransaction(transaction)">
                     <div class="flex items-center gap-3">
@@ -372,7 +323,7 @@
             <!-- Mobile View -->
             <div class="sm:hidden space-y-3">
               <!-- Empty State -->
-              <div v-if="!transactions || transactions.length === 0 && !saving"
+              <div v-if="!barTransactions || barTransactions.length === 0 && !saving"
                 class="flex flex-col items-center justify-center py-12 px-4 bg-white rounded-xl shadow-sm">
                 <Receipt class="h-16 w-16 text-gray-300 mb-4" />
                 <h3 class="text-lg font-medium text-gray-900 mb-2">
@@ -384,7 +335,7 @@
               </div>
 
               <!-- Transaction List -->
-              <div v-else v-for="transaction in filteredTransactions" :key="transaction.id"
+              <div v-else v-for="transaction in barTransactions" :key="transaction.id"
                 class="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-all"
                 @click="editTransaction(transaction)">
                 <div class="flex items-center gap-3">
@@ -434,16 +385,18 @@
     </GlobalModal>
     <!-- End Desktop Model -->
     <!-- Bottom Sheet -->
-    <BottomSheet v-model="showAddModal" class="md:hidden">
-      <template v-if="getActiveTab === 'daily'">
-        <AddTransaction @transaction-added="handleTransactionAdded" @close="closeModal" @remove="removeItem"
-          :item="editingTransaction" />
-      </template>
-      <template v-else>
-        <RecurringExpenseForm :editingExpense="editingRecurring" :loading="saving" @save="handleRecurringExpenseSave"
-          @delete="handleRecurringExpenseDelete" @cancel="closeModal" />
-      </template>
-    </BottomSheet>
+    <div class="md:hidden">
+      <BottomSheet v-model="showAddModal">
+        <template v-if="getActiveTab === 'daily'">
+          <AddTransaction @transaction-added="handleTransactionAdded" @close="closeModal" @remove="removeItem"
+            :item="editingTransaction" />
+        </template>
+        <template v-else>
+          <RecurringExpenseForm :editingExpense="editingRecurring" :loading="saving" @save="handleRecurringExpenseSave"
+            @delete="handleRecurringExpenseDelete" @cancel="closeModal" />
+        </template>
+      </BottomSheet>
+    </div>
   </div>
 </template>
 <script>
@@ -464,6 +417,7 @@ import { mapActions, mapState } from 'pinia';
 import { numberMixin } from '../mixins/numberMixin';
 import { deleteTransaction, getTransactionById } from '../services/TransactionService';
 import { useSettingsStore } from '../store/settings';
+import { useWalletStore } from '../store/wallet';
 import { Dialog, DialogPanel, TransitionRoot, TransitionChild } from '@headlessui/vue'
 import { useRecurringExpenseStore } from '../store/recurringExpense';
 import { iconMixin } from '../mixins/iconMixin';
@@ -476,7 +430,7 @@ export default {
   components: {
     Calendar, Trash2, Plus, ShoppingBag, ReceiptIcon, Video, BriefcaseMedical, Gift, Circle, CircleEllipsis, Pizza, CircleDollarSign,
     BottomSheet,
-    AddTransaction, HandCoins, Wallet, ChartCandlestick, Landmark,
+    AddTransaction, HandCoins, ChartCandlestick, Landmark,
     Citrus, House, Receipt, Clapperboard, Plane, Contact,
     Cross, ShoppingCart, Book, BriefcaseBusiness, BadgeDollarSign, Car,SearchIcon,
     Dumbbell,
@@ -489,6 +443,10 @@ export default {
     Dialog, DialogPanel, TransitionRoot, TransitionChild, RecurringExpenseForm, GlobalModal,
     TransactionsDoubleLineBarChart,
     Wallet, CreditCard, Banknote
+  },
+  setup() {
+    const walletStore = useWalletStore();
+    return { walletStore };
   },
   data() {
     return {
@@ -504,21 +462,29 @@ export default {
       activeTab: 'daily',
       editingRecurring: null,
       editingGoal: false,
-      nextMonthPayable: 0,
-      totalPaidTillNow: 0,
-        searchTimeout: null,
+      searchTimeout: null,
+      periodTab: 'W',
     }
   },
   computed: {
-    ...mapState(useTransactionStore, ['transactions', 'getBalance', 'getSavingRate', 'getFilteredIncome', 'getFilteredExpenses','searchTransactions']),
+    ...mapState(useTransactionStore, [
+      'transactions',
+      'getBalance',
+      'getSavingRate',
+      'getFilteredIncome',
+      'getFilteredExpenses',
+      'barTransactions',
+      'selectedBar'
+    ]),
     ...mapState(useSettingsStore, ['currencySymbol', 'currencyCode', 'categories']),
+    ...mapState(useWalletStore, ['wallets']),
 
     // Recurring Expense
     ...mapState(useRecurringExpenseStore, ['recurringExpenses','summary']),
+
     getActiveTab() {
       return this.activeTab.toLowerCase()
     },
-    // End Recurring Expense
     filteredTransactions() {
       return this.transactions
     },
@@ -534,7 +500,6 @@ export default {
 
       let filtered = [...this.transactions];
 
-      // Match exact cases from your dropdown
       if (this.dateFilter === 'Today') {
         filtered = filtered.filter(t => new Date(t.transaction_date) >= today);
       } else if (this.dateFilter === 'Weekly') {
@@ -544,7 +509,6 @@ export default {
       } else if (this.dateFilter === 'Yearly') {
         filtered = filtered.filter(t => new Date(t.transaction_date) >= thisYear);
       }
-      // If 'All Time' is selected, return all transactions (no filter)
 
       return filtered;
     },
@@ -555,62 +519,50 @@ export default {
         .reduce((sum, amount) => sum + amount, 0)
     },
 
-      // Recurring Expenses
-      nextMonthPayable() {
-          return this.summary.monthly_payment_total || 0
-      },
+    // Recurring Expenses
+    nextMonthPayable() {
+      return this.summary.monthly_payment_total || 0
+    },
 
-      totalPaidTillNow() {
-          return this.summary.total_amount_paid || 0
-      },
+    totalPaidTillNow() {
+      return this.summary.total_amount_paid || 0
+    },
 
-      getTotalInterestPaid() {
-          return this.summary.total_interest_paid || 0
-      },
+    getTotalInterestPaid() {
+      return this.summary.total_interest_paid || 0
+    },
 
-      getTotalRemainingBalance() {
-          return this.summary.total_remaining_balance || 0
-      },
+    getTotalRemainingBalance() {
+      return this.summary.total_remaining_balance || 0
+    },
 
-      getTotalPendingPayments() {
-          return this.summary.total_pending_payments || 0
-      },
+    getTotalPendingPayments() {
+      return this.summary.total_pending_payments || 0
+    },
 
-      getUpcomingPayments() {
-          return this.summary.upcoming_payments || []
-      },
+    getUpcomingPayments() {
+      return this.summary.upcoming_payments || []
+    },
 
-      hasEMIExpenses() {
-          return this.recurringExpenses.some(expense => expense.type === 'emi')
-      },
+    hasEMIExpenses() {
+      return this.recurringExpenses.some(expense => expense.type === 'emi')
+    },
     recentTransaction() {
       return this.transactions && this.transactions.length > 0 ? this.transactions[0] : null
     },
     recentWallet() {
-      if (!this.recentTransaction) return null
-      const walletId = this.recentTransaction.wallet_id
-      return this.$store?.wallets?.find(w => w.id === walletId) || (this.walletStore?.wallets?.find(w => w.id === walletId))
+      if (!this.recentTransaction) return null;
+      const walletId = this.recentTransaction.wallet_id;
+      return this.wallets?.find(w => w.id === walletId);
     },
-    activityChartData() {
-      // Example: group transactions by day/week/month and sum income/expense
-      // For now, just show last 7 days as a placeholder
-      const days = [...Array(7)].map((_, i) => {
-        const date = new Date()
-        date.setDate(date.getDate() - (6 - i))
-        const label = date.toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })
-        const dayTrans = this.transactions.filter(t => {
-          const tDate = new Date(t.transaction_date)
-          return tDate.toDateString() === date.toDateString()
-        })
-        const income = dayTrans.filter(t => t.type === 'income').reduce((sum, t) => sum + Number(t.amount), 0)
-        const expense = dayTrans.filter(t => t.type === 'expense').reduce((sum, t) => sum + Number(t.amount), 0)
-        return { label, income, expense }
-      })
-      return days
+    activityBarDataV2() {
+      const store = useTransactionStore();
+      console.log('Chart Data from store:', store.activityBarDataV2);
+      return store.activityBarDataV2 || [];
     },
-    walletStore() {
-      return this.$pinia._s.get('wallet') || {}
-    }
+    selectedPeriod() {
+      return this.periodTab
+    },
   },
   watch: {
     currencySymbol: {
@@ -644,8 +596,17 @@ export default {
     }
   },
   methods: {
-    ...mapActions(useTransactionStore, ['addTransaction', 'fetchTransactions', 'updateTransaction', 'removeTransaction','searchTransactions' ]),
+    ...mapActions(useTransactionStore, [
+      'addTransaction',
+      'fetchTransactions',
+      'updateTransaction',
+      'removeTransaction',
+      'searchTransactions',
+      'fetchActivityBarDataV2',
+      'fetchBarTransactions'
+    ]),
     ...mapActions(useSettingsStore, ['fetchSettings', 'fetchCategories']),
+    ...mapActions(useWalletStore, ['fetchWallets']),
     // Recurring Expense
     ...mapActions(useRecurringExpenseStore, [
       'fetchRecurringExpenses',
@@ -858,18 +819,41 @@ export default {
         default: return 'bg-gray-100 text-gray-600'
       }
     },
+    async handlePeriodChange(period) {
+      console.log('Period changed to:', period);
+      this.periodTab = period;
+      try {
+        await this.fetchActivityBarDataV2(period);
+        console.log('Activity bar data fetched for period:', period);
+        if (this.selectedBar) {
+          await this.fetchBarTransactions(period, [this.selectedBar.start, this.selectedBar.end]);
+        }
+      } catch (error) {
+        console.error('Error fetching activity bar data:', error);
+      }
+    },
+    async handleBarClick(bar) {
+      await this.fetchBarTransactions(this.periodTab, [bar.start, bar.end])
+    },
   },
   async created() {
     try {
-      await this.fetchSettings()
-      await this.fetchTransactions(this.dateFilter)
+      await this.fetchSettings();
+      await this.fetchWallets();
+      await this.fetchTransactions(this.dateFilter);
       if (this.getActiveTab === 'recurring') {
-        await this.fetchRecurringExpenses()
-        this.setRecurringSummary()
+        await this.fetchRecurringExpenses();
+        this.setRecurringSummary();
       }
-
+      console.log('Fetching activity bar data...');
+      const store = useTransactionStore();
+      await store.fetchActivityBarDataV2(this.periodTab);
+      console.log('Initial activity bar data:', store.activityBarDataV2);
+      if (store.selectedBar) {
+        await store.fetchBarTransactions(this.periodTab, [store.selectedBar.start, store.selectedBar.end]);
+      }
     } catch (error) {
-      console.error('Error loading transactions:', error)
+      console.error('Error loading data:', error);
     }
   }
 }

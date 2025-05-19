@@ -127,4 +127,20 @@ class TransactionController extends Controller
 
         return response()->json(['transactions' => $transactions]);
     }
+
+    public function activityBarDataV2(Request $request)
+    {
+        $period = $request->query('period', 'W');
+        $bar = $request->query('bar'); // bar is an array: [start, end]
+        $userId = auth()->id();
+        $data = $this->transactionService->getActivityBarDataV2($userId, $period);
+        $barTransactions = [];
+        if ($bar) {
+            $barArr = json_decode($bar, true);
+            if (is_array($barArr) && count($barArr) === 2) {
+                $barTransactions = $this->transactionService->getTransactionsForBar($userId, $barArr[0], $barArr[1]);
+            }
+        }
+        return response()->json(['data' => $data, 'barTransactions' => $barTransactions]);
+    }
 }

@@ -204,5 +204,104 @@ class TransactionService
         return $query->get();
     }
 
+    public function getActivityBarDataV2($userId, $period)
+    {
+        $first = Transaction::where('user_id', $userId)->orderBy('transaction_date')->first();
+        $last = Transaction::where('user_id', $userId)->orderByDesc('transaction_date')->first();
+        if (!$first || !$last) return [];
+        $start = $first->transaction_date;
+        $end = $last->transaction_date;
+        $now = now();
+        $result = [];
+        if ($period === 'W') {
+            $current = \Carbon\Carbon::parse($start)->startOfWeek();
+            $final = \Carbon\Carbon::parse($end)->endOfWeek();
+            while ($current <= $final) {
+                $weekStart = $current->copy();
+                $weekEnd = $current->copy()->endOfWeek();
+                $income = Transaction::where('user_id', $userId)
+                    ->whereBetween('transaction_date', [$weekStart, $weekEnd])
+                    ->where('type', 'income')->sum('amount');
+                $expense = Transaction::where('user_id', $userId)
+                    ->whereBetween('transaction_date', [$weekStart, $weekEnd])
+                    ->where('type', 'expense')->sum('amount');
+                $label = $weekStart->format('d M') . ' - ' . $weekEnd->format('d M');
+                $result[] = [
+                    'label' => $label,
+                    'income' => $income,
+                    'expense' => $expense,
+                    'start' => $weekStart->toDateString(),
+                    'end' => $weekEnd->toDateString()
+                ];
+                $current->addWeek();
+            }
+        } elseif ($period === 'M') {
+            $current = \Carbon\Carbon::parse($start)->startOfMonth();
+            $final = \Carbon\Carbon::parse($end)->endOfMonth();
+            while ($current <= $final) {
+                $monthStart = $current->copy();
+                $monthEnd = $current->copy()->endOfMonth();
+                $income = Transaction::where('user_id', $userId)
+                    ->whereBetween('transaction_date', [$monthStart, $monthEnd])
+                    ->where('type', 'income')->sum('amount');
+                $expense = Transaction::where('user_id', $userId)
+                    ->whereBetween('transaction_date', [$monthStart, $monthEnd])
+                    ->where('type', 'expense')->sum('amount');
+                $label = $monthStart->format('M Y');
+                $result[] = [
+                    'label' => $label,
+                    'income' => $income,
+                    'expense' => $expense,
+                    'start' => $monthStart->toDateString(),
+                    'end' => $monthEnd->toDateString()
+                ];
+                $current->addMonth();
+            }
+        } elseif ($period === 'Y') {
+            $current = \Carbon\Carbon::parse($start)->startOfYear();
+            $final = \Carbon\Carbon::parse($end)->endOfYear();
+            while ($current <= $final) {
+                $yearStart = $current->copy();
+                $yearEnd = $current->copy()->endOfYear();
+                $income = Transaction::where('user_id', $userId)
+                    ->whereBetween('transaction_date', [$yearStart, $yearEnd])
+                    ->where('type', 'income')->sum('amount');
+                $expense = Transaction::where('user_id', $userId)
+                    ->whereBetween('transaction_date', [$yearStart, $yearEnd])
+                    ->where('type', 'expense')->sum('amount');
+                $label = $yearStart->format('Y');
+                $result[] = [
+                    'label' => $label,
+                    'income' => $income,
+                    'expense' => $expense,
+                    'start' => $yearStart->toDateString(),
+                    'end' => $yearEnd->toDateString()
+                ];
+                $current->addYear();
+            }
+        } elseif ($period === 'ALL') {
+            $income = Transaction::where('user_id', $userId)
+                ->whereBetween('transaction_date', [$start, $end])
+                ->where('type', 'income')->sum('amount');
+            $expense = Transaction::where('user_id', $userId)
+                ->whereBetween('transaction_date', [$start, $end])
+                ->where('type', 'expense')->sum('amount');
+            $result[] = [
+                'label' => 'All Time',
+                'income' => $income,
+                'expense' => $expense,
+                'start' => $start,
+                'end' => $end
+            ];
+        }
+        return $result;
+    }
 
+    public function getTransactionsForBar($userId, $start, $end)
+    {
+        return Transaction::where('user_id', $userId)
+            ->whereBetween('transaction_date', [$start, $end])
+            ->orderBy('transaction_date', 'desc')
+            ->get();
+    }
 }

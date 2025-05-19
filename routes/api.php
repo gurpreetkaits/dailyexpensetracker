@@ -39,6 +39,7 @@ Route::middleware('auth:sanctum')->group(function () {
     //     Route::get('history', [SubscriptionController::class, 'history']);
     // });
 
+    Route::get('transactions/activity-bar-data-v2', [TransactionController::class, 'activityBarDataV2']);
     Route::delete('user-setttings/transactions/reset', [SettingsController::class, 'deleteTransactions']);
     Route::resource('settings', SettingsController::class);
     Route::resource('currencies', CurrencyController::class);
