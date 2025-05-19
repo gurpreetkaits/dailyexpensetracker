@@ -2,67 +2,106 @@
   <div class="space-y-4 relative pb-24 m-3">
     <!-- Start New Overview Card -->
     <template v-if="getActiveTab === 'daily'">
-      <div class="bg-white rounded-xl shadow-sm p-4"><!-- Search Toggle Button / Input -->
-
-        <div>
-          <div class="flex items-center justify-end mb-3">
-            <h2 class="text-sm font-medium text-gray-700"></h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+        <!-- Overview Card -->
+        <div class="bg-white rounded-xl shadow-sm p-4 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-end mb-3">
+              <h2 class="text-sm font-medium text-gray-700"></h2>
               <div class="relative mr-2">
-                  <template v-if="showSearch">
-                      <div class="flex items-center bg-gray-50 border border-gray-100 rounded-lg">
-                          <input
-                              v-model="searchQuery"
-                              type="text"
-                              @keydown="handleSearch"
-                              placeholder="Search by note..."
-                              class="text-xs px-2 py-1 bg-transparent outline-none w-40 rounded-md"
-                          />
-                          <button
-                              @click="showSearch = false; searchQuery = ''"
-                              class="p-1 text-gray-400 hover:text-gray-600"
-                          >
-                              <CircleX class="h-4 w-4" />
-                          </button>
-                      </div>
-                  </template>
-                  <button
-                      v-else
-                      @click="showSearch = true"
-                      class="p-1 text-gray-500 hover:text-gray-700"
-                  >
-                      <SearchIcon class="h-4 w-4" />
-                  </button>
+                <template v-if="showSearch">
+                  <div class="flex items-center bg-gray-50 border border-gray-100 rounded-lg">
+                    <input
+                      v-model="searchQuery"
+                      type="text"
+                      @keydown="handleSearch"
+                      placeholder="Search by note..."
+                      class="text-xs px-2 py-1 bg-transparent outline-none w-40 rounded-md"
+                    />
+                    <button
+                      @click="showSearch = false; searchQuery = ''"
+                      class="p-1 text-gray-400 hover:text-gray-600"
+                    >
+                      <CircleX class="h-4 w-4" />
+                    </button>
+                  </div>
+                </template>
+                <button
+                  v-else
+                  @click="showSearch = true"
+                  class="p-1 text-gray-500 hover:text-gray-700"
+                >
+                  <SearchIcon class="h-4 w-4" />
+                </button>
               </div>
-            <select v-model="dateFilter"
-              class="text-xs bg-gray-50 border border-gray-100 rounded-lg px-2 py-1 text-gray-600">
-              <option value="Today">Today</option>
-              <option value="Weekly">This Week</option>
-              <option value="Yesterday">Yesterday</option>
-              <option value="Monthly">This Month</option>
-              <option value="Yearly">This Year</option>
-            </select>
-          </div>
-          <div class="bg-gray-50 rounded-lg p-3">
-            <div class="flex justify-between mb-2">
-              <span class="text-xs font-medium text-gray-700">{{ dateFilter }} Earnings</span>
-              <p class="text-sm font-medium text-green-700">
-                {{ formatCurrency(getFilteredIncome, currencyCode) }}
-              </p>
+              <select v-model="dateFilter"
+                class="text-xs bg-gray-50 border border-gray-100 rounded-lg px-2 py-1 text-gray-600">
+                <option value="Today">Today</option>
+                <option value="Weekly">This Week</option>
+                <option value="Yesterday">Yesterday</option>
+                <option value="Monthly">This Month</option>
+                <option value="Yearly">This Year</option>
+              </select>
             </div>
-            <div class="flex justify-between">
-              <span class="text-xs font-medium text-gray-700">{{ dateFilter }} Expenses</span>
-              <p class="text-sm font-medium text-red-700">
-                {{ formatCurrency(getFilteredExpenses, currencyCode) }}
-              </p>
-            </div>
-            <hr class="my-2">
-            <div class="flex justify-between">
-              <span class="text-xs font-medium text-gray-700">Balance</span>
-              <p class="text-sm font-medium text-blue-700">
-                {{ formatCurrency(balance, currencyCode) }}
-              </p>
+            <div class="bg-gray-50 rounded-lg p-3">
+              <div class="flex justify-between mb-2">
+                <span class="text-xs font-medium text-gray-700">{{ dateFilter }} Earnings</span>
+                <p class="text-sm font-medium text-green-700">
+                  {{ formatCurrency(getFilteredIncome, currencyCode) }}
+                </p>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-xs font-medium text-gray-700">{{ dateFilter }} Expenses</span>
+                <p class="text-sm font-medium text-red-700">
+                  {{ formatCurrency(getFilteredExpenses, currencyCode) }}
+                </p>
+              </div>
             </div>
           </div>
+        </div>
+        <!-- Activity Card -->
+        <div>
+          <TransactionsDoubleLineBarChart :chartData="activityChartData" :currencyCode="currencyCode" />
+        </div>
+        <!-- Recent Wallet Card -->
+        <div
+          v-if="recentWallet"
+          class="relative overflow-hidden rounded-xl p-4 flex flex-col justify-between"
+          :class="{
+            'bg-gradient-to-br from-emerald-500 to-emerald-600': recentWallet.type === 'bank',
+            'bg-gradient-to-br from-blue-500 to-blue-600': recentWallet.type === 'card',
+            'bg-gradient-to-br from-purple-500 to-purple-600': recentWallet.type === 'cash'
+          }"
+        >
+          <!-- Decorative Elements -->
+          <div class="absolute inset-0 opacity-10 pointer-events-none select-none">
+            <div class="absolute -right-4 -top-4 h-20 w-20 md:h-24 md:w-24 rounded-full bg-white"></div>
+            <div class="absolute -left-4 -bottom-4 h-24 w-24 md:h-32 md:w-32 rounded-full bg-white"></div>
+          </div>
+          <div class="relative z-10">
+            <div class="flex items-center gap-3 mb-2">
+              <div :class="walletIconBgClass(recentWallet.type)" class="w-10 h-10 rounded-full flex items-center justify-center bg-white/20">
+                <component :is="walletIconComponent(recentWallet.type)" class="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <div class="font-medium text-white">{{ recentWallet.name }}</div>
+                <div class="text-xs text-white/80 capitalize">{{ recentWallet.type }} Wallet</div>
+              </div>
+            </div>
+            <div class="flex justify-between items-center mb-2">
+              <div>
+                <div class="text-xs text-white/80">Balance</div>
+                <div class="font-semibold text-white">{{ formatCurrency(recentWallet.balance, recentWallet.currency) }}</div>
+              </div>
+              <div>
+                <div class="text-xs text-white/80">Currency</div>
+                <div class="font-semibold text-white">{{ recentWallet.currency }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div v-else class="bg-white rounded-xl shadow-sm p-4 flex flex-col justify-between">
+          <div class="text-gray-400 text-sm">No recent wallet activity</div>
         </div>
       </div>
     </template>
@@ -410,7 +449,7 @@
 <script>
 import {
   Calendar, Trash2, Plus, Car, ReceiptIcon, Video, BriefcaseMedical, Gift, Circle, CircleEllipsis, Pizza, CircleDollarSign
-  , HandCoins, Wallet, ChartCandlestick, Landmark,
+  , HandCoins, ChartCandlestick, Landmark,
   Citrus, ShoppingBag, House, Receipt, Clapperboard, Plane, Contact,
   Cross, ShoppingCart, Book, BriefcaseBusiness, BadgeDollarSign,
   Dumbbell,
@@ -429,6 +468,8 @@ import { Dialog, DialogPanel, TransitionRoot, TransitionChild } from '@headlessu
 import { useRecurringExpenseStore } from '../store/recurringExpense';
 import { iconMixin } from '../mixins/iconMixin';
 import GlobalModal from './Global/GlobalModal.vue'
+import TransactionsDoubleLineBarChart from './Stats/TransactionsDoubleLineBarChart.vue'
+import { Wallet, CreditCard, Banknote } from 'lucide-vue-next'
 export default {
   name: 'ExpenseList',
   mixins: [numberMixin,iconMixin],
@@ -445,7 +486,9 @@ export default {
     ArrowUpCircle,
     ArrowDownCircle,
     PiggyBank, RepeatIcon, CalendarClock,
-    Dialog, DialogPanel, TransitionRoot, TransitionChild, RecurringExpenseForm, GlobalModal
+    Dialog, DialogPanel, TransitionRoot, TransitionChild, RecurringExpenseForm, GlobalModal,
+    TransactionsDoubleLineBarChart,
+    Wallet, CreditCard, Banknote
   },
   data() {
     return {
@@ -539,7 +582,35 @@ export default {
 
       hasEMIExpenses() {
           return this.recurringExpenses.some(expense => expense.type === 'emi')
-      }
+      },
+    recentTransaction() {
+      return this.transactions && this.transactions.length > 0 ? this.transactions[0] : null
+    },
+    recentWallet() {
+      if (!this.recentTransaction) return null
+      const walletId = this.recentTransaction.wallet_id
+      return this.$store?.wallets?.find(w => w.id === walletId) || (this.walletStore?.wallets?.find(w => w.id === walletId))
+    },
+    activityChartData() {
+      // Example: group transactions by day/week/month and sum income/expense
+      // For now, just show last 7 days as a placeholder
+      const days = [...Array(7)].map((_, i) => {
+        const date = new Date()
+        date.setDate(date.getDate() - (6 - i))
+        const label = date.toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })
+        const dayTrans = this.transactions.filter(t => {
+          const tDate = new Date(t.transaction_date)
+          return tDate.toDateString() === date.toDateString()
+        })
+        const income = dayTrans.filter(t => t.type === 'income').reduce((sum, t) => sum + Number(t.amount), 0)
+        const expense = dayTrans.filter(t => t.type === 'expense').reduce((sum, t) => sum + Number(t.amount), 0)
+        return { label, income, expense }
+      })
+      return days
+    },
+    walletStore() {
+      return this.$pinia._s.get('wallet') || {}
+    }
   },
   watch: {
     currencySymbol: {
@@ -770,7 +841,23 @@ export default {
           } catch (error) {
               console.error('Error setting recurring summary:', error);
           }
+      },
+    walletIconComponent(type) {
+      switch (type) {
+        case 'bank': return Landmark
+        case 'card': return CreditCard
+        case 'cash': return Banknote
+        default: return Wallet
       }
+    },
+    walletIconBgClass(type) {
+      switch (type) {
+        case 'bank': return 'bg-emerald-100 text-emerald-600'
+        case 'card': return 'bg-blue-100 text-blue-600'
+        case 'cash': return 'bg-purple-100 text-purple-600'
+        default: return 'bg-gray-100 text-gray-600'
+      }
+    },
   },
   async created() {
     try {

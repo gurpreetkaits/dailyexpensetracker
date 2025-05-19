@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-4xl mx-auto">
+  <div class="mx-auto">
     <ExpenseList :expenses="expenses" :categories="allCategories" @delete="deleteExpense"
       @add-expense="showExpenseForm = true" />
   </div>

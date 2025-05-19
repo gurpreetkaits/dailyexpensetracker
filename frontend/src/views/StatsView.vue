@@ -19,7 +19,7 @@
                 />
             </div>
             <!-- Transactions Table -->
-            <div>
+            <!-- <div>
                 <TransactionListings
                     :transactions="paginatedTransactions"
                     :total-pages="totalPages"
@@ -28,7 +28,7 @@
                     :currency-code="currencyCode"
                     @page-change="handlePageChange"
                 />
-            </div>
+            </div> -->
         </div>
     </div>
 </template>
