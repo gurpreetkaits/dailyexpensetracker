@@ -12,6 +12,11 @@
                 {{-- <span class="font-extrabold  text-emerald-400" style="font-family: 'Inter', sans-serif;">$</span> --}}
             </div>
         </div>
+        @php
+        $recentUsers = \App\Models\User::latest()->take(5)->get();
+        $totalUsers = \App\Models\User::count();
+        $remainingUsers = $totalUsers > 5 ? $totalUsers - 5 : 0;
+    @endphp
         <div class="w-[1130px] max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between px-4 sm:px-6 lg:px-8 py-8 gap-8 relative z-10">
             <!-- Left: Headline, Description, Button -->
             <div class="flex-1 flex flex-col justify-center items-center sm:items-center lg:items-start text-center sm:text-center lg:text-left max-w-xl w-full">
@@ -24,19 +29,14 @@
                 </p>
                 <a href="{{ config('app.frontend_url') }}/login"
                     class="inline-block bg-emerald-500 text-white px-8 py-3 rounded-lg hover:bg-emerald-600 transition-colors text-center">
-                    Start Tracking Free
-                </a>
+                    Join {{$totalUsers}}+ Smart Savers                 </a>
                 <!-- Recent Users Section -->
                 <div class="mt-8">
                     <p class="text-sm text-gray-500 mb-2">Joined by people who care about their finances</p>
                     <div class="flex items-center">
                         <!-- User Profile Photos -->
                         <div class="flex -space-x-2 overflow-hidden">
-                            @php
-                                $recentUsers = \App\Models\User::latest()->take(5)->get();
-                                $totalUsers = \App\Models\User::count();
-                                $remainingUsers = $totalUsers > 5 ? $totalUsers - 5 : 0;
-                            @endphp
+                           
                             @foreach($recentUsers as $user)
                                 <div class="inline-block h-8 w-8 rounded-full ring-2 ring-white bg-emerald-100 text-emerald-800 flex items-center justify-center">
                                     @if(isset($user->avatar))
@@ -68,8 +68,8 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 class="text-3xl font-bold text-center mb-12">Features</h2>
             
-            <!-- Free Features -->
-            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mb-6">
+            <!-- All Features -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
                 <!-- Feature 1 -->
                 <div class="group bg-white p-3 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300 hover:-translate-y-1">
                     <div class="flex items-start gap-3">
@@ -77,7 +77,7 @@
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center gap-1.5 mb-0.5">
                                 <h3 class="text-sm font-medium text-gray-900 truncate">Expense Tracking</h3>
-                                <span class="flex-shrink-0 px-1.5 py-0.5 text-xs font-medium bg-emerald-100 text-emerald-800 rounded-full">Free</span>
+                                {{-- <span class="flex-shrink-0 px-1.5 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">Pro</span> --}}
                             </div>
                             <p class="text-xs text-gray-600 line-clamp-2">Track daily expenses with ease</p>
                         </div>
@@ -91,7 +91,7 @@
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center gap-1.5 mb-0.5">
                                 <h3 class="text-sm font-medium text-gray-900 truncate">Real-time Overview</h3>
-                                <span class="flex-shrink-0 px-1.5 py-0.5 text-xs font-medium bg-emerald-100 text-emerald-800 rounded-full">Free</span>
+                                {{-- <span class="flex-shrink-0 px-1.5 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">Pro</span> --}}
                             </div>
                             <p class="text-xs text-gray-600 line-clamp-2">Instant insights into spending</p>
                         </div>
@@ -105,7 +105,7 @@
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center gap-1.5 mb-0.5">
                                 <h3 class="text-sm font-medium text-gray-900 truncate">Category Management</h3>
-                                <span class="flex-shrink-0 px-1.5 py-0.5 text-xs font-medium bg-emerald-100 text-emerald-800 rounded-full">Free</span>
+                                {{-- <span class="flex-shrink-0 px-1.5 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">Pro</span> --}}
                             </div>
                             <p class="text-xs text-gray-600 line-clamp-2">Organize expenses by category</p>
                         </div>
@@ -119,16 +119,13 @@
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center gap-1.5 mb-0.5">
                                 <h3 class="text-sm font-medium text-gray-900 truncate">Cloud Backup</h3>
-                                <span class="flex-shrink-0 px-1.5 py-0.5 text-xs font-medium bg-emerald-100 text-emerald-800 rounded-full">Free</span>
+                                {{-- <span class="flex-shrink-0 px-1.5 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">Pro</span> --}}
                             </div>
                             <p class="text-xs text-gray-600 line-clamp-2">Secure data across devices</p>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Paid Features -->
-            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
                 <!-- Feature 5 -->
                 <div class="group bg-white p-3 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300 hover:-translate-y-1">
                     <div class="flex items-start gap-3">
@@ -136,7 +133,7 @@
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center gap-1.5 mb-0.5">
                                 <h3 class="text-sm font-medium text-gray-900 truncate">AI Smart Insights</h3>
-                                <span class="flex-shrink-0 px-1.5 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">Pro</span>
+                                {{-- <span class="flex-shrink-0 px-1.5 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">Pro</span> --}}
                             </div>
                             <p class="text-xs text-gray-600 line-clamp-2">Personalized spending insights</p>
                         </div>
@@ -150,20 +147,21 @@
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center gap-1.5 mb-0.5">
                                 <h3 class="text-sm font-medium text-gray-900 truncate">Weekly/Monthly Reports</h3>
-                                <span class="flex-shrink-0 px-1.5 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">Pro</span>
+                                {{-- <span class="flex-shrink-0 px-1.5 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">Pro</span> --}}
                             </div>
                             <p class="text-xs text-gray-600 line-clamp-2">Detailed spending analysis</p>
                         </div>
                     </div>
                 </div>
-                  <!-- Feature 6 -->
-                  <div class="group bg-white p-3 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300 hover:-translate-y-1">
+
+                <!-- Feature 7 -->
+                <div class="group bg-white p-3 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300 hover:-translate-y-1">
                     <div class="flex items-start gap-3">
                         <span class="text-xl">💾</span>
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center gap-1.5 mb-0.5">
                                 <h3 class="text-sm font-medium text-gray-900 truncate">Import Transactions</h3>
-                                <span class="flex-shrink-0 px-1.5 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">Pro</span>
+                                {{-- <span class="flex-shrink-0 px-1.5 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">Pro</span> --}}
                             </div>
                             <p class="text-xs text-gray-600 line-clamp-2">Import transactions from CSV, Excel</p>
                         </div>
@@ -193,17 +191,21 @@
                 Simple, Transparent Pricing
             </h2>
             <p class="text-center text-gray-600 mb-8">All purchases are handled securely through the app</p>
-            <div class="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-                <!-- Free Plan -->
+            <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                @php
+                    $pricingData = app(App\Http\Controllers\PricingController::class)->getPricingData(request());
+                @endphp
+
+                <!-- Monthly Pro Plan -->
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-shadow duration-300">
                     <div class="p-6">
                         <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-xl font-semibold text-gray-900">Free</h3>
-                            <span class="px-3 py-1 text-sm font-medium bg-gray-100 text-gray-800 rounded-full">Current Plan</span>
+                            <h3 class="text-xl font-semibold text-gray-900">Pro Monthly</h3>
+                            <span class="px-3 py-1 text-sm font-medium bg-blue-100 text-blue-800 rounded-full">Monthly</span>
                         </div>
                         <div class="mb-6">
-                            <span class="text-4xl font-bold text-gray-900">$0</span>
-                            <span class="text-gray-600">/forever</span>
+                            <span class="text-4xl font-bold text-gray-900">{{ $pricingData['monthly']['formatted'] }}</span>
+                            <span class="text-gray-600">/month</span>
                         </div>
                         <ul class="space-y-3">
                             <li class="flex items-center gap-2 text-sm text-gray-600">
@@ -222,25 +224,6 @@
                                 <span class="text-lg">✅</span>
                                 <span>Cloud backup across devices</span>
                             </li>
-                        </ul>
-                    </div>
-                </div>
-                <!-- Monthly Pro Plan -->
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-shadow duration-300">
-                    <div class="p-6">
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-xl font-semibold text-gray-900">Pro Monthly</h3>
-                            <span class="px-3 py-1 text-sm font-medium bg-blue-100 text-blue-800 rounded-full">Monthly</span>
-                        </div>
-                        <div class="mb-6">
-                            <span class="text-4xl font-bold text-gray-900">$4.99</span>
-                            <span class="text-gray-600">/month</span>
-                        </div>
-                        <ul class="space-y-3">
-                            <li class="flex items-center gap-2 text-sm text-gray-600">
-                                <span class="text-lg">✨</span>
-                                <span>Everything in Free</span>
-                            </li>
                             <li class="flex items-center gap-2 text-sm text-gray-600">
                                 <span class="text-lg">🤖</span>
                                 <span>AI-powered spending insights</span>
@@ -250,7 +233,7 @@
                                 <span>Weekly & monthly reports</span>
                             </li>
                             <li class="flex items-center gap-2 text-sm text-gray-600">
-                                <span class="text-lg">🚀</span>
+                                <span class="text-lg">❌</span>
                                 <span>Priority support</span>
                             </li>
                         </ul>
@@ -264,29 +247,45 @@
                     <div class="p-6">
                         <div class="flex items-center justify-between mb-4">
                             <h3 class="text-xl font-semibold text-gray-900">Pro Yearly</h3>
-                            <span class="px-3 py-1 text-sm font-medium bg-blue-100 text-blue-800 rounded-full">Best Value</span>
+                            <span class="px-3 py-1 text-sm font-medium bg-blue-100 text-blue-800 rounded-full">Yearly</span>
                         </div>
                         <div class="mb-6">
-                            <span class="text-4xl font-bold text-gray-900">$49.99</span>
+                            <span class="text-4xl font-bold text-gray-900">{{ $pricingData['yearly']['formatted'] }}</span>
                             <span class="text-gray-600">/year</span>
-                            <div class="text-sm text-gray-500 mt-1">$4.17/month, billed annually</div>
+                            <div class="text-sm text-gray-500 mt-1">{{ $pricingData['monthly_equivalent']['formatted'] }}/month, billed annually</div>
                         </div>
                         <ul class="space-y-3">
                             <li class="flex items-center gap-2 text-sm text-gray-600">
-                                <span class="text-lg">✨</span>
-                                <span>Everything in Monthly Pro</span>
+                                <span class="text-lg">✅</span>
+                                <span>Track daily expenses</span>
+                            </li>
+                            <li class="flex items-center gap-2 text-sm text-gray-600">
+                                <span class="text-lg">✅</span>
+                                <span>Real-time spending overview</span>
+                            </li>
+                            <li class="flex items-center gap-2 text-sm text-gray-600">
+                                <span class="text-lg">✅</span>
+                                <span>Category management</span>
+                            </li>
+                            <li class="flex items-center gap-2 text-sm text-gray-600">
+                                <span class="text-lg">✅</span>
+                                <span>Cloud backup across devices</span>
+                            </li>
+                            <li class="flex items-center gap-2 text-sm text-gray-600">
+                                <span class="text-lg">🤖</span>
+                                <span>AI-powered spending insights</span>
+                            </li>
+                            <li class="flex items-center gap-2 text-sm text-gray-600">
+                                <span class="text-lg">📊</span>
+                                <span>Weekly & monthly reports</span>
+                            </li>
+                            <li class="flex items-center gap-2 text-sm text-gray-600">
+                                <span class="text-lg">✅</span>
+                                <span>Priority support</span>
                             </li>
                             <li class="flex items-center gap-2 text-sm text-gray-600">
                                 <span class="text-lg">💡</span>
                                 <span>Save 17% compared to monthly</span>
-                            </li>
-                            <li class="flex items-center gap-2 text-sm text-gray-600">
-                                <span class="text-lg">💳</span>
-                                <span>One-time annual payment</span>
-                            </li>
-                            <li class="flex items-center gap-2 text-sm text-gray-600">
-                                <span class="text-lg">🚀</span>
-                                <span>Priority support</span>
                             </li>
                         </ul>
                     </div>

@@ -5,9 +5,7 @@ use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\ToolsController;
 use Illuminate\Support\Facades\Route;
 
-Route::get("/", function () {
-    return view('home');
-});
+Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 Route::get('posts', [BlogController::class, 'index'])->name('posts');
 Route::get('post/{slug}', [BlogController::class, 'show']);
