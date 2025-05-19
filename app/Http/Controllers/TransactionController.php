@@ -130,6 +130,11 @@ class TransactionController extends Controller
 
     public function activityBarDataV2(Request $request)
     {
+        $subscription = $request->user()->subscription;
+        if($subscription->value('status') !== 'active'){
+            abort(403, 'unauthorized');
+        }
+
         $period = $request->query('period', 'W');
         $bar = $request->query('bar'); // bar is an array: [start, end]
         $userId = auth()->id();

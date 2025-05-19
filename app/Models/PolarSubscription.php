@@ -30,7 +30,7 @@ class PolarSubscription extends Model
 
     public function items(): HasMany
     {
-        return $this->hasMany(PolarSubscriptionItem::class);
+        return $this->hasMany(PolarSubscriptionItem::class, 'subscription_id', 'id');
     }
 
     public function isActive(): bool

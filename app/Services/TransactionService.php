@@ -299,7 +299,7 @@ class TransactionService
 
     public function getTransactionsForBar($userId, $start, $end)
     {
-        return Transaction::where('user_id', $userId)
+        return Transaction::with('category')->where('user_id', $userId)
             ->whereBetween('transaction_date', [$start, $end])
             ->orderBy('transaction_date', 'desc')
             ->get();
