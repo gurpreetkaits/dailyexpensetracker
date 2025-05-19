@@ -691,6 +691,7 @@ export default {
           return
         }
         await deleteTransaction(id)
+        await this.fetchBarTransactions(this.periodTab, [this.selectedBar.start, this.selectedBar.end])
         this.removeTransaction(id)
         this.closeModal()
       } catch (e) {
