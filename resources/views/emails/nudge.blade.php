@@ -33,7 +33,7 @@
               </p>
 
               <p style="margin:0;font-size:14px;line-height:22px;color:#777;">
-                If you can't send feedback over app, just reply to the mail. Thanks in advance! <br><br>— Gurpreet (Creator of DailyExpenseTracker)
+                If you can't send feedback over app, just reply to the mail (gurpreetkait.codes@gmail.com). Thanks in advance! <br><br>— Gurpreet (Creator of DailyExpenseTracker)
               </p>
             </td>
           </tr>
