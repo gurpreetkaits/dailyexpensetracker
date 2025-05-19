@@ -56,13 +56,13 @@
           </thead>
           <tbody>
             <tr v-for="category in paginatedCategories" :key="category.id" class="border-b last:border-0">
-              <td class="py-2">
+              <td class="py-1">
                 <div class="flex items-center gap-2">
-                  <div class="h-7 w-7 rounded-full flex items-center justify-center shrink-0"
+                  <div class="h-6 w-6 rounded-full flex items-center justify-center shrink-0"
                        :style="getCategoryColor(category.color)">
-                    <component :is="category.icon || 'ShoppingBag'" class="h-4 w-4 text-white" />
+                    <component :is="category.icon || 'ShoppingBag'" class="h-3 w-3 text-white" />
                   </div>
-                  <span class="font-medium text-gray-900">{{ category.name }}</span>
+                  <span class="font-medium text-gray-900 text-sm">{{ category.name }}</span>
                 </div>
               </td>
               <td class="py-2">
