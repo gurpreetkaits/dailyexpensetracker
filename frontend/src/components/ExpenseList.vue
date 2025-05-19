@@ -42,7 +42,7 @@
             <div class="flex justify-between items-center mb-2">
               <div>
                 <div class="text-xs text-white/80">Balance</div>
-                <div class="font-semibold text-white">{{ formatCurrency(recentWallet.balance, recentWallet.currency) }}</div>
+                <div class="font-semibold text-white">{{ formatCurrency(recentWallet.balance, currencyCode) }}</div>
               </div>
               <div>
                 <div class="text-xs text-white/80">Currency</div>
@@ -726,7 +726,8 @@ export default {
           await this.updateTransaction({ ...params, id: this.editingTransaction.id })
         } else {
           await this.addTransaction(params)
-          await this.fetchTransactions(this.dateFilter)
+          // await this.fetchTransactions(this.dateFilter)
+          await this.fetchBarTransactions(this.periodTab, [this.selectedBar.start, this.selectedBar.end])
         }
         this.editingTransaction = null
       } catch (e) {
