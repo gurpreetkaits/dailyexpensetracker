@@ -15,12 +15,12 @@ enum WalletTypeEnum
     public function label(): string
     {
         return match ($this) {
-            self::CASH => 'Cash',
-            self::CARD => 'Card',
-            self::BANK => 'Bank',
-            self::CRYPTO => 'Crypto',
-            self::INVESTMENT => 'Investment',
-            self::OTHER => 'Other',
+            self::CASH => 'cash',
+            self::CARD => 'card',
+            self::BANK => 'bank',
+            self::CRYPTO => 'crypto',
+            self::INVESTMENT => 'investment',
+            self::OTHER => 'other',
         };
     }
 }

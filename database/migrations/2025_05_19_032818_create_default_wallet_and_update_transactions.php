@@ -20,8 +20,8 @@ return new class extends Migration
                 // Create default cash wallet
                 $wallet = Wallet::create([
                     'user_id' => $user->id,
-                    'name' => WalletTypeEnum::CASH->label(),
-                    'type' =>  WalletTypeEnum::CASH->label(),
+                    'name' => 'cash',
+                    'type' =>  'cash',
                     'currency' => $user->currency ?? 'USD',
                     'balance' => 0
                 ]);
