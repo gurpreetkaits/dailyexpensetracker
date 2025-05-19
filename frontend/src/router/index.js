@@ -135,13 +135,13 @@ router.beforeEach(async (to, from, next) => {
   if (to.meta.requiresSubscription && authStore.isAuthenticated) {
     try {
       await polarStore.fetchSubscriptionStatus()
-      if (!polarStore.hasActiveSubscription && to.name !== 'overview') {
-        next({ name: 'overview' })
+      if (!polarStore.hasActiveSubscription && to.name !== 'plans') {
+        next({ name: 'plans' })
         return
       }
     } catch (error) {
       console.error('Failed to check subscription:', error)
-      next({ name: 'overview' })
+      next({ name: 'plans' })
       return
     }
   }

@@ -1,8 +1,7 @@
 <template>
   <div>
-    <slot v-if="hasActiveSubscription"></slot>
+    <slot></slot>
     <UpgradeModal
-      v-else
       v-model="showUpgradeModal"
       :is-required="true"
     />

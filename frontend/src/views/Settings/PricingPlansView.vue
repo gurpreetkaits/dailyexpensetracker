@@ -33,27 +33,40 @@
               <p class="text-3xl font-bold text-gray-900 mb-1">{{ monthlyPrice }}<span class="text-base font-normal text-gray-600">/month</span></p>
               <p class="text-sm text-gray-500 mb-4">Billed monthly</p>
               <div class="space-y-3">
-                <div class="flex items-start gap-3">
-                  <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                  <p class="text-sm text-gray-600">Advanced AI-powered analytics</p>
-                </div>
-                <div class="flex items-start gap-3">
-                  <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                  <p class="text-sm text-gray-600">Weekly/Monthly Email Reports</p>
-                </div>
-                <div class="flex items-start gap-3">
-                  <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                  <p class="text-sm text-gray-600">Import Statements (Excel)</p>
-                </div>
-                <div class="flex items-start gap-3">
-                  <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                  <p class="text-sm text-gray-600">Priority support</p>
-                </div>
-                <div class="flex items-start gap-3">
-                  <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                  <p class="text-sm text-gray-600">Free future updates</p>
-                </div>
-              </div>
+                    <div class="flex items-start gap-3">
+                      <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                      <p class="text-sm text-gray-600">Track daily expenses with ease</p>
+                    </div>
+                    <div class="flex items-start gap-3">
+                      <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                      <p class="text-sm text-gray-600">Real-time spending overview</p>
+                    </div>
+                    <div class="flex items-start gap-3">
+                      <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                      <p class="text-sm text-gray-600">Unlimited Category</p>
+                    </div>
+                    <div class="flex items-start gap-3">
+                      <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                      <p class="text-sm text-gray-600">Unlimited Wallets</p>
+                    </div>
+                    <div class="flex items-start gap-3">
+                      <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                      <p class="text-sm text-gray-600">AI-powered spending insights</p>
+                    </div>
+                    <div class="flex items-start gap-3">
+                      <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                      <p class="text-sm text-gray-600">Weekly & monthly reports</p>
+                    </div>
+                    <div class="flex items-start gap-3">
+                      <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                      <p class="text-sm text-gray-600">Reminders (coming soon) and Sync With Calendar</p>
+                    </div>
+                    <div class="flex items-start gap-3">
+                      <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                      <p class="text-sm text-gray-600">Cloud Backup (coming soon)</p>
+                    </div>
+                  </div>
+
             </div>
             <div class="mt-6">
               <button v-if="!hasActiveSubscription" @click="handleSubscription('monthly')"
@@ -86,27 +99,39 @@
               </div>
               <p class="text-sm text-gray-500 mb-4">Just {{ monthlyEquivalent }}/month, billed annually</p>
               <div class="space-y-3">
-                <div class="flex items-start gap-3">
-                  <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                  <p class="text-sm text-gray-600">All Monthly Pro features</p>
-                </div>
-                <div class="flex items-start gap-3">
-                  <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                  <p class="text-sm text-gray-600">2 months free</p>
-                </div>
-                <div class="flex items-start gap-3">
-                  <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                  <p class="text-sm text-gray-600">Priority feature requests</p>
-                </div>
-                <div class="flex items-start gap-3">
-                  <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                  <p class="text-sm text-gray-600">Early access to new features</p>
-                </div>
-                <div class="flex items-start gap-3">
-                  <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                  <p class="text-sm text-gray-600">Free future updates</p>
-                </div>
-              </div>
+                    <div class="flex items-start gap-3">
+                      <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                      <p class="text-sm text-gray-600">Track daily expenses with ease</p>
+                    </div>
+                    <div class="flex items-start gap-3">
+                      <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                      <p class="text-sm text-gray-600">Real-time spending overview</p>
+                    </div>
+                    <div class="flex items-start gap-3">
+                      <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                      <p class="text-sm text-gray-600">Unlimited Category</p>
+                    </div>
+                    <div class="flex items-start gap-3">
+                      <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                      <p class="text-sm text-gray-600">Unlimited Wallets</p>
+                    </div>
+                    <div class="flex items-start gap-3">
+                      <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                      <p class="text-sm text-gray-600">AI-powered spending insights</p>
+                    </div>
+                    <div class="flex items-start gap-3">
+                      <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                      <p class="text-sm text-gray-600">Weekly & monthly reports</p>
+                    </div>
+                    <div class="flex items-start gap-3">
+                      <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                      <p class="text-sm text-gray-600">Reminders (coming soon) and Sync With Calendar</p>
+                    </div>
+                    <div class="flex items-start gap-3">
+                      <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                      <p class="text-sm text-gray-600">Cloud Backup (coming soon)</p>
+                    </div>
+                  </div>
             </div>
             <div class="mt-6">
               <button v-if="!hasActiveSubscription" @click="handleSubscription('yearly')"
@@ -242,11 +267,11 @@ onMounted(async () => {
     }
   } catch (error) {
     console.error('Subscription status error:', error)
-    notify({
-      title: 'Error',
-      message: error.response?.data?.error || 'Failed to fetch subscription status',
-      type: 'error'
-    })
+    // notify({
+    //   title: 'Error',
+    //   message: error.response?.data?.error || 'Failed to fetch subscription status',
+    //   type: 'error'
+    // })
   }
 })
 

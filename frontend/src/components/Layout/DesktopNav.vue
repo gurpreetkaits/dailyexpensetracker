@@ -48,6 +48,7 @@ export default {
                 { path: '/settings/account', name: 'Account', icon: User, show: true, beta: false },
                 { path: '/admin-dashboard', name: 'Dashboard', icon: User, show: true },
                 { path: '/feedbacks', name: 'Feedback', icon: User, show: true },
+                { path: '/plans', name: 'Plans', icon: User, show: true },
             ],
         };
     },
