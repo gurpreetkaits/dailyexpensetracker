@@ -27,7 +27,7 @@
                 <p class="text-lg text-gray-600 mb-8 max-w-2xl">
                     Join our premium community of smart savers. Get access to powerful expense tracking tools, AI insights, and detailed analytics to make better financial decisions.
                 </p>
-                <a href="#pricing" 
+                <a href="{{ config('app.frontend_url') }}/login" 
                     class="inline-block bg-emerald-500 text-white px-8 py-3 rounded-lg hover:bg-emerald-600 transition-colors text-center">
                     Start Your Premium Journey
                 </a>
