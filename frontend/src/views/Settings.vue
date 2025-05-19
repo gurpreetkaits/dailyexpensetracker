@@ -133,9 +133,11 @@
           <div class="bg-white rounded-lg shadow hover:shadow-lg transition-all p-6">
             <div class="pb-4 border-b">
               <h2 class="text-xl font-semibold text-gray-800">Feedback</h2>
+              <small class="text-gray-500">For any query you can reach out to me at <a href="mailto:gurpreetkait.codes@gmail.com" class="text-blue-500">gurpreetkait.codes@gmail.com</a></small>
             </div>
             <div class="pt-6">
               <form @submit.prevent="handleSendFeedback">
+                
                 <div>
                   <textarea required placeholder="Let us know any feature requests or improvements!"
                     class="w-full rounded-lg bg-gray-50 border-none focus:ring-2 focus:ring-blue-500 p-3 text-base text-gray-800 transition-all resize-none min-h-[90px]"
