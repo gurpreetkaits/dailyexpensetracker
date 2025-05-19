@@ -9,7 +9,7 @@
 </template>
 
 <script>
-import { Settings, Home, User, BarChart, Target, MessageCircle, Star } from 'lucide-vue-next';
+import {Settings, Home, User, BarChart, Target, MessageCircle, Star, Wallet} from 'lucide-vue-next';
 import { useAuthStore } from '../../store/auth';
 import { mapActions, mapState } from 'pinia';
 export default {
@@ -23,7 +23,7 @@ export default {
                 { path: '/overview', name: 'Home', icon: Home },
                 { path: '/stats', name: 'Stats', icon: BarChart },
                 { path: '/chat', name: 'Chat', icon: MessageCircle },
-                { path: '/plans', name: 'Plans', icon: Star },
+                { path: '/wallets', name: 'Wallets', icon: Wallet },
                 { path: '/settings', name: 'Settings', icon: Settings },
             ],
         }

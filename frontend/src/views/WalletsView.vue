@@ -52,7 +52,75 @@
       </div>
 
       <template v-if="!loading">
-        <table v-if="wallets.length > 0" class="min-w-full text-sm">
+        <!-- Mobile View -->
+        <div v-if="wallets.length > 0" class="md:hidden space-y-3">
+          <div v-for="wallet in wallets" :key="wallet.id" 
+               class="bg-gray-50 rounded-lg p-4 space-y-3">
+            <div class="flex items-center justify-between">
+              <button @click="openWalletDrawer(wallet)"
+                      class="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                <div class="h-8 w-8 rounded-full flex items-center justify-center shrink-0"
+                     :class="{
+                       'bg-emerald-100': wallet.type === 'bank',
+                       'bg-blue-100': wallet.type === 'card',
+                       'bg-purple-100': wallet.type === 'cash'
+                     }">
+                  <component :is="getWalletTypeIcon(wallet.type)"
+                            class="h-4 w-4"
+                            :class="{
+                              'text-emerald-600': wallet.type === 'bank',
+                              'text-blue-600': wallet.type === 'card',
+                              'text-purple-600': wallet.type === 'cash'
+                            }" />
+                </div>
+                <div>
+                  <span class="font-medium text-gray-900">{{ wallet.name }}</span>
+                  <span class="ml-2 px-2 py-0.5 rounded-full text-xs font-medium capitalize"
+                        :class="{
+                          'bg-emerald-100 text-emerald-800': wallet.type === 'bank',
+                          'bg-blue-100 text-blue-800': wallet.type === 'card',
+                          'bg-purple-100 text-purple-800': wallet.type === 'cash'
+                        }">
+                    {{ wallet.type }}
+                  </span>
+                </div>
+              </button>
+              <div class="flex items-center gap-1">
+                <button @click="showBalanceHistory(wallet)"
+                        class="p-1 text-gray-400 hover:text-blue-600 transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                </button>
+                <button @click="editWallet(wallet)"
+                        class="p-1 text-gray-400 hover:text-blue-600 transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                </button>
+                <button @click="deleteWallet(wallet)"
+                        class="p-1 text-gray-400 hover:text-red-600 transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-sm">
+              <div>
+                <p class="text-gray-500">Balance</p>
+                <p class="font-medium text-gray-900">{{ formatCurrency(wallet.balance) }}</p>
+              </div>
+              <div>
+                <p class="text-gray-500">Transactions</p>
+                <p class="font-medium text-gray-900">{{ wallet.transaction_count || 0 }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Desktop View -->
+        <table v-if="wallets.length > 0" class="hidden md:table min-w-full text-sm">
           <thead>
             <tr class="text-gray-500 border-b">
               <th class="py-2 text-left font-medium">Wallet</th>

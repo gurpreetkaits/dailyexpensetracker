@@ -8,19 +8,19 @@
     leave-to-class="transform translate-x-full"
   >
     <div v-if="modelValue"
-         class="fixed inset-y-0 right-0 w-full max-w-lg bg-white shadow-xl z-50 overflow-y-auto">
+         class="fixed inset-y-0 right-0 w-full md:max-w-lg bg-white shadow-xl z-50 overflow-y-auto">
       <!-- Header -->
       <div class="sticky top-0 bg-white border-b z-10">
-        <div class="flex items-center justify-between p-4">
-          <div class="flex items-center gap-3">
-            <div class="h-8 w-8 rounded-full flex items-center justify-center shrink-0"
+        <div class="flex items-center justify-between p-3 md:p-4">
+          <div class="flex items-center gap-2 md:gap-3">
+            <div class="h-7 w-7 md:h-8 md:w-8 rounded-full flex items-center justify-center shrink-0"
                  :class="{
                    'bg-emerald-100': wallet?.type === 'bank',
                    'bg-blue-100': wallet?.type === 'card',
                    'bg-purple-100': wallet?.type === 'cash'
                  }">
               <component :is="getWalletTypeIcon(wallet?.type)"
-                        class="h-4 w-4"
+                        class="h-3.5 w-3.5 md:h-4 md:w-4"
                         :class="{
                           'text-emerald-600': wallet?.type === 'bank',
                           'text-blue-600': wallet?.type === 'card',
@@ -28,8 +28,8 @@
                         }" />
             </div>
             <div>
-              <h2 class="text-lg font-medium text-gray-900">{{ wallet?.name }}</h2>
-              <p class="text-sm text-gray-500">{{ wallet?.type }} Wallet</p>
+              <h2 class="text-base md:text-lg font-medium text-gray-900">{{ wallet?.name }}</h2>
+              <p class="text-xs md:text-sm text-gray-500">{{ wallet?.type }} Wallet</p>
             </div>
           </div>
           <button @click="$emit('update:modelValue', false)"
@@ -42,9 +42,9 @@
       </div>
 
       <!-- Content -->
-      <div class="p-4 space-y-6">
+      <div class="p-3 md:p-4 space-y-4 md:space-y-6">
         <!-- Balance Card -->
-        <div class="relative overflow-hidden rounded-xl p-4"
+        <div class="relative overflow-hidden rounded-xl p-3 md:p-4"
              :class="{
                'bg-gradient-to-br from-emerald-500 to-emerald-600': wallet?.type === 'bank',
                'bg-gradient-to-br from-blue-500 to-blue-600': wallet?.type === 'card',
@@ -52,32 +52,32 @@
              }">
           <!-- Decorative Elements -->
           <div class="absolute inset-0 opacity-10">
-            <div class="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-white"></div>
-            <div class="absolute -left-4 -bottom-4 h-32 w-32 rounded-full bg-white"></div>
+            <div class="absolute -right-4 -top-4 h-20 w-20 md:h-24 md:w-24 rounded-full bg-white"></div>
+            <div class="absolute -left-4 -bottom-4 h-24 w-24 md:h-32 md:w-32 rounded-full bg-white"></div>
           </div>
           
           <div class="relative">
             <div class="flex justify-between items-start">
               <div>
-                <p class="text-sm text-white/80">Current Balance</p>
-                <p class="text-2xl font-semibold text-white mt-1">
+                <p class="text-xs md:text-sm text-white/80">Current Balance</p>
+                <p class="text-xl md:text-2xl font-semibold text-white mt-0.5 md:mt-1">
                   {{ formatCurrency(wallet?.balance) }}
                 </p>
               </div>
-              <span class="px-2 py-1 rounded-full text-xs bg-white/20 text-white backdrop-blur-sm">
+              <span class="px-1.5 md:px-2 py-0.5 md:py-1 rounded-full text-xs bg-white/20 text-white backdrop-blur-sm">
                 {{ wallet?.currency }}
               </span>
             </div>
-            <div class="mt-4 grid grid-cols-2 gap-4">
+            <div class="mt-3 md:mt-4 grid grid-cols-2 gap-3 md:gap-4">
               <div>
-                <p class="text-sm text-white/80">Transactions</p>
-                <p class="text-lg font-medium text-white mt-1">
+                <p class="text-xs md:text-sm text-white/80">Transactions</p>
+                <p class="text-base md:text-lg font-medium text-white mt-0.5 md:mt-1">
                   {{ wallet?.transaction_count || 0 }}
                 </p>
               </div>
               <div>
-                <p class="text-sm text-white/80">Created</p>
-                <p class="text-lg font-medium text-white mt-1">
+                <p class="text-xs md:text-sm text-white/80">Created</p>
+                <p class="text-base md:text-lg font-medium text-white mt-0.5 md:mt-1">
                   {{ formatDate(wallet?.created_at) }}
                 </p>
               </div>
@@ -87,14 +87,14 @@
 
         <!-- Balance History -->
         <div>
-          <div class="flex justify-between items-center mb-4">
-            <h3 class="text-sm font-medium text-gray-900">Balance History</h3>
-            <div class="flex gap-2">
+          <div class="flex justify-between items-center mb-3 md:mb-4">
+            <h3 class="text-xs md:text-sm font-medium text-gray-900">Balance History</h3>
+            <div class="flex gap-1 md:gap-2">
               <button
                 v-for="period in periods"
                 :key="period.value"
                 @click="selectedPeriod = period.value"
-                class="px-2 py-1 text-xs rounded-md transition-colors"
+                class="px-1.5 md:px-2 py-0.5 md:py-1 text-xs rounded-md transition-colors"
                 :class="selectedPeriod === period.value
                   ? 'bg-blue-100 text-blue-700'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'"
@@ -105,29 +105,29 @@
           </div>
 
           <!-- Loading State -->
-          <div v-if="loading" class="flex items-center justify-center h-48">
-            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+          <div v-if="loading" class="flex items-center justify-center h-36 md:h-48">
+            <div class="animate-spin rounded-full h-6 w-6 md:h-8 md:w-8 border-b-2 border-blue-500"></div>
           </div>
 
           <!-- Custom Balance History Visualization -->
-          <div v-else-if="balanceHistory.length > 0" class="space-y-4">
-            <div class="h-48">
+          <div v-else-if="balanceHistory.length > 0" class="space-y-3 md:space-y-4">
+            <div class="h-36 md:h-48">
               <v-chart class="w-full h-full" :option="chartOption" autoresize />
             </div>
 
             <!-- Summary -->
-            <div class="mt-4 grid grid-cols-3 gap-4">
-              <div class="bg-gray-50 rounded-lg p-3">
+            <div class="mt-3 md:mt-4 grid grid-cols-3 gap-2 md:gap-4">
+              <div class="bg-gray-50 rounded-lg p-2 md:p-3">
                 <p class="text-xs text-gray-500">Starting</p>
-                <p class="text-sm font-medium text-gray-900">{{ formatCurrency(startingBalance) }}</p>
+                <p class="text-xs md:text-sm font-medium text-gray-900">{{ formatCurrency(startingBalance) }}</p>
               </div>
-              <div class="bg-gray-50 rounded-lg p-3">
+              <div class="bg-gray-50 rounded-lg p-2 md:p-3">
                 <p class="text-xs text-gray-500">Current</p>
-                <p class="text-sm font-medium text-gray-900">{{ formatCurrency(currentBalance) }}</p>
+                <p class="text-xs md:text-sm font-medium text-gray-900">{{ formatCurrency(currentBalance) }}</p>
               </div>
-              <div class="bg-gray-50 rounded-lg p-3">
+              <div class="bg-gray-50 rounded-lg p-2 md:p-3">
                 <p class="text-xs text-gray-500">Net Change</p>
-                <p class="text-sm font-medium" :class="netChange >= 0 ? 'text-green-600' : 'text-red-600'">
+                <p class="text-xs md:text-sm font-medium" :class="netChange >= 0 ? 'text-green-600' : 'text-red-600'">
                   {{ formatCurrency(netChange) }}
                 </p>
               </div>
@@ -135,35 +135,35 @@
           </div>
 
           <!-- Empty State -->
-          <div v-else class="flex flex-col items-center justify-center h-48 text-gray-500">
-            <Wallet class="h-8 w-8 mb-2" />
-            <p class="text-sm">No balance history available</p>
+          <div v-else class="flex flex-col items-center justify-center h-36 md:h-48 text-gray-500">
+            <Wallet class="h-6 w-6 md:h-8 md:w-8 mb-2" />
+            <p class="text-xs md:text-sm">No balance history available</p>
           </div>
         </div>
 
         <!-- Recent Transactions -->
         <div>
-          <div class="flex justify-between items-center mb-4">
-            <h3 class="text-sm font-medium text-gray-900">Recent Transactions</h3>
+          <div class="flex justify-between items-center mb-3 md:mb-4">
+            <h3 class="text-xs md:text-sm font-medium text-gray-900">Recent Transactions</h3>
             <button @click="viewAllTransactions"
-                    class="text-sm text-blue-600 hover:text-blue-700">
+                    class="text-xs md:text-sm text-blue-600 hover:text-blue-700">
               View All
             </button>
           </div>
 
-          <div v-if="transactions.length > 0" class="space-y-3">
+          <div v-if="transactions.length > 0" class="space-y-2 md:space-y-3">
             <div v-for="transaction in transactions"
                  :key="transaction.id"
-                 class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-              <div class="flex items-center gap-3">
-                <div class="h-8 w-8 rounded-full flex items-center justify-center"
+                 class="flex items-center justify-between p-2 md:p-3 bg-gray-50 rounded-lg">
+              <div class="flex items-center gap-2 md:gap-3">
+                <div class="h-6 w-6 md:h-8 md:w-8 rounded-full flex items-center justify-center"
                      :class="{
                        'bg-emerald-100': transaction.type === 'income',
                        'bg-red-100': transaction.type === 'expense',
                        'bg-blue-100': transaction.type === 'transfer_in' || transaction.type === 'transfer_out'
                      }">
                   <component :is="getTransactionTypeIcon(transaction.type)"
-                            class="h-4 w-4"
+                            class="h-3 w-3 md:h-4 md:w-4"
                             :class="{
                               'text-emerald-600': transaction.type === 'income',
                               'text-red-600': transaction.type === 'expense',
@@ -171,11 +171,11 @@
                             }" />
                 </div>
                 <div>
-                  <p class="text-sm font-medium text-gray-900">{{ transaction.description }}</p>
+                  <p class="text-xs md:text-sm font-medium text-gray-900">{{ transaction.description }}</p>
                   <p class="text-xs text-gray-500">{{ formatDate(transaction.transaction_date) }}</p>
                 </div>
               </div>
-              <p class="text-sm font-medium"
+              <p class="text-xs md:text-sm font-medium"
                  :class="{
                    'text-emerald-600': transaction.type === 'income' || transaction.type === 'transfer_in',
                    'text-red-600': transaction.type === 'expense',
@@ -187,9 +187,9 @@
           </div>
 
           <!-- Empty State -->
-          <div v-else class="flex flex-col items-center justify-center h-32 text-gray-500">
-            <Wallet class="h-6 w-6 mb-2" />
-            <p class="text-sm">No transactions yet</p>
+          <div v-else class="flex flex-col items-center justify-center h-24 md:h-32 text-gray-500">
+            <Wallet class="h-5 w-5 md:h-6 md:w-6 mb-2" />
+            <p class="text-xs md:text-sm">No transactions yet</p>
           </div>
         </div>
       </div>
