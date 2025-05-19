@@ -1,112 +1,120 @@
 //TODO: Only enable admin routes available after on check of admin _ROLE
 
 import { createRouter, createWebHistory } from "vue-router";
-import {requireAuth, requireGuest} from "./auth-guard";
+import { requireAuth, requireGuest } from "./auth-guard";
 import { useTransactionStore } from "../store/transaction";
-import {useAuthStore} from "../store/auth.js";
+import { useAuthStore } from "../store/auth.js";
 import { usePostHog } from "../composables/usePosthog.js";
 import { usePolarStore } from "../store/polar.js";
 
 const routes = [
   {
     path: "/",
-    component: () => import("../views/LoginView.vue"),
+    component: () => import("../views/Layouts/GuestLayoutView.vue"),
     beforeEnter: requireGuest,
-    meta: { requiresAuth: false, requiresSubscription: true }
-  },
-  {
-    path: "/login",
-    component: () => import("../views/LoginView.vue"),
-    beforeEnter: requireGuest,
-    meta: { requiresAuth: false, requiresSubscription: false }
-  },
-  {
-    path: "/register",
-    // component: () => import("../views/RegisterView.vue"),
-    component: () => import("../views/LoginView.vue"),
-    beforeEnter: requireGuest,
-    meta: { requiresAuth: false, requiresSubscription: false }
-  },
-  {
-    path: "/overview",
-    component: () => import("../views/HomeView.vue"),
-    beforeEnter: requireAuth,
-    meta: { requiresAuth: true, requiresSubscription: true }
-  },
-  {
-    path: "/wallets",
-    component: () => import("../views/WalletsView.vue"),
-    beforeEnter: requireAuth,
-    meta: { requiresAuth: true, requiresSubscription: true }
-  },
-  {
-    path: "/plans",
-    component: () => import("../views/Settings/PricingPlansView.vue"),
-    beforeEnter: requireAuth,
-    meta: { requiresAuth: true, requiresSubscription: false }
-  },
-  {
-    path: "/settings",
-    component: () => import("../views/Settings.vue"),
-    beforeEnter: requireAuth,
-    meta: { requiresAuth: true, requiresSubscription: false },
     children: [
       {
-        path: "",
-        component: () => import("../views/Settings.vue"),
-        beforeEnter: requireAuth
+        path: "login",
+        component: () => import("../views/LoginView.vue"),
+        name: 'login',
+        meta: { requiresAuth: false, requiresSubscription: false }
       },
       {
-        path: "account",
-        component: () => import("../views/Settings/AccountSettings.vue"),
-        beforeEnter: requireAuth
+        path: "register",
+        component: () => import("../views/LoginView.vue"),
+        name: 'register',
+        meta: { requiresAuth: false, requiresSubscription: false }
       }
     ]
   },
   {
-    path: "/categories",
-    component: () => import("../views/Settings/CategoriesView.vue"),
+    path: "/",
+    component: () => import("../views/Layouts/AuthLayoutView.vue"),
     beforeEnter: requireAuth,
-    meta: { requiresAuth: true, requiresSubscription: true }
-  },
-  {
-    path: "/stats",
-    component: () => import("../views/StatsView.vue"),
-    beforeEnter: requireAuth,
-    meta: { requiresAuth: true, requiresSubscription: true }
-  },
-  {
-    path: "/chat",
-    component: () => import("../views/ChatView.vue"),
-    beforeEnter: requireAuth,
-    meta: { requiresAuth: true, requiresSubscription: true }
-  },
-    {
-        path: "/admin-dashboard",
+    children: [
+      {
+        path: "overview",
+        component: () => import("../views/HomeView.vue"),
+        name: 'overview',
+        meta: { requiresAuth: true, requiresSubscription: true }
+      },
+      {
+        path: "wallets",
+        component: () => import("../views/WalletsView.vue"),
+        name: 'wallets',
+        meta: { requiresAuth: true, requiresSubscription: true }
+      },
+      {
+        path: "plans",
+        component: () => import("../views/Settings/PricingPlansView.vue"),
+        name: 'plans',
+        meta: { requiresAuth: true, requiresSubscription: false }
+      },
+      {
+        path: "settings",
+        component: () => import("../views/Settings.vue"),
+        name: 'settings',
+        meta: { requiresAuth: true, requiresSubscription: false },
+        children: [
+          {
+            path: "",
+            component: () => import("../views/Settings.vue"),
+            meta: { requiresAuth: true }
+          },
+          {
+            path: "account",
+            component: () => import("../views/Settings/AccountSettings.vue"),
+            name: 'account-settings',
+            meta: { requiresAuth: true }
+          }
+        ]
+      },
+      {
+        path: "categories",
+        component: () => import("../views/Settings/CategoriesView.vue"),
+        name: 'categories',
+        meta: { requiresAuth: true, requiresSubscription: true }
+      },
+      {
+        path: "stats",
+        component: () => import("../views/StatsView.vue"),
+        name: 'stats',
+        meta: { requiresAuth: true, requiresSubscription: true }
+      },
+      {
+        path: "chat",
+        component: () => import("../views/ChatView.vue"),
+        name: 'chat',
+        meta: { requiresAuth: true, requiresSubscription: true }
+      },
+      {
+        path: "admin-dashboard",
         component: () => import("../views/Admin/DashboardView.vue"),
-        beforeEnter: requireAuth,
+        name: 'admin-dashboard',
         meta: {
-            adminOnly: true,
-            requiresAuth: true,
-            requiresSubscription: true
+          adminOnly: true,
+          requiresAuth: true,
+          requiresSubscription: true
         }
-    },
-    {
-        path: "/feedbacks",
+      },
+      {
+        path: "feedbacks",
         component: () => import("../views/Admin/FeedbackView.vue"),
-        beforeEnter: requireAuth,
+        name: 'feedbacks',
         meta: {
-            adminOnly: true,
-            requiresAuth: true,
-            requiresSubscription: true
+          adminOnly: true,
+          requiresAuth: true,
+          requiresSubscription: true
         }
-    },
+      }
+    ]
+  },
   {
     path: "/:pathMatch(.*)*",
     component: () => import("../views/NotFoundView.vue"),
-  },
+    name: 'not-found'
+  }
 ];
-
 
 const { posthog } = usePostHog()
 
@@ -119,28 +127,21 @@ router.afterEach((to) => {
   posthog.capture('$pageview')
 })
 
-
 router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
   const polarStore = usePolarStore()
 
-  // Check if route requires auth
-  if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-    next({ name: 'login', query: { redirect: to.fullPath } })
-    return
-  }
-
   // Check if route requires subscription
-  if (to.meta.requiresSubscription) {
+  if (to.meta.requiresSubscription && authStore.isAuthenticated) {
     try {
       await polarStore.fetchSubscriptionStatus()
-      if (!polarStore.hasActiveSubscription) {
-        next({ name: 'settings' })
+      if (!polarStore.hasActiveSubscription && to.name !== 'overview') {
+        next({ name: 'overview' })
         return
       }
     } catch (error) {
       console.error('Failed to check subscription:', error)
-      next({ name: 'settings' })
+      next({ name: 'overview' })
       return
     }
   }
@@ -150,15 +151,9 @@ router.beforeEach(async (to, from, next) => {
     if (transactionStore.transactions.length === 0) {
       await transactionStore.fetchTransactions()
     }
-    // if(to.meta.adminOnly){
-    //     const { user } = await authStore.getAuth()
-    //     console.log('adminOLhyu',user)
-    // }
-
-    next()
-  } else {
-    next()
   }
+  
+  next()
 })
 
 export default router
