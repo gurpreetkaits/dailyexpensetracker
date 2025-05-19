@@ -142,5 +142,9 @@ class User extends Authenticatable implements AuthMustVerifyEmail
         ->where('canceled_at', null)
         ->where('ends_at', '>', now());
     }
+
+    public function wallets()
+    {
+        return $this->hasMany(Wallet::class);
+    }
 }
-    

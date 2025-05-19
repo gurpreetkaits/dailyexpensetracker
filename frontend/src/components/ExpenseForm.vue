@@ -37,6 +37,27 @@
             </div>
           </div>
 
+          <!-- Wallet Selection -->
+          <div class="space-y-1">
+            <label class="text-xs font-medium text-gray-600">Wallet</label>
+            <select
+              v-model="form.wallet_id"
+              class="w-full p-2.5 text-sm border rounded-md bg-gray-50 focus:bg-white
+                     focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              required
+            >
+              <option value="" disabled>Select a wallet</option>
+              <option
+                v-for="wallet in wallets"
+                :key="wallet.id"
+                :value="wallet.id"
+                class="py-1"
+              >
+                {{ wallet.name }} ({{ wallet.type }})
+              </option>
+            </select>
+          </div>
+
           <!-- Amount Input -->
           <div class="space-y-1">
             <label class="text-xs font-medium text-gray-600">Amount</label>
@@ -125,8 +146,9 @@
   </template>
 
   <script setup>
-  import { reactive, computed } from 'vue'
+  import { reactive, computed, onMounted } from 'vue'
   import { X, DollarSign } from 'lucide-vue-next'
+  import { useWalletStore } from '../store/wallet'
 
   const props = defineProps({
     isVisible: Boolean,
@@ -137,17 +159,24 @@
   })
 
   const emit = defineEmits(['close', 'save'])
+  const walletStore = useWalletStore()
 
   const form = reactive({
     type: 'expense',
     amount: '',
     category: '',
     note: '',
-    date: new Date().toISOString().split('T')[0]
+    date: new Date().toISOString().split('T')[0],
+    wallet_id: ''
+  })
+
+  const wallets = computed(() => walletStore.wallets)
+
+  onMounted(async () => {
+    await walletStore.fetchWallets()
   })
 
   const filteredCategories = computed(() => {
-    console.log("filteredCategories", props.categories)
     return props.categories.filter(cat => cat.type.toLowerCase() === form.type.toLowerCase())
   })
 
@@ -163,7 +192,8 @@
       amount: '',
       category: '',
       note: '',
-      date: new Date().toISOString().split('T')[0]
+      date: new Date().toISOString().split('T')[0],
+      wallet_id: ''
     })
   }
   </script>

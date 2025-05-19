@@ -8,6 +8,7 @@ use App\Enums\TransactionTypeEnum;
 use App\Models\Transaction;
 use Illuminate\Support\Facades\Cache;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class TransactionService
 {
@@ -90,11 +91,12 @@ class TransactionService
      */
     public function createTransaction($data)
     {
-        $transaction = Transaction::create($data);
-
-        // Clear related caches
+        $wallet = app(WalletService::class);
+        $transaction = DB::transaction(function () use ($data,$wallet) {
+            $transaction = Transaction::create($data);
+            $wallet->syncWallet($transaction);
+        });
         $this->clearUserTransactionCache($data['user_id']);
-
         return $transaction;
     }
 
@@ -201,4 +203,6 @@ class TransactionService
 
         return $query->get();
     }
+
+
 }

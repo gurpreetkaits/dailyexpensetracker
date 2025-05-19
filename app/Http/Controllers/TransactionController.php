@@ -51,17 +51,19 @@ class TransactionController extends Controller
 
     public function store(Request $request)
     {
-        // TODO: check category_id is from categories table
         $validated = $request->validate([
             'type' => 'required|in:expense,income',
             'amount' => 'required|numeric|min:0',
             'note' => 'nullable|string',
             'category_id' => 'nullable|int',
-            'transaction_date' => 'nullable|date'
+            'transaction_date' => 'nullable|date',
+            'wallet_id' => 'required|exists:wallets,id'
         ]);
 
         $validated['user_id'] = auth()->id();
         $transaction = $this->transactionService->createTransaction($validated);
+
+        $this->transactionService->clearUserTransactionCache($transaction->user_id);
 
         return response()->json(['data' => $transaction], 201);
     }
@@ -77,14 +79,15 @@ class TransactionController extends Controller
             'note' => 'nullable|string',
             'transaction_date' => 'nullable|date',
             'category_id' => 'nullable|int',
-            'id' => 'exists:transactions,id'
+            'id' => 'exists:transactions,id',
+            'wallet_id' => 'required|exists:wallets,id'
         ]);
         $transaction->type = $validated['type'];
         $transaction->amount = $validated['amount'];
         $transaction->note = $validated['note'];
-        $transaction->note = $validated['note'];
         $transaction->category_id = $validated['category_id'];
         $transaction->transaction_date = $validated['transaction_date'];
+        $transaction->wallet_id = $validated['wallet_id'];
         $transaction->save();
 
         // Clear the cache

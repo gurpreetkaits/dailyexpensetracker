@@ -12,7 +12,8 @@ class Transaction extends Model
         'amount',
         'note',
         'category_id',
-        'transaction_date'
+        'transaction_date',
+        'wallet_id'
     ];
 
     protected $casts = [
@@ -28,5 +29,10 @@ class Transaction extends Model
     public function category()
     {
         return $this->belongsTo(Category::class, 'category_id', 'id');
+    }
+
+    public function wallet()
+    {
+        return $this->belongsTo(Wallet::class);
     }
 }

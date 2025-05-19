@@ -30,6 +30,20 @@
                 </div>
             </button>
         </div>
+
+        <!-- Wallet Selection -->
+        <div class="mb-3">
+            <select v-model="wallet_id"
+                class="w-full p-2.5 text-sm border rounded-md bg-gray-50 focus:bg-white
+                       focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                required>
+                <option value="" disabled>Select a wallet</option>
+                <option v-for="wallet in wallets" :key="wallet.id" :value="wallet.id" class="py-1">
+                    {{ wallet.name }} ({{ wallet.type }})
+                </option>
+            </select>
+        </div>
+
         <!-- Enhanced Date Input -->
         <div class="grid grid-cols-1 gap-2 mb-3">
             <div>
@@ -93,12 +107,25 @@ import { ShoppingBag, Wallet, Trash2, CircleX } from 'lucide-vue-next';
 import CategorySearch from './CategorySearch.vue'
 import dayjs from 'dayjs'
 import { numberMixin } from '../mixins/numberMixin.js'
+import { useWalletStore } from '../store/wallet'
+import { onMounted } from 'vue'
 
 export default {
     name: 'AddTransaction',
     mixins: [
         numberMixin
     ],
+    setup() {
+        const walletStore = useWalletStore()
+        
+        onMounted(async () => {
+            await walletStore.fetchWallets()
+        })
+
+        return {
+            walletStore
+        }
+    },
     data() {
         return {
             type: 'expense',
@@ -106,7 +133,8 @@ export default {
             note: '',
             category: '',
             editableCategory: '',
-            date: this.getDate()
+            date: this.getDate(),
+            wallet_id: ''
         }
     },
     props: {
@@ -120,7 +148,7 @@ export default {
     },
     computed: {
         isValid() {
-            return this.amount && this.amount > 0
+            return this.amount && this.amount > 0 && this.wallet_id
         },
         isNew() {
             return !this.item
@@ -128,6 +156,9 @@ export default {
         selectedCategory() {
             if (!this.category || !this.categories) return null;
             return this.categories.find(cat => cat.id === this.category);
+        },
+        wallets() {
+            return this.walletStore.wallets
         }
     },
     watch: {
@@ -140,6 +171,7 @@ export default {
                     this.amount = newItem.amount;
                     this.note = newItem.note;
                     this.date = newItem.transaction_date ? this.formatDate(newItem.transaction_date) : this.date;
+                    this.wallet_id = newItem.wallet_id;
                     if (newItem.category) {
                         this.category = newItem.category.id;
                     }
@@ -149,6 +181,7 @@ export default {
                     this.note = '';
                     this.category = '';
                     this.date = this.getDate()
+                    this.wallet_id = '';
                 }
             }
         }
@@ -162,10 +195,10 @@ export default {
                     amount: parseFloat(this.amount),
                     note: this.note || '-',
                     category_id: this.category,
-                    transaction_date: this.formatDate(this.date)
+                    transaction_date: this.formatDate(this.date),
+                    wallet_id: this.wallet_id
                 };
                 this.$emit('transaction-added', transaction);
-                // Reset form
                 this.resetForm();
             } catch (error) {
                 console.error(error);
@@ -179,7 +212,8 @@ export default {
                     amount: parseFloat(this.amount),
                     note: this.note || (this.type === 'income' ? 'Income' : 'Expense'),
                     category_id: this.category,
-                    transaction_date: this.formatDate(this.date)
+                    transaction_date: this.formatDate(this.date),
+                    wallet_id: this.wallet_id
                 };
                 this.$emit('transaction-added', transaction);
                 this.resetForm();
@@ -191,15 +225,18 @@ export default {
             this.amount = '';
             this.note = '';
             this.category = '';
-            this.date = this.getDate()
+            this.date = this.getDate();
+            this.wallet_id = '';
         },
     },
     async created() {
+        await this.walletStore.fetchWallets()
         if (this.item) {
             this.amount = this.item.amount;
             this.note = this.item.note;
             this.type = this.item.type;
             this.date = this.formatDate(this.item.transaction_date);
+            this.wallet_id = this.item.wallet_id;
             if (this.item.category) {
                 this.category = this.item.category?.id;
                 this.editableCategory = this.item.category

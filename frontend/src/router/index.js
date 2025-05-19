@@ -28,8 +28,8 @@ const routes = [
     beforeEnter: requireAuth,
   },
   {
-    path: "/profile",
-    component: () => import("../views/Profile.vue"),
+    path: "/wallets",
+    component: () => import("../views/WalletsView.vue"),
     beforeEnter: requireAuth,
   },
   {

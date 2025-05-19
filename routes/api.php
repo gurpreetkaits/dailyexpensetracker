@@ -15,6 +15,7 @@ use App\Http\Controllers\StatsController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\ServeyController;
+use App\Http\Controllers\WalletController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -72,6 +73,19 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('cancel', [PolarSubscriptionController::class, 'cancelSubscription']);
         Route::get('status', [PolarSubscriptionController::class, 'getSubscriptionStatus']);
         Route::get('history', [PolarSubscriptionController::class, 'index']);
+    });
+
+
+//    Route::resource('user-wallets', WalletController::class);
+    Route::prefix('wallets')->group(function () {
+        Route::get('/', [WalletController::class, 'index']);
+        Route::post('/', [WalletController::class, 'store']);
+        Route::get('/{wallet}', [WalletController::class, 'show']);
+        Route::put('/{wallet}', [WalletController::class, 'update']);
+        Route::delete('/{wallet}', [WalletController::class, 'destroy']);
+        Route::get('/{wallet}/transactions', [WalletController::class, 'transactions']);
+        Route::post('/transfer', [WalletController::class, 'transfer']);
+        Route::get('/{wallet}/balance-history', [WalletController::class, 'balanceHistory']);
     });
 
 });

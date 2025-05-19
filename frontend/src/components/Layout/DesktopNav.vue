@@ -29,24 +29,25 @@
 </template>
 
 <script>
-import { Settings, Home, User, BarChart, MessageCircle, Star, LogOut, MessageCircleCode } from 'lucide-vue-next';
+import { Settings, Home, User, BarChart, MessageCircle, Star, LogOut, MessageCircleCode, Wallet } from 'lucide-vue-next';
 import { mapState, mapActions } from 'pinia';
 import { useAuthStore } from '../../store/auth.js';
 import { useRouter } from 'vue-router';
 
 export default {
     name: 'DesktopNav',
-    components: { LogOut , MessageCircle},
+    components: { LogOut, MessageCircle, Wallet },
     data() {
         return {
             navigation: [
                 { path: '/overview', name: 'Overview', icon: Home, show: true },
                 { path: '/stats', name: 'Stats', icon: BarChart, show: true },
-                { path: '/chat', name: 'Chat', icon: MessageCircle, show: true,  premium: true},
+                { path: '/chat', name: 'Chat', icon: MessageCircle, show: true, premium: true },
+                { path: '/wallets', name: 'Wallets', icon: Wallet, show: true },
                 { path: '/categories', name: 'Categories', icon: Settings, show: true, beta: false },
                 { path: '/settings/account', name: 'Account', icon: User, show: true, beta: false },
-                { path: '/admin-dashboard', name: 'Dashboard', icon: User, show: true }, // Example admin route
-                { path: '/feedbacks', name: 'Feedback', icon: User, show: true }, // Example admin route
+                { path: '/admin-dashboard', name: 'Dashboard', icon: User, show: true },
+                { path: '/feedbacks', name: 'Feedback', icon: User, show: true },
             ],
         };
     },
