@@ -21,15 +21,15 @@
             <!-- Left: Headline, Description, Button -->
             <div class="flex-1 flex flex-col justify-center items-center sm:items-center lg:items-start text-center sm:text-center lg:text-left max-w-xl w-full">
                 <h1 class="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">
-                    Premium Expense Tracking,<br>
+                    Expense Tracking,<br>
                     <span class="text-emerald-500">Simplified</span>
                 </h1>
                 <p class="text-lg text-gray-600 mb-8 max-w-2xl">
-                    Join our premium community of smart savers. Get access to powerful expense tracking tools, AI insights, and detailed analytics to make better financial decisions.
+                    Join our community of smart savers. Get access to powerful expense tracking tools, AI insights, and detailed analytics to make better financial decisions.
                 </p>
                 <a href="{{ config('app.frontend_url') }}/login" 
                     class="inline-block bg-emerald-500 text-white px-8 py-3 rounded-lg hover:bg-emerald-600 transition-colors text-center">
-                    Start Your Premium Journey
+                    Start tracking for Free
                 </a>
                 <!-- Recent Users Section -->
                 <div class="mt-8">
@@ -173,7 +173,7 @@
     </div>
 
     <!-- Pricing Section -->
-    <div class="relative py-16 overflow-hidden">
+    {{-- <div class="relative py-16 overflow-hidden">
         <!-- Gradient and Sparkle Background -->
         <div class="absolute inset-0 z-0 pointer-events-none">
             <div class="absolute left-1/4 top-0 w-[600px] h-[600px] bg-gradient-to-br from-blue-100 via-emerald-100 to-pink-100 rounded-full opacity-60 blur-2xl"></div>
@@ -326,7 +326,7 @@
             .animate-spin-slow { animation: spin-slow 12s linear infinite; }
             .animate-spin-reverse-slow { animation: spin-reverse-slow 16s linear infinite; }
         </style>
-    </div>
+    </div> --}}
 
     <!-- Builder Section with Social Links -->
     <div class="bg-gray-50 py-16 relative overflow-hidden">
