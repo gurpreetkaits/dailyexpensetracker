@@ -300,8 +300,8 @@ class TransactionService
     public function getTransactionsForBar($userId, $start, $end)
     {
         return Transaction::with('category')->where('user_id', $userId)
-            ->whereBetween('transaction_date', [$start, $end])
-            ->orderBy('transaction_date', 'desc')
+            ->whereBetween('created_at', [$start, $end])
+            ->orderBy('created_at', 'desc')
             ->get();
     }
 }

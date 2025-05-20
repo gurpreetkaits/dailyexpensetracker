@@ -3,9 +3,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { requireAuth, requireGuest } from "./auth-guard";
 import { useTransactionStore } from "../store/transaction";
-import { useAuthStore } from "../store/auth.js";
 import { usePostHog } from "../composables/usePosthog.js";
-import { usePolarStore } from "../store/polar.js";
 
 const routes = [
   {
@@ -17,12 +15,6 @@ const routes = [
         path: "login",
         component: () => import("../views/LoginView.vue"),
         name: 'login',
-        meta: { requiresAuth: false, requiresSubscription: false }
-      },
-      {
-        path: "register",
-        component: () => import("../views/LoginView.vue"),
-        name: 'register',
         meta: { requiresAuth: false, requiresSubscription: false }
       }
     ]
@@ -36,13 +28,13 @@ const routes = [
         path: "overview",
         component: () => import("../views/HomeView.vue"),
         name: 'overview',
-        meta: { requiresAuth: true, requiresSubscription: true }
+        meta: { requiresAuth: true, requiresSubscription: false }
       },
       {
         path: "wallets",
         component: () => import("../views/WalletsView.vue"),
         name: 'wallets',
-        meta: { requiresAuth: true, requiresSubscription: true }
+        meta: { requiresAuth: true, requiresSubscription: false }
       },
       {
         path: "plans",
@@ -73,19 +65,19 @@ const routes = [
         path: "categories",
         component: () => import("../views/Settings/CategoriesView.vue"),
         name: 'categories',
-        meta: { requiresAuth: true, requiresSubscription: true }
+        meta: { requiresAuth: true, requiresSubscription: false }
       },
       {
         path: "stats",
         component: () => import("../views/StatsView.vue"),
         name: 'stats',
-        meta: { requiresAuth: true, requiresSubscription: true }
+        meta: { requiresAuth: true, requiresSubscription: false }
       },
       {
         path: "chat",
         component: () => import("../views/ChatView.vue"),
         name: 'chat',
-        meta: { requiresAuth: true, requiresSubscription: true }
+        meta: { requiresAuth: true, requiresSubscription: false }
       },
       {
         path: "admin-dashboard",
@@ -94,7 +86,7 @@ const routes = [
         meta: {
           adminOnly: true,
           requiresAuth: true,
-          requiresSubscription: true
+          requiresSubscription: false
         }
       },
       {
@@ -104,7 +96,7 @@ const routes = [
         meta: {
           adminOnly: true,
           requiresAuth: true,
-          requiresSubscription: true
+          requiresSubscription: false
         }
       }
     ]
@@ -128,23 +120,23 @@ router.afterEach((to) => {
 })
 
 router.beforeEach(async (to, from, next) => {
-  const authStore = useAuthStore()
-  const polarStore = usePolarStore()
+  // const authStore = useAuthStore()
+  // const polarStore = usePolarStore()
 
   // Check if route requires subscription
-  if (to.meta.requiresSubscription && authStore.isAuthenticated) {
-    try {
-      await polarStore.fetchSubscriptionStatus()
-      if (!polarStore.hasActiveSubscription && to.name !== 'plans') {
-        next({ name: 'plans' })
-        return
-      }
-    } catch (error) {
-      console.error('Failed to check subscription:', error)
-      next({ name: 'plans' })
-      return
-    }
-  }
+  // if (to.meta.requiresSubscription && authStore.isAuthenticated) {
+  //   try {
+  //     await polarStore.fetchSubscriptionStatus()
+  //     if (!polarStore.hasActiveSubscription && to.name !== 'plans') {
+  //       next({ name: 'plans' })
+  //       return
+  //     }
+  //   } catch (error) {
+  //     console.error('Failed to check subscription:', error)
+  //     next({ name: 'plans' })
+  //     return
+  //   }
+  // }
 
   if (to.matched.some(record => record.meta.requiresTransactions)) {
     const transactionStore = useTransactionStore()
