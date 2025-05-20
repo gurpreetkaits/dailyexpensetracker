@@ -200,9 +200,9 @@ const hasActiveSubscription = computed(() => polarStore.hasActiveSubscription)
 const processingPayment = ref(false)
 
 // Fixed pricing in USD
-const monthlyPrice = '$4.99'
-const yearlyPrice = '$49.99'
-const monthlyEquivalent = '$4.17'
+const monthlyPrice = '$2.99'
+const yearlyPrice = '$29.99'
+const monthlyEquivalent = '$2.4'
 
 const currentPage = ref(1)
 const totalPages = computed(() => polarStore.subscription?.total_pages || 1)
