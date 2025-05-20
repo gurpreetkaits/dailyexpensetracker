@@ -132,7 +132,7 @@ class TransactionController extends Controller
     {
 
         $period = $request->query('period', 'W');
-        $bar = $request->query('bar'); // bar is an array: [start, end]
+        $bar = $request->query('bar');
         $userId = auth()->id();
         $data = $this->transactionService->getActivityBarDataV2($userId, $period);
         $barTransactions = [];
