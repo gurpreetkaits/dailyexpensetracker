@@ -63,7 +63,7 @@ class TransactionController extends Controller
         $validated['user_id'] = auth()->id();
         $transaction = $this->transactionService->createTransaction($validated);
 
-        $this->transactionService->clearUserTransactionCache($transaction->user_id);
+        $this->transactionService->clearUserTransactionCache(auth()->id());
 
         return response()->json(['data' => $transaction], 201);
     }
