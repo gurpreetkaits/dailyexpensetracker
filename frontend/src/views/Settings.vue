@@ -132,7 +132,7 @@
         <div v-else-if="selectedTab === 'feedback'">
           <div class="bg-white rounded-lg shadow hover:shadow-lg transition-all p-6">
             <div class="pb-4 border-b">
-              <h2 class="text-xl font-semibold text-gray-800">Feedback</h2>
+              <h2 class="text-xl font-semibold text-gray-800">Feedback or Submit a Bug/Feature Request</h2>
               <small class="text-gray-500">For any query you can reach out to me at <a href="mailto:gurpreetkait.codes@gmail.com" class="text-blue-500">gurpreetkait.codes@gmail.com</a></small>
             </div>
             <div class="pt-6">

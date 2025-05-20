@@ -191,7 +191,6 @@ import { useRoute, useRouter } from 'vue-router'
 import { usePolarStore } from '../../store/polar'
 import { useNotifications } from '../../composables/useNotifications'
 import { CheckCircle } from 'lucide-vue-next'
-import { useCurrency } from '../../composables/useCurrency'
 
 const route = useRoute()
 const router = useRouter()
@@ -200,14 +199,10 @@ const { notify } = useNotifications()
 const hasActiveSubscription = computed(() => polarStore.hasActiveSubscription)
 const processingPayment = ref(false)
 
-const { 
-    isLoading: isLoadingCurrency,
-    monthlyPrice,
-    yearlyPrice,
-    monthlyEquivalent,
-    fetchUserLocation,
-    currency
-} = useCurrency()
+// Fixed pricing in USD
+const monthlyPrice = '$4.99'
+const yearlyPrice = '$49.99'
+const monthlyEquivalent = '$4.17'
 
 const currentPage = ref(1)
 const totalPages = computed(() => polarStore.subscription?.total_pages || 1)
@@ -235,13 +230,11 @@ const handlePageChange = async (page) => {
 }
 
 onMounted(async () => {
-  await fetchUserLocation()
   try {
     const route = useRoute()
     const checkoutId = route.query?.checkout_id
     if (checkoutId) {
       await polarStore.verifyCheckoutSession(checkoutId)
-      console.log('polarStore.hasActiveSubscription', polarStore.hasActiveSubscription)
       if (polarStore.hasActiveSubscription) {
         notify({
           title: 'Activated',
@@ -267,11 +260,6 @@ onMounted(async () => {
     }
   } catch (error) {
     console.error('Subscription status error:', error)
-    // notify({
-    //   title: 'Error',
-    //   message: error.response?.data?.error || 'Failed to fetch subscription status',
-    //   type: 'error'
-    // })
   }
 })
 
@@ -310,7 +298,12 @@ const handleManageSubscription = () => {
 }
 
 const formatPrice = (price) => {
-  return new Intl.NumberFormat(currency, { style: 'currency', currency }).format(price)
+  return new Intl.NumberFormat('en-US', { 
+    style: 'currency', 
+    currency: 'USD',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(price)
 }
 </script>
 
