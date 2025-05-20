@@ -725,11 +725,15 @@ export default {
         this.saving = true
         if (this.editingTransaction) {
           await this.updateTransaction({ ...params, id: this.editingTransaction.id })
+          // Refresh transactions to maintain order
+          await this.fetchTransactions(this.dateFilter)
         } else {
           await this.addTransaction(params)
-          // await this.fetchTransactions(this.dateFilter)
-          await this.fetchWallets();
-          await this.fetchBarTransactions(this.periodTab, [this.selectedBar.start, this.selectedBar.end])
+          // Refresh wallets and bar transactions to maintain sync
+          await this.fetchWallets()
+          if (this.selectedBar) {
+            await this.fetchBarTransactions(this.periodTab, [this.selectedBar.start, this.selectedBar.end])
+          }
         }
         this.editingTransaction = null
       } catch (e) {

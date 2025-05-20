@@ -90,6 +90,7 @@ export const useTransactionStore = defineStore("transaction", {
         const { data } = await saveTransaction(transaction);
         const completedTransaction = await getTransactionById(data.id);
         this.transactions.unshift(completedTransaction);
+        await this.fetchTransactions();
       } catch (error) {
         console.error(error);
       }

@@ -28,14 +28,14 @@ class TransactionService
             if ($filter) {
                 $dateArr = $this->getFromFilter($filter);
                 if ($dateArr) {
-                    $query->whereBetween('created_at', [
+                    $query->whereBetween('transaction_date', [
                         $dateArr['start'],
                         $dateArr['end']
                     ]);
                 }
             }
 
-            return $query->latest('created_at')
+            return $query->latest('transaction_date')
                 ->get();
         });
     }
@@ -183,7 +183,7 @@ class TransactionService
             });
         }
 
-        // Return results ordered by latest first
+        // Return results ordered by latest transaction_date first
         return $transactions->latest('transaction_date')->get();
     }
 
