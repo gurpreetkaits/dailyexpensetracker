@@ -1,6 +1,6 @@
 <template>
     <router-view />
-    <AdCashAuto v-if="showAds" />
+    <!-- <AdCashAuto v-if="showAds" /> -->
 </template>
 
 <script>

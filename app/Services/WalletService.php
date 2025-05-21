@@ -98,7 +98,10 @@ class WalletService
         $wallet = Wallet::find($transaction->wallet_id);
         if ($transaction->type === TransactionTypeEnum::EXPENSE->value) {
             $wallet->decrement('balance', $transaction->amount);
-        } else {
+        } else if($transaction->type === TransactionTypeEnum::INCOME->value) {
+            $wallet->increment('balance', $transaction->amount);
+        }else{
+            //else it's a deletion of transaction we have to recover the wallet amount deducted in this transaction
             $wallet->increment('balance', $transaction->amount);
         }
         $this->recordBalanceHistory($wallet->id, $wallet->balance);

@@ -304,4 +304,16 @@ class TransactionService
             ->orderBy('created_at', 'desc')
             ->get();
     }
+
+    public function deleteTransaction(Transaction $transaction)
+    {
+        DB::transaction(function () use ($transaction) {
+            $wallet = app(WalletService::class);
+            $wallet->syncWallet($transaction);
+            $transaction->delete();
+        });
+
+        $this->clearUserTransactionCache($transaction->user_id);
+        return $transaction;
+    }
 }
