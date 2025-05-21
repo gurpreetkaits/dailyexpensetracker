@@ -41,14 +41,9 @@ export default {
     }
   },
   async mounted() {
-    try {
-      const polarStore = usePolarStore()
-      await polarStore.fetchSubscriptionStatus()
-      this.showAds = !this.hasActiveSubscription
-    } catch (error) {
-      console.error('Failed to fetch subscription status:', error)
-      this.showAds = true
-    }
-  }
+  const polarStore = usePolarStore()
+  await polarStore.fetchSubscriptionStatus()
+  this.showAds = !polarStore.hasActiveSubscription
+}
 }
 </script>
