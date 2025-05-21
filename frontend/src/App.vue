@@ -5,7 +5,7 @@
 
 <script>
 import { useAuthStore } from './store/auth'
-import { mapActions } from 'pinia'
+import { mapActions, mapState } from 'pinia'
 import { useSettingsStore } from './store/settings'
 import { verifyToken } from './services/AuthService'
 import { usePolarStore } from './store/polar'
@@ -13,19 +13,19 @@ import AdCashAuto from './components/Subscription/AdCashAuto.vue'
 
 export default {
   name: 'App',
+  components: {
+    AdCashAuto
+  },
   data() {
     return {
       showAds: true
     }
   },
-  components: {
-    AdCashAuto
+  computed: {
+    ...mapState(usePolarStore, ['hasActiveSubscription'])
   },
   methods: {
     ...mapActions(useSettingsStore, ['fetchSettings'])
-  },
-  computed: {
-    ...mapState(usePolarStore, ['hasActiveSubscription'])
   },
   async created() {
     const authStore = useAuthStore()
