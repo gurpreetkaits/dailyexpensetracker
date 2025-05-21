@@ -35,36 +35,9 @@
               <div class="space-y-3">
                     <div class="flex items-start gap-3">
                       <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                      <p class="text-sm text-gray-600">Track daily expenses with ease</p>
+                      <p class="text-sm text-gray-600">No Ads</p>
                     </div>
-                    <div class="flex items-start gap-3">
-                      <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                      <p class="text-sm text-gray-600">Real-time spending overview</p>
-                    </div>
-                    <div class="flex items-start gap-3">
-                      <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                      <p class="text-sm text-gray-600">Unlimited Category</p>
-                    </div>
-                    <div class="flex items-start gap-3">
-                      <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                      <p class="text-sm text-gray-600">Unlimited Wallets</p>
-                    </div>
-                    <div class="flex items-start gap-3">
-                      <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                      <p class="text-sm text-gray-600">AI-powered spending insights</p>
-                    </div>
-                    <div class="flex items-start gap-3">
-                      <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                      <p class="text-sm text-gray-600">Weekly & monthly reports</p>
-                    </div>
-                    <div class="flex items-start gap-3">
-                      <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                      <p class="text-sm text-gray-600">Reminders (coming soon) and Sync With Calendar</p>
-                    </div>
-                    <div class="flex items-start gap-3">
-                      <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                      <p class="text-sm text-gray-600">Cloud Backup (coming soon)</p>
-                    </div>
+
                   </div>
 
             </div>
@@ -101,35 +74,7 @@
               <div class="space-y-3">
                     <div class="flex items-start gap-3">
                       <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                      <p class="text-sm text-gray-600">Track daily expenses with ease</p>
-                    </div>
-                    <div class="flex items-start gap-3">
-                      <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                      <p class="text-sm text-gray-600">Real-time spending overview</p>
-                    </div>
-                    <div class="flex items-start gap-3">
-                      <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                      <p class="text-sm text-gray-600">Unlimited Category</p>
-                    </div>
-                    <div class="flex items-start gap-3">
-                      <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                      <p class="text-sm text-gray-600">Unlimited Wallets</p>
-                    </div>
-                    <div class="flex items-start gap-3">
-                      <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                      <p class="text-sm text-gray-600">AI-powered spending insights</p>
-                    </div>
-                    <div class="flex items-start gap-3">
-                      <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                      <p class="text-sm text-gray-600">Weekly & monthly reports</p>
-                    </div>
-                    <div class="flex items-start gap-3">
-                      <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                      <p class="text-sm text-gray-600">Reminders (coming soon) and Sync With Calendar</p>
-                    </div>
-                    <div class="flex items-start gap-3">
-                      <CheckCircle class="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                      <p class="text-sm text-gray-600">Cloud Backup (coming soon)</p>
+                      <p class="text-sm text-gray-600">No Ads</p>
                     </div>
                   </div>
             </div>
