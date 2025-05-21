@@ -1,6 +1,6 @@
 <template>
     <router-view />
-    <!-- <AdCashAuto v-if="showAds" /> -->
+    <AdCashAuto v-if="showAds" />
 </template>
 
 <script>
@@ -18,7 +18,7 @@ export default {
   },
   data() {
     return {
-      showAds: true
+      showAds: false
     }
   },
   computed: {

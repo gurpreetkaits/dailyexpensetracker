@@ -15,12 +15,12 @@
       script.src = '//acscdn.com/script/aclib.js'
       script.onload = () => {
         if (window.aclib) {
-          window.aclib.runAutoTag({ zoneId: 'ndqhddbyxj' })
+          window.aclib.runInPagePush({ zoneId: '9968262',maxAds: 5, })
         }
       }
       document.body.appendChild(script)
     } else if (window.aclib) {
-      window.aclib.runAutoTag({ zoneId: 'ndqhddbyxj' })
+      window.aclib.runInPagePush({ zoneId: '9968262',maxAds: 5, })
     }
   })
   </script>
