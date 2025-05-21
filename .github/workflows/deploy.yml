@@ -73,7 +73,6 @@ jobs:
             # Clear and cache Laravel configurations
             php artisan cache:clear || { echo "Error: Cache clear failed"; exit 1; }
             php artisan config:cache || { echo "Error: Config cache failed"; exit 1; }
-            php artisan route:cache || { echo "Error: Route cache failed"; exit 1; }
 
             # Check if npm is available
             if ! command -v npm &> /dev/null; then
