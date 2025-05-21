@@ -729,14 +729,19 @@ export default {
         } else {
           await this.addTransaction(params)
           await this.fetchWallets()
-          // start of the week
-          const startOfWeek = new Date();
-          startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
-          startOfWeek.setHours(0, 0, 0, 0);
-          const endOfWeek = new Date(startOfWeek);
-          endOfWeek.setDate(startOfWeek.getDate() + 6);
           
-          await this.fetchBarTransactions(this.periodTab, [startOfWeek, endOfWeek])
+          // Get current week's start and end dates in ISO format
+          const now = new Date()
+          const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()))
+          startOfWeek.setHours(0, 0, 0, 0)
+          const endOfWeek = new Date(startOfWeek)
+          endOfWeek.setDate(startOfWeek.getDate() + 6)
+          endOfWeek.setHours(23, 59, 59, 999)
+          
+          await this.fetchBarTransactions(this.periodTab, [
+            startOfWeek.toISOString().split('T')[0],
+            endOfWeek.toISOString().split('T')[0]
+          ])
         }
         this.editingTransaction = null
       } catch (e) {
