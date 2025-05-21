@@ -38,7 +38,7 @@ export default {
       }
     }
   },
-  mounted() {
+  async mounted() {
     try {
         const polarStore = usePolarStore()
         await polarStore.fetchSubscriptionStatus()
