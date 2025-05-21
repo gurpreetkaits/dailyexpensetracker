@@ -729,8 +729,14 @@ export default {
         } else {
           await this.addTransaction(params)
           await this.fetchWallets()
+          // start of the week
+          const startOfWeek = new Date();
+          startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+          startOfWeek.setHours(0, 0, 0, 0);
+          const endOfWeek = new Date(startOfWeek);
+          endOfWeek.setDate(startOfWeek.getDate() + 6);
           
-          await this.fetchBarTransactions(this.periodTab, [new Date().setHours(0, 0, 0, 0), new Date().setHours(23, 59, 59, 999)])
+          await this.fetchBarTransactions(this.periodTab, [startOfWeek, endOfWeek])
         }
         this.editingTransaction = null
       } catch (e) {
