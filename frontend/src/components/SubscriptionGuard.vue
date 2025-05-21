@@ -1,10 +1,10 @@
 <template>
   <div>
     <slot></slot>
-    <UpgradeModal
+    <!-- <UpgradeModal
       v-model="showUpgradeModal"
       :is-required="true"
-    />
+    /> -->
   </div>
 </template>
 

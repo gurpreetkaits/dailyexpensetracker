@@ -240,8 +240,13 @@ const handleSendMessage = async () => {
 
 const sendMessage = async () => {
   try {
-    await chatStore.sendMessage({ message: inputMessage.value })
+    // await chatStore.sendMessage({ message: inputMessage.value })
     inputMessage.value = ''
+    notify({
+      title: 'Error',
+      message: 'Temporarily disabled',
+      type: 'error'
+    })
   } catch (error) {
     console.error('Send message error:', error)
     notify({
