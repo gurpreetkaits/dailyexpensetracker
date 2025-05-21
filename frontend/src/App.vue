@@ -8,8 +8,7 @@ import { useAuthStore } from './store/auth'
 import { mapActions } from 'pinia'
 import { useSettingsStore } from './store/settings'
 import { verifyToken } from './services/AuthService'
-import { usePolarStore } from '../store/polar'
-import { computed } from 'vue'
+import { usePolarStore } from './store/polar'
 import AdCashAuto from './components/Subscription/AdCashAuto.vue'
 
 export default {
@@ -18,6 +17,9 @@ export default {
     return {
       showAds: true
     }
+  },
+  components: {
+    AdCashAuto
   },
   methods: {
     ...mapActions(useSettingsStore, ['fetchSettings'])
