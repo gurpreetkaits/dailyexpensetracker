@@ -95,6 +95,7 @@ class TransactionService
         $transaction = DB::transaction(function () use ($data,$wallet) {
             $transaction = Transaction::create($data);
             $wallet->syncWallet($transaction);
+            return $transaction;
         });
         $this->clearUserTransactionCache($data['user_id']);
         return $transaction;
@@ -213,7 +214,24 @@ class TransactionService
         $end = $last->transaction_date;
         $now = now();
         $result = [];
-        if ($period === 'W') {
+        if($period === 'D'){
+            $dayStart = $now->copy()->startOfDay();
+            $dayEnd = $now->copy()->endOfDay();
+            $income = Transaction::where('user_id', $userId)
+                ->whereBetween('transaction_date', [$dayStart, $dayEnd])
+                ->where('type', 'income')->sum('amount');
+            $expense = Transaction::where('user_id', $userId)
+                ->whereBetween('transaction_date', [$dayStart, $dayEnd])
+                ->where('type', 'expense')->sum('amount');
+            $label = $dayStart->format('d M');
+            $result[] = [
+                'label' => $label,
+                'income' => $income,
+                'expense' => $expense,
+                'start' => $dayStart->toDateString(),
+                'end' => $dayEnd->toDateString()
+            ];
+        } elseif ($period === 'W') {
             $current = \Carbon\Carbon::parse($start)->startOfWeek();
             $final = \Carbon\Carbon::parse($end)->endOfWeek();
             while ($current <= $final) {
@@ -299,9 +317,9 @@ class TransactionService
 
     public function getTransactionsForBar($userId, $start, $end)
     {
-        return Transaction::with('category')->where('user_id', $userId)
-            ->whereBetween('created_at', [$start, $end])
-            ->orderBy('created_at', 'desc')
+        return Transaction::with(relations: 'category')->where('user_id', $userId)
+            ->whereBetween('transaction_date', [$start, $end])
+            ->orderBy('transaction_date', 'desc')
             ->get();
     }
 

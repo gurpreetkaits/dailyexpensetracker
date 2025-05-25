@@ -131,7 +131,7 @@ class TransactionController extends Controller
     public function activityBarDataV2(Request $request)
     {
 
-        $period = $request->query('period', 'W');
+        $period = $request->query('period', 'D');
         $bar = $request->query('bar');
         $userId = auth()->id();
         $data = $this->transactionService->getActivityBarDataV2($userId, $period);
