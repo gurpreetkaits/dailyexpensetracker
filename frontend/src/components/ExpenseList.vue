@@ -463,7 +463,7 @@ export default {
       editingRecurring: null,
       editingGoal: false,
       searchTimeout: null,
-      periodTab: 'W',
+      periodTab: 'D',
     }
   },
   computed: {
@@ -835,11 +835,9 @@ export default {
       }
     },
     async handlePeriodChange(period) {
-      console.log('Period changed to:', period);
       this.periodTab = period;
       try {
         await this.fetchActivityBarDataV2(period);
-        console.log('Activity bar data fetched for period:', period);
         if (this.selectedBar) {
           await this.fetchBarTransactions(period, [this.selectedBar.start, this.selectedBar.end]);
         }

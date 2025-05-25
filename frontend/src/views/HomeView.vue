@@ -112,9 +112,9 @@ export default {
         feedbackText: feedbackText.value.trim(),
         timestamp: new Date().toISOString()
       }
-      if (window.posthog) {
-        window.posthog.capture('post_login_survey_completed', surveyData)
-      }
+      // if (window.posthog) {
+      //   window.posthog.capture('post_login_survey_completed', surveyData)
+      // }
       try {
         await submitSurveyAPI(surveyData)
         // Refresh user data from backend to check if survey is saved

@@ -133,7 +133,6 @@ export const useTransactionStore = defineStore("transaction", {
       this.loading = true;
       try {
         const { data } = await getActivityBarDataV2(period);
-        console.log('data',data)
         this.activityBarDataV2 = data;
         if (data.length > 0) {
           this.selectedBar = { start: data[data.length - 1].start, end: data[data.length - 1].end };

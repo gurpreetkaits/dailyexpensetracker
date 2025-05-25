@@ -230,9 +230,9 @@ export default {
                 timestamp: new Date().toISOString()
             };
 
-            if (window.posthog) {
-                 window.posthog.capture('post_login_survey_completed', surveyData);
-            }
+            // if (window.posthog) {
+            //      window.posthog.capture('post_login_survey_completed', surveyData);
+            // }
 
             try {
                 await submitSurveyAPI(surveyData);

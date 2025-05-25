@@ -212,20 +212,20 @@ const handleSendMessage = async () => {
     return
   }
 
-  if (authStore.user?.email) {
-    posthog.identify(authStore.user.email, {
-      email: authStore.user.email,
-      id: authStore.user.id
-    })
-  }
+  // if (authStore.user?.email) {
+  //   posthog.identify(authStore.user.email, {
+  //     email: authStore.user.email,
+  //     id: authStore.user.id
+  //   })
+  // }
 
   try {
-    posthog.capture('chat_message_sent', {
-      message: inputMessage.value,
-      user_id: authStore.user?.id,
-      user_email: authStore.user?.email,
-      timestamp: new Date().toISOString()
-    })
+    // posthog.capture('chat_message_sent', {
+    //   message: inputMessage.value,
+    //   user_id: authStore.user?.id,
+    //   user_email: authStore.user?.email,
+    //   timestamp: new Date().toISOString()
+    // })
 
     await sendMessage()
   } catch (error) {

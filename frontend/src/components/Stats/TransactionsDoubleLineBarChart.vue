@@ -37,7 +37,7 @@ const props = defineProps({
   },
   period: {
     type: String,
-    default: 'W'
+    default: 'D'
   },
   selectedBar: {
     type: Object,
@@ -46,6 +46,7 @@ const props = defineProps({
 })
 
 const periodTabs = [
+  { label: 'D', value: 'D' },
   { label: 'W', value: 'W' },
   { label: 'M', value: 'M' },
   { label: 'Y', value: 'Y' },
