@@ -207,21 +207,21 @@ class TransactionService
 
     public function getActivityBarDataV2($userId, $period)
     {
-        $first = Transaction::where('user_id', $userId)->orderBy('transaction_date')->first();
-        $last = Transaction::where('user_id', $userId)->orderByDesc('transaction_date')->first();
+        $first = Transaction::where('user_id', $userId)->orderBy('created_at')->first();
+        $last = Transaction::where('user_id', $userId)->orderByDesc('created_at')->first();
         if (!$first || !$last) return [];
-        $start = $first->transaction_date;
-        $end = $last->transaction_date;
+        $start = $first->created_at;
+        $end = $last->created_at;
         $now = now();
         $result = [];
         if($period === 'D'){
             $dayStart = $now->copy()->startOfDay();
             $dayEnd = $now->copy()->endOfDay();
             $income = Transaction::where('user_id', $userId)
-                ->whereBetween('transaction_date', [$dayStart, $dayEnd])
+                ->whereBetween('created_at', [$dayStart, $dayEnd])
                 ->where('type', 'income')->sum('amount');
             $expense = Transaction::where('user_id', $userId)
-                ->whereBetween('transaction_date', [$dayStart, $dayEnd])
+                ->whereBetween('created_at', [$dayStart, $dayEnd])
                 ->where('type', 'expense')->sum('amount');
             $label = $dayStart->format('d M');
             $result[] = [
@@ -238,10 +238,10 @@ class TransactionService
                 $weekStart = $current->copy();
                 $weekEnd = $current->copy()->endOfWeek();
                 $income = Transaction::where('user_id', $userId)
-                    ->whereBetween('transaction_date', [$weekStart, $weekEnd])
+                    ->whereBetween('created_at', [$weekStart, $weekEnd])
                     ->where('type', 'income')->sum('amount');
                 $expense = Transaction::where('user_id', $userId)
-                    ->whereBetween('transaction_date', [$weekStart, $weekEnd])
+                    ->whereBetween('created_at', [$weekStart, $weekEnd])
                     ->where('type', 'expense')->sum('amount');
                 $label = $weekStart->format('d M') . ' - ' . $weekEnd->format('d M');
                 $result[] = [
@@ -260,10 +260,10 @@ class TransactionService
                 $monthStart = $current->copy();
                 $monthEnd = $current->copy()->endOfMonth();
                 $income = Transaction::where('user_id', $userId)
-                    ->whereBetween('transaction_date', [$monthStart, $monthEnd])
+                    ->whereBetween('created_at', [$monthStart, $monthEnd])
                     ->where('type', 'income')->sum('amount');
                 $expense = Transaction::where('user_id', $userId)
-                    ->whereBetween('transaction_date', [$monthStart, $monthEnd])
+                    ->whereBetween('created_at', [$monthStart, $monthEnd])
                     ->where('type', 'expense')->sum('amount');
                 $label = $monthStart->format('M Y');
                 $result[] = [
@@ -282,10 +282,10 @@ class TransactionService
                 $yearStart = $current->copy();
                 $yearEnd = $current->copy()->endOfYear();
                 $income = Transaction::where('user_id', $userId)
-                    ->whereBetween('transaction_date', [$yearStart, $yearEnd])
+                    ->whereBetween('created_at', [$yearStart, $yearEnd])
                     ->where('type', 'income')->sum('amount');
                 $expense = Transaction::where('user_id', $userId)
-                    ->whereBetween('transaction_date', [$yearStart, $yearEnd])
+                    ->whereBetween('created_at', [$yearStart, $yearEnd])
                     ->where('type', 'expense')->sum('amount');
                 $label = $yearStart->format('Y');
                 $result[] = [
@@ -299,10 +299,10 @@ class TransactionService
             }
         } elseif ($period === 'ALL') {
             $income = Transaction::where('user_id', $userId)
-                ->whereBetween('transaction_date', [$start, $end])
+                ->whereBetween('created_at', [$start, $end])
                 ->where('type', 'income')->sum('amount');
             $expense = Transaction::where('user_id', $userId)
-                ->whereBetween('transaction_date', [$start, $end])
+                ->whereBetween('created_at', [$start, $end])
                 ->where('type', 'expense')->sum('amount');
             $result[] = [
                 'label' => 'All Time',
