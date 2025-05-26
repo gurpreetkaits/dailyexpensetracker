@@ -102,11 +102,19 @@ class WalletService
 
         switch ($action) {
             case 'create':
-                $wallet->decrement('balance', $transaction->amount);
+                if ($transaction->type === TransactionTypeEnum::EXPENSE->value) {
+                    $wallet->decrement('balance', $transaction->amount);
+                } else {
+                    $wallet->increment('balance', $transaction->amount);
+                }
                 break;
 
             case 'delete':
-                $wallet->increment('balance', $transaction->amount);
+                if ($transaction->type === TransactionTypeEnum::EXPENSE->value) {
+                    $wallet->increment('balance', $transaction->amount);
+                } else {
+                    $wallet->decrement('balance', $transaction->amount);
+                }
                 break;
 
             case 'update':
