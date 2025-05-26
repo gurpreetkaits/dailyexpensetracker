@@ -65,7 +65,7 @@ class WalletService
     public function delete(Wallet $wallet): ?bool
     {
 
-        if($wallet->transactions()->count() > 0) {
+        if ($wallet->transactions()->count() > 0) {
             throw new Exception('Cannot delete wallet with transactions');
         }
         return $wallet->delete();
@@ -93,17 +93,42 @@ class WalletService
             ->paginate(10);
     }
 
-    public function syncWallet(Transaction $transaction): void
+    public function syncWallet(Transaction $transaction, string $action, ?Transaction $oldTransaction = null): void
     {
         $wallet = Wallet::find($transaction->wallet_id);
-        if ($transaction->type === TransactionTypeEnum::EXPENSE->value) {
-            $wallet->decrement('balance', $transaction->amount);
-        } else if($transaction->type === TransactionTypeEnum::INCOME->value) {
-            $wallet->increment('balance', $transaction->amount);
-        }else{
-            //else it's a deletion of transaction we have to recover the wallet amount deducted in this transaction
-            $wallet->increment('balance', $transaction->amount);
+
+        if (!$wallet)
+            return;
+
+        switch ($action) {
+            case 'create':
+                $wallet->decrement('balance', $transaction->amount);
+                break;
+
+            case 'delete':
+                $wallet->increment('balance', $transaction->amount);
+                break;
+
+            case 'update':
+                if (!$oldTransaction)
+                    return;
+
+                // First rollback old transaction
+                if ($oldTransaction->type === TransactionTypeEnum::EXPENSE->value) {
+                    $wallet->decrement('balance', $oldTransaction->amount);
+                } else {
+                    $wallet->increment('balance', $oldTransaction->amount);
+                }
+
+                // Then apply new transaction
+                if ($transaction->type === TransactionTypeEnum::EXPENSE->value) {
+                    $wallet->decrement('balance', $transaction->amount);
+                } else {
+                    $wallet->increment('balance', $transaction->amount);
+                }
+                break;
         }
+
         $this->recordBalanceHistory($wallet->id, $wallet->balance);
     }
 }

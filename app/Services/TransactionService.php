@@ -94,7 +94,7 @@ class TransactionService
         $wallet = app(WalletService::class);
         $transaction = DB::transaction(function () use ($data,$wallet) {
             $transaction = Transaction::create($data);
-            $wallet->syncWallet($transaction);
+            $wallet->syncWallet($transaction,'create');
             return $transaction;
         });
         $this->clearUserTransactionCache($data['user_id']);
@@ -327,7 +327,7 @@ class TransactionService
     {
         DB::transaction(function () use ($transaction) {
             $wallet = app(WalletService::class);
-            $wallet->syncWallet($transaction);
+            $wallet->syncWallet($transaction,'delete');
             $transaction->delete();
         });
 

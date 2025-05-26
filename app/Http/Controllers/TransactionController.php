@@ -6,8 +6,10 @@ use App\Data\GetTransactionFilterData;
 use App\Models\Transaction;
 use App\Services\TransactionService;
 use App\Enum\TransactionFilterEnum;
+use App\Services\WalletService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class TransactionController extends Controller
 {
@@ -82,14 +84,23 @@ class TransactionController extends Controller
             'id' => 'exists:transactions,id',
             'wallet_id' => 'required|exists:wallets,id'
         ]);
-        $transaction->type = $validated['type'];
-        $transaction->amount = $validated['amount'];
-        $transaction->note = $validated['note'];
-        $transaction->category_id = $validated['category_id'];
-        $transaction->transaction_date = $validated['transaction_date'];
-        $transaction->wallet_id = $validated['wallet_id'];
-        $transaction->save();
 
+        $oldTransaction = Transaction::find($validated['id'])->first();
+
+        $transaction = DB::transaction(function () use ($validated, $transaction,$oldTransaction) {
+            $transaction->type = $validated['type'];
+            $transaction->amount = $validated['amount'];
+            $transaction->note = $validated['note'];
+            $transaction->category_id = $validated['category_id'];
+            $transaction->transaction_date = $validated['transaction_date'];
+            $transaction->wallet_id = $validated['wallet_id'];
+            $transaction->save();
+
+            $walletService = app(WalletService::class);
+            $walletService->syncWallet($transaction,'update',$oldTransaction);
+
+            return $transaction;
+        });
         // Clear the cache
         $this->transactionService->clearUserTransactionCache($transaction->user_id);
 
@@ -101,9 +112,9 @@ class TransactionController extends Controller
         if ($transaction->user_id !== auth()->id()) {
             abort(403, 'unauthorized');
         }
-        $transaction->delete();
+        $this->transactionService->deleteTransaction($transaction);
         $this->transactionService->clearUserTransactionCache($transaction->user_id);
-        return response()->json(['data' => $transaction], 200);
+        return response()->json(['data' => null], 200);
     }
 
     public function show($id)
