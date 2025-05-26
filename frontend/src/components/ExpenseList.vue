@@ -17,7 +17,7 @@
         <!-- Recent Wallet Card -->
         <div
           v-if="recentWallet"
-          class="relative overflow-hidden rounded-xl p-4 flex flex-col justify-between h-[300px] sm:h-[200px]"
+          class="relative overflow-hidden rounded-xl p-4 flex flex-col justify-between lg:h-[300px] sm:h-[200px]"
           :class="{
             'bg-gradient-to-br from-emerald-500 to-emerald-600': recentWallet.type === 'bank',
             'bg-gradient-to-br from-blue-500 to-blue-600': recentWallet.type === 'card',
