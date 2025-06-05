@@ -25,7 +25,7 @@ class DashboardController extends Controller
 
         // ── lists (max 10) ───────────────────────────────────────
         $recentUsers = User::latest()
-            ->select('id', 'name', 'email', 'avatar', 'created_at')
+            ->select('id', 'name', 'email', 'avatar','settings', 'created_at')
             ->take(10)
             ->get()
             ->map(fn ($u) => [
