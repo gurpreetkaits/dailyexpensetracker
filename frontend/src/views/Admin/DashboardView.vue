@@ -35,7 +35,7 @@
                         <span>{{ u.name }}</span>
                     </td>
                     <td class="px-6 py-3">{{ u.email }}</td>
-                    <td class="px-6 py-3">{{ u.settings.survey || 0 }}</td>
+                    <td class="px-6 py-3">{{ u.survey || 0 }}</td>
                     <td class="px-6 py-3 text-gray-500">{{ ago(u.joined) }}</td>
                 </tr>   
 
