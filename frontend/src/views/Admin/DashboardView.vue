@@ -22,6 +22,7 @@
                 <tr>
                     <th class="px-6 py-3">#</th>
                     <th class="px-6 py-3">Name</th>
+                    <th class="px-6 py-3">Survey</th>
                     <th class="px-6 py-3">Email</th>
                     <th class="px-6 py-3">Joined</th>
                 </tr>
@@ -34,8 +35,9 @@
                         <span>{{ u.name }}</span>
                     </td>
                     <td class="px-6 py-3">{{ u.email }}</td>
+                    <td class="px-6 py-3">{{ u.settings.survey || 0 }}</td>
                     <td class="px-6 py-3 text-gray-500">{{ ago(u.joined) }}</td>
-                </tr>
+                </tr>   
 
                 <tr v-if="!recentUsers.length">
                     <td colspan="4" class="px-6 py-6 text-center text-gray-500">
