@@ -32,7 +32,7 @@ class DashboardController extends Controller
                 'id'     => $u->id,
                 'name'   => $u->name,
                 'email'  => $u->email,
-                'survey' => $u->settings->survey ?? 0,
+                'survey' => $u->settings ?? 0,
                 'avatar' => $u->avatar ?: "https://i.pravatar.cc/40?u=$u->id",
                 'joined' => $u->created_at->toIso8601String(),
             ]);
