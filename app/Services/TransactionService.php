@@ -28,14 +28,14 @@ class TransactionService
             if ($filter) {
                 $dateArr = $this->getFromFilter($filter);
                 if ($dateArr) {
-                    $query->whereBetween('transaction_date', [
+                    $query->whereBetween('created_at', [
                         $dateArr['start'],
                         $dateArr['end']
                     ]);
                 }
             }
 
-            return $query->latest('transaction_date')
+            return $query->latest('created_at')
                 ->get();
         });
     }
@@ -116,11 +116,11 @@ class TransactionService
     private function getSummary($userId, $dateRange)
     {
         return Transaction::where('user_id', $userId)
-            ->whereBetween('transaction_date', [
+            ->whereBetween('created_at', [
                 $dateRange['start'],
                 $dateRange['end']
             ])
-            // ->whereDate('transaction_date', Carbon::today())
+            // ->whereDate('created_at', Carbon::today())
             ->selectRaw('SUM(CASE WHEN type = "expense" THEN amount ELSE 0 END) as expense_total')
             ->selectRaw(expression: 'SUM(CASE WHEN type = "income" THEN amount ELSE 0 END) as income_total')
             ->first();
@@ -132,8 +132,8 @@ class TransactionService
     private function getCategorySummary($userId)
     {
         return Transaction::where('user_id', $userId)
-            ->whereYear('transaction_date', Carbon::now()->year)
-            ->whereMonth('transaction_date', Carbon::now()->month)
+            ->whereYear('created_at', Carbon::now()->year)
+            ->whereMonth('created_at', Carbon::now()->month)
             ->selectRaw('category, SUM(amount) as total, COUNT(*) as count')
             ->groupBy('category')
             ->get();
@@ -171,7 +171,7 @@ class TransactionService
         // Apply date filter if provided
         if ($dateFilter) {
             $dateRange = $this->getFromFilter($dateFilter);
-            $transactions->whereBetween('transaction_date', [
+            $transactions->whereBetween('created_at', [
                 $dateRange['start'],
                 $dateRange['end']
             ]);
@@ -184,8 +184,8 @@ class TransactionService
             });
         }
 
-        // Return results ordered by latest transaction_date first
-        return $transactions->latest('transaction_date')->get();
+        // Return results ordered by latest created_at first
+        return $transactions->latest('created_at')->get();
     }
 
     public function getCategoryTransactions(GetTransactionFilterData $data)
@@ -196,7 +196,7 @@ class TransactionService
         ]);
 
         if ($data->start_date) {
-            $query->whereBetween('transaction_date', [
+            $query->whereBetween('created_at', [
                 $data->start_date,
                 $data->end_date
             ]);
@@ -318,8 +318,8 @@ class TransactionService
     public function getTransactionsForBar($userId, $start, $end)
     {
         return Transaction::with(relations: 'category')->where('user_id', $userId)
-            ->whereBetween('transaction_date', [$start, $end])
-            ->orderBy('transaction_date', 'desc')
+            ->whereBetween('created_at', [$start, $end])
+            ->orderBy('created_at', 'desc')
             ->get();
     }
 

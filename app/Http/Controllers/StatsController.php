@@ -42,7 +42,7 @@ class StatsController extends Controller
 
         $query = Transaction::query()
             ->where('user_id', auth()->id());
-        $query->whereBetween('transaction_date', [$validated['start_date'], $validated['end_date']]);
+        $query->whereBetween('created_at', [$validated['start_date'], $validated['end_date']]);
     
 
         // Get category wise expenses
@@ -124,8 +124,8 @@ class StatsController extends Controller
     private function getMostExpensiveDay($query): mixed
     {
         return $query->where('type', 'expense')
-            ->select(DB::raw('DATE(transaction_date) as date'), DB::raw('SUM(amount) as total'))
-            ->groupBy(DB::raw('DATE(transaction_date)'))
+            ->select(DB::raw('DATE(created_at) as date'), DB::raw('SUM(amount) as total'))
+            ->groupBy(DB::raw('DATE(created_at)'))
             ->orderByDesc('total')
             ->first();
     }
@@ -143,7 +143,7 @@ class StatsController extends Controller
         $previousTotal = Transaction::query()
             ->where('user_id', auth()->id())
             ->where('type', 'expense')
-            ->whereBetween('transaction_date', [
+            ->whereBetween('created_at', [
                 $previousStart,
                 Carbon::parse($currentStart)->subDay()
             ])
@@ -152,7 +152,7 @@ class StatsController extends Controller
         $currentTotal = Transaction::query()
             ->where('user_id', auth()->id())
             ->where('type', 'expense')
-            ->where('transaction_date', '>=', $currentStart)
+            ->where('created_at', '>=', $currentStart)
             ->sum('amount');
 
         if ($previousTotal == 0)

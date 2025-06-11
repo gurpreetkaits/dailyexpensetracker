@@ -127,9 +127,9 @@ class ChatService
             $category  = $args['category'] ?? null;
 
             $baseQuery = Transaction::with(['category:id,name'])
-                ->select(['id', 'note', 'category_id', 'amount', 'transaction_date', 'type'])
+                ->select(['id', 'note', 'category_id', 'amount', 'created_at', 'type'])
                 ->where('user_id', $userId)
-                ->whereBetween('transaction_date', ["$startDate 00:00:00", "$endDate 23:59:59"]);
+                ->whereBetween('created_at', ["$startDate 00:00:00", "$endDate 23:59:59"]);
 
             if ($category) {
                 $baseQuery = $this->handleCategoryQuery($baseQuery, $category, $user);
@@ -200,7 +200,7 @@ class ChatService
                 'category' => $tx->category->name ?? '-',
                 'amount' => $tx->amount,
                 'type' => $tx->type,
-                'transaction_date' => $tx->transaction_date->format('Y-m-d'),
+                'created_at' => $tx->created_at->format('Y-m-d'),
             ]),
             'summary' => $summary,
         ];

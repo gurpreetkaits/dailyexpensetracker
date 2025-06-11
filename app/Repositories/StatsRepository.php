@@ -17,8 +17,8 @@ class StatsRepository
         // Previous year
         $previousYearData = Transaction::where('user_id', auth()->id())
             ->where('type', 'expense')
-            ->whereYear('transaction_date', $previousYear)
-            ->selectRaw('MONTH(transaction_date) as month, SUM(amount) as amount')
+            ->whereYear('created_at', $previousYear)
+            ->selectRaw('MONTH(created_at) as month, SUM(amount) as amount')
             ->groupBy('month')
             ->pluck('amount', 'month')
             ->toArray();
@@ -34,8 +34,8 @@ class StatsRepository
         // Current year
         $currentYearData = Transaction::where('user_id', auth()->id())
             ->where('type', 'expense')
-            ->whereYear('transaction_date', $currentYear)
-            ->selectRaw('MONTH(transaction_date) as month, SUM(amount) as amount')
+            ->whereYear('created_at', $currentYear)
+            ->selectRaw('MONTH(created_at) as month, SUM(amount) as amount')
             ->groupBy('month')
             ->pluck('amount', 'month')
             ->toArray();
