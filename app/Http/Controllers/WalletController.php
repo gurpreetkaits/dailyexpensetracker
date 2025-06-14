@@ -66,16 +66,16 @@ class WalletController extends Controller
     public function transfer(Request $request)
     {
         $request->validate([
-            'from_wallet_id' => 'required|exists:wallets,id',
-            'to_wallet_id' => 'required|exists:wallets,id|different:from_wallet_id',
+            'fromWalletId' => 'required|exists:wallets,id',
+            'toWalletId' => 'required|exists:wallets,id|different:fromWalletId',
             'amount' => 'required|numeric|min:0.01',
             'note' => 'nullable|string|max:255'
         ]);
 
         $fromWallet = Wallet::where('user_id', auth()->id())
-            ->findOrFail($request->from_wallet_id);
+            ->findOrFail($request->fromWalletId);
         $toWallet = Wallet::where('user_id', auth()->id())
-            ->findOrFail($request->to_wallet_id);
+            ->findOrFail($request->toWalletId);
 
         if ($fromWallet->balance < $request->amount) {
             return response()->json([
@@ -83,36 +83,34 @@ class WalletController extends Controller
             ], 422);
         }
 
-        if ($fromWallet->currency !== $toWallet->currency) {
-            return response()->json([
-                'message' => 'Cannot transfer between wallets with different currencies'
-            ], 422);
-        }
+        // if ($fromWallet->currency !== $toWallet->currency) {
+        //     return response()->json([
+        //         'message' => 'Cannot transfer between wallets with different currencies'
+        //     ], 422);
+        // }
 
         DB::transaction(function () use ($request, $fromWallet, $toWallet) {
             $fromWallet->decrement('balance', $request->amount);
             $toWallet->increment('balance', $request->amount);
 
-            $transfer = Transaction::create([
+            Transaction::create([
                 'user_id' => auth()->id(),
                 'wallet_id' => $fromWallet->id,
-                'amount' => -$request->amount,
-                'type' => 'transfer_out',
-                'category' => 'transfer',
-                'description' => $request->note ?? "Transfer to {$toWallet->name}",
-                'date' => now(),
-                'transfer_to_wallet_id' => $toWallet->id
+                'amount' => $request->amount,
+                'type' => 'expense',
+                'category_id' => null,
+                'note' => $request->note ?? "Transfer to {$toWallet->name}",
+                'transaction_date' => now(),
             ]);
 
             Transaction::create([
                 'user_id' => auth()->id(),
                 'wallet_id' => $toWallet->id,
                 'amount' => $request->amount,
-                'type' => 'transfer_in',
-                'category' => 'transfer',
-                'description' => $request->note ?? "Transfer from {$fromWallet->name}",
-                'date' => now(),
-                'transfer_from_wallet_id' => $fromWallet->id
+                'type' => 'income',
+                'category_id' => null,
+                'note' => $request->note ?? "Transfer from {$fromWallet->name}",
+                'transaction_date' => now(),
             ]);
 
             $this->service->recordBalanceHistory($fromWallet->id, $fromWallet->balance);
