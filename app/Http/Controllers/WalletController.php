@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Data\WalletStoreData;
 use App\Data\WalletUpdateData;
+use App\Models\Category;
 use App\Models\Wallet;
 use App\Services\WalletService;
 use Exception;
@@ -92,13 +93,14 @@ class WalletController extends Controller
         DB::transaction(function () use ($request, $fromWallet, $toWallet) {
             $fromWallet->decrement('balance', $request->amount);
             $toWallet->increment('balance', $request->amount);
-
+            
+            $category = Category::where('name', 'Wallet Transfer')->first();
             Transaction::create([
                 'user_id' => auth()->id(),
                 'wallet_id' => $fromWallet->id,
                 'amount' => $request->amount,
                 'type' => 'expense',
-                'category_id' => null,
+                'category_id' => $category->id,
                 'note' => $request->note ?? "Transfer to {$toWallet->name}",
                 'transaction_date' => now(),
             ]);
@@ -108,7 +110,7 @@ class WalletController extends Controller
                 'wallet_id' => $toWallet->id,
                 'amount' => $request->amount,
                 'type' => 'income',
-                'category_id' => null,
+                'category_id' => $category->id,
                 'note' => $request->note ?? "Transfer from {$fromWallet->name}",
                 'transaction_date' => now(),
             ]);

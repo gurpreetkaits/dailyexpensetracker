@@ -168,6 +168,12 @@ class CategorySeeder extends Seeder
                 'type' => 'expense',
                 'color' => '#9E9E9E',
                 'icon' => 'ShoppingBag'
+            ],
+            [
+                'name' => 'Wallet Transfer',
+                'type' => 'income',
+                'color' => '#4CAF50',
+                'icon' => 'Wallet'
             ]
         ];
         foreach ($categories as $category) {
