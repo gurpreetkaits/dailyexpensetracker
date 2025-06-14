@@ -147,7 +147,7 @@ class TransactionController extends Controller
         $userId = auth()->id();
         $data = $this->transactionService->getActivityBarDataV2($userId, $period);
         $barTransactions = [];
-        if ($bar) {
+        if (!empty($bar)) {
             $barArr = json_decode($bar, true);
             if (is_array($barArr) && count($barArr) === 2) {
                 $barTransactions = $this->transactionService->getTransactionsForBar($userId, $barArr[0], $barArr[1]);

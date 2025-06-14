@@ -215,7 +215,7 @@ class TransactionService
         $now = now();
         $result = [];
         if($period === 'D'){
-            $dayStart = $now->copy()->startOfDay();
+            $dayStart = $now->copy()->startOfDay(); 
             $dayEnd = $now->copy()->endOfDay();
             $income = Transaction::where('user_id', $userId)
                 ->whereBetween('created_at', [$dayStart, $dayEnd])
@@ -317,8 +317,10 @@ class TransactionService
 
     public function getTransactionsForBar($userId, $start, $end)
     {
-        return Transaction::with(relations: 'category')->where('user_id', $userId)
-            ->whereBetween('created_at', [$start, $end])
+        $startOfTheDay = Carbon::parse($start)->startOfDay();
+        $endOfTheDay = Carbon::parse($end)->endOfDay();
+        return Transaction::with('category')->where('user_id', $userId)
+            ->whereBetween('created_at', [$startOfTheDay, $endOfTheDay])
             ->orderBy('created_at', 'desc')
             ->get();
     }
