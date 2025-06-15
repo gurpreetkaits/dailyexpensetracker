@@ -120,15 +120,12 @@ class WalletService
             case 'update':
                 if (!$oldTransaction)
                     return;
-
-                // First rollback old transaction
                 if ($oldTransaction->type === TransactionTypeEnum::EXPENSE->value) {
-                    $wallet->decrement('balance', $oldTransaction->amount);
-                } else {
                     $wallet->increment('balance', $oldTransaction->amount);
+                } else {
+                    $wallet->decrement('balance', $oldTransaction->amount);
                 }
 
-                // Then apply new transaction
                 if ($transaction->type === TransactionTypeEnum::EXPENSE->value) {
                     $wallet->decrement('balance', $transaction->amount);
                 } else {
@@ -137,6 +134,7 @@ class WalletService
                 break;
         }
 
+        $wallet->save();
         $this->recordBalanceHistory($wallet->id, $wallet->balance);
     }
 }

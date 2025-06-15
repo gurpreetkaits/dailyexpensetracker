@@ -2,6 +2,7 @@
 
 namespace App\Data;
 
+use App\Models\Currency;
 use App\Models\Setting;
 use Spatie\LaravelData\Data;
 

@@ -41,4 +41,15 @@ class UserFactory extends Factory
             'email_verified_at' => null,
         ]);
     }
+
+    public function withSettings(): static
+    {
+        return $this->afterCreating(function ($user) {
+            $user->settings()->create([
+                'currency_code' => 'USD',
+                'language' => 'en',
+                'timezone' => 'UTC',
+            ]);
+        });
+    }
 }

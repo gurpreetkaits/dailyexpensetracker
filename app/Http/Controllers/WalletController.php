@@ -93,7 +93,7 @@ class WalletController extends Controller
         DB::transaction(function () use ($request, $fromWallet, $toWallet) {
             $fromWallet->decrement('balance', $request->amount);
             $toWallet->increment('balance', $request->amount);
-            
+
             $category = Category::where('name', 'Wallet Transfer')->first();
             Transaction::create([
                 'user_id' => auth()->id(),

@@ -7,6 +7,7 @@ use App\Models\Transaction;
 use App\Services\TransactionService;
 use App\Enum\TransactionFilterEnum;
 use App\Services\WalletService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -70,7 +71,7 @@ class TransactionController extends Controller
         return response()->json(['data' => $transaction], 201);
     }
 
-    public function update(Transaction $transaction, Request $request)
+    public function update(Transaction $transaction, Request $request): JsonResponse
     {
         if ($transaction->user_id !== auth()->id()) {
             abort(403, 'unauthorized');
@@ -84,7 +85,6 @@ class TransactionController extends Controller
             'id' => 'exists:transactions,id',
             'wallet_id' => 'required|exists:wallets,id'
         ]);
-
         $oldTransaction = Transaction::find($validated['id'])->first();
 
         $transaction = DB::transaction(function () use ($validated, $transaction,$oldTransaction) {
@@ -133,7 +133,7 @@ class TransactionController extends Controller
 
     public function getTransactions(GetTransactionFilterData $data)
     {
-      
+
         $transactions = $this->transactionService->getCategoryTransactions($data);
 
         return response()->json(['transactions' => $transactions]);

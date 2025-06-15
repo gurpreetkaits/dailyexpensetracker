@@ -215,7 +215,7 @@ class TransactionService
         $now = now();
         $result = [];
         if($period === 'D'){
-            $dayStart = $now->copy()->startOfDay(); 
+            $dayStart = $now->copy()->startOfDay();
             $dayEnd = $now->copy()->endOfDay();
             $income = Transaction::where('user_id', $userId)
                 ->whereBetween('created_at', [$dayStart, $dayEnd])
