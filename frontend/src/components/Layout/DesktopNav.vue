@@ -29,14 +29,14 @@
 </template>
 
 <script>
-import { Settings, Home, User, BarChart, MessageCircle, Star, LogOut, MessageCircleCode, Wallet } from 'lucide-vue-next';
+import { Settings, Home, User, BarChart, MessageCircle, Star, LogOut, MessageCircleCode, Wallet, Landmark } from 'lucide-vue-next';
 import { mapState, mapActions } from 'pinia';
 import { useAuthStore } from '../../store/auth.js';
 import { useRouter } from 'vue-router';
 
 export default {
     name: 'DesktopNav',
-    components: { LogOut, MessageCircle, Wallet },
+    components: { LogOut, MessageCircle, Wallet, Landmark },
     data() {
         return {
             navigation: [
@@ -44,6 +44,7 @@ export default {
                 { path: '/stats', name: 'Stats', icon: BarChart, show: true },
                 { path: '/chat', name: 'Chat', icon: MessageCircle, show: true, premium: true },
                 { path: '/wallets', name: 'Wallets', icon: Wallet, show: true },
+                { path: '/bank-sync', name: 'Bank Sync', icon: Landmark, show: true, beta: true },
                 { path: '/categories', name: 'Categories', icon: Settings, show: true, beta: false },
                 { path: '/settings/account', name: 'Account', icon: User, show: true, beta: false },
                 { path: '/admin-dashboard', name: 'Dashboard', icon: User, show: true },

@@ -37,6 +37,12 @@ const routes = [
         meta: { requiresAuth: true, requiresSubscription: false }
       },
       {
+        path: "bank-sync",
+        component: () => import("../views/BankSyncView.vue"),
+        name: 'bank-sync',
+        meta: { requiresAuth: true, requiresSubscription: false }
+      },
+      {
         path: "plans",
         component: () => import("../views/Settings/PricingPlansView.vue"),
         name: 'plans',
