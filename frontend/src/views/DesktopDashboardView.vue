@@ -116,6 +116,7 @@ import AddTransaction from '../components/AddTransaction.vue'
 import { Dialog, DialogPanel, TransitionRoot, TransitionChild } from '@headlessui/vue'
 import { useTransactionStore } from '../store/transaction'
 import { useSettingsStore } from '../store/settings'
+import { iconMixin } from '../mixins/iconMixin'
 
 export default {
   name: 'DesktopDashboardView',
@@ -127,6 +128,7 @@ export default {
     Cross, ShoppingCart, Book, BriefcaseBusiness, BadgeDollarSign, Dumbbell, Sparkle, SearchIcon, CircleDot, CircleX,
     TrendingUp, TrendingDown, ArrowUpCircle, ArrowDownCircle, PiggyBank, CalendarClock, RepeatIcon, ChevronLeft, ChevronRight
   },
+  mixins: [iconMixin],
   data() {
     return {
       showAddModal: false,
