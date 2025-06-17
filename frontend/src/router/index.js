@@ -31,6 +31,12 @@ const routes = [
         meta: { requiresAuth: true, requiresSubscription: false }
       },
       {
+        path: "overview2",
+        component: () => import("../views/DesktopDashboardView.vue"),
+        name: 'overview2',
+        meta: { requiresAuth: true, requiresSubscription: false }
+      },
+      {
         path: "wallets",
         component: () => import("../views/WalletsView.vue"),
         name: 'wallets',

@@ -41,6 +41,7 @@ export default {
         return {
             navigation: [
                 { path: '/overview', name: 'Overview', icon: Home, show: true },
+                { path: '/overview2.0', name: 'Overview2', icon: Home, show: true },
                 { path: '/stats', name: 'Stats', icon: BarChart, show: true },
                 { path: '/chat', name: 'Chat', icon: MessageCircle, show: true, premium: true },
                 { path: '/wallets', name: 'Wallets', icon: Wallet, show: true },

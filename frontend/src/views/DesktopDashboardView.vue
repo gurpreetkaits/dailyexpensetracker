@@ -26,54 +26,6 @@
       </Dialog>
     </TransitionRoot>
 
-    <!-- Top Section: Merged Summary Card and Spendings Chart -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-      <!-- Compact Merged Summary Card -->
-      <div class="bg-white rounded-xl shadow-sm flex flex-col justify-center p-0 overflow-hidden">
-        <div class="flex flex-col divide-y divide-gray-100">
-          <div class="flex items-center gap-3 px-6 py-4">
-            <div class="w-8 h-8 rounded-full flex items-center justify-center bg-green-50">
-              <Wallet class="h-4 w-4 text-green-500" />
-            </div>
-            <span class="text-base font-medium text-gray-500 flex-1">Total Income</span>
-            <span class="text-lg font-bold text-green-600">{{ formatCurrency(totalIncome, currencyCode) }}</span>
-          </div>
-          <div class="flex items-center gap-3 px-6 py-4">
-            <div class="w-8 h-8 rounded-full flex items-center justify-center bg-red-50">
-              <ShoppingBag class="h-4 w-4 text-red-500" />
-            </div>
-            <span class="text-base font-medium text-gray-500 flex-1">Total Expense</span>
-            <span class="text-lg font-bold text-red-600">{{ formatCurrency(totalExpense, currencyCode) }}</span>
-          </div>
-          <div class="flex items-center gap-3 px-6 py-4">
-            <div class="w-8 h-8 rounded-full flex items-center justify-center bg-blue-50">
-              <CircleDollarSign class="h-4 w-4 text-blue-500" />
-            </div>
-            <span class="text-base font-medium text-gray-500 flex-1">Balance</span>
-            <span class="text-lg font-bold text-blue-600">{{ formatCurrency(balance, currencyCode) }}</span>
-          </div>
-        </div>
-      </div>
-      <!-- Spendings Chart -->
-      <div class="bg-white rounded-lg shadow-sm p-4 h-full flex flex-col">
-        <div class="flex items-center justify-between mb-2">
-          <h3 class="text-base font-semibold">Spendings by Month ({{ new Date().getFullYear() }})</h3>
-        </div>
-        <div v-if="monthlySpendings.length" class="flex-1">
-          <div v-for="month in monthlySpendings" :key="month.label" class="mb-3">
-            <div class="flex justify-between mb-1">
-              <span class="text-xs text-gray-700">{{ month.label }}</span>
-              <span class="text-xs font-medium text-gray-900">{{ formatCurrency(month.amount, currencyCode) }}</span>
-            </div>
-            <div class="w-full bg-gray-100 rounded-full h-2">
-              <div class="bg-blue-500 h-2 rounded-full" :style="{ width: month.percent + '%' }"></div>
-            </div>
-          </div>
-        </div>
-        <div v-else class="text-gray-400 text-sm">No spendings data</div>
-      </div>
-    </div>
-
     <!-- Filter/Add/Pagination Card Bar -->
     <div class="bg-white rounded-xl shadow-sm px-4 py-3 mb-4 flex items-center justify-between gap-2">
       <!-- Add Transaction Button -->

@@ -186,11 +186,17 @@ export default {
     },
     methods: {
         async proceedToApp() {
-            await this.router.push('/overview');
+            try {
+                await this.router.push({ name: 'overview' });
+            } catch (error) {
+                console.error('Navigation error:', error);
+                // Fallback navigation if the first attempt fails
+                this.router.replace({ path: '/overview' });
+            }
         },
 
         showPostLoginSurvey() {
-            this.showSurvey = true;
+            this.showSurvey = false;
             this.surveyStep = 1;
             this.selectedNeeds = [];
             this.otherNeed = '';
