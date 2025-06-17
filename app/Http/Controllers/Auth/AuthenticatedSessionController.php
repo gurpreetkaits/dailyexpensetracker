@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Models\Setting;
 use App\Models\User;
+use App\Models\Wallet;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -61,6 +62,13 @@ class AuthenticatedSessionController extends Controller
                     'user_id' => $user->id,
                     'currency_code' => 'USD',
                     'reminders' => 0,
+                ]);
+
+                Wallet::create([
+                    'user_id' => $user->id,
+                    'type' => 'cash',
+                    'name' => 'Default',
+                    'balance' => 0,
                 ]);
             }
 

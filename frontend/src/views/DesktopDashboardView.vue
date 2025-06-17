@@ -5,26 +5,19 @@
       <Plus class="h-7 w-7" />
     </button>
 
-    <!-- Add Transaction Modal -->
-    <TransitionRoot appear :show="showAddModal" as="template">
-      <Dialog as="div" @close="closeModal" class="relative z-50">
-        <TransitionChild enter="duration-200 ease-out" enter-from="opacity-0" enter-to="opacity-100"
-          leave="duration-200 ease-in" leave-from="opacity-100" leave-to="opacity-0">
-          <div class="fixed inset-0 bg-black/30 backdrop-blur-sm" />
-        </TransitionChild>
-        <div class="fixed inset-0 overflow-y-auto">
-          <div class="flex min-h-full items-center justify-center p-4">
-            <TransitionChild enter="duration-300 ease-out" enter-from="opacity-0 scale-95"
-              enter-to="opacity-100 scale-100" leave="duration-200 ease-in" leave-from="opacity-100 scale-100"
-              leave-to="opacity-0 scale-95">
-              <DialogPanel class="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 shadow-xl transition-all">
-                <AddTransaction @transaction-added="handleTransactionAdded" @close="closeModal" :item="editingTransaction" />
-              </DialogPanel>
-            </TransitionChild>
-          </div>
-        </div>
-      </Dialog>
-    </TransitionRoot>
+    <!-- GlobalModal implementation -->
+    <GlobalModal 
+      :model-value="showAddModal" 
+      @update:model-value="showAddModal = $event" 
+      title="Add Transaction"
+      size="max-w-md"
+    >
+      <AddTransaction 
+        @transaction-added="handleTransactionAdded" 
+        @close="closeModal" 
+        :item="editingTransaction" 
+      />
+    </GlobalModal>
 
     <!-- Filter/Add/Pagination Card Bar -->
     <div class="bg-white rounded-xl shadow-sm px-4 py-3 mb-4 flex items-center justify-between gap-2">
@@ -71,6 +64,7 @@
               <th class="py-2 text-left font-medium">Category</th>
               <th class="py-2 text-left font-medium">Type</th>
               <th class="py-2 text-left font-medium">Note</th>
+              <th class="py-2 text-left font-medium">Wallet</th>
               <th class="py-2 text-left font-medium">Amount</th>
               <th class="py-2 text-left font-medium">Date</th>
             </tr>
@@ -92,6 +86,7 @@
                 </span>
               </td>
               <td class="py-2">{{ transaction.note }}</td>
+              <td class="py-2">{{ transaction.wallet?.name.toUpperCase() || '-' }}</td>
               <td class="py-2">{{ formatCurrency(transaction.amount, currencyCode) }}</td>
               <td class="py-2">{{ formatDate(transaction.transaction_date) }}</td>
             </tr>
@@ -113,20 +108,20 @@ import {
   TrendingUp, TrendingDown, ArrowUpCircle, ArrowDownCircle, PiggyBank, CalendarClock, RepeatIcon, ChevronLeft, ChevronRight
 } from 'lucide-vue-next'
 import AddTransaction from '../components/AddTransaction.vue'
-import { Dialog, DialogPanel, TransitionRoot, TransitionChild } from '@headlessui/vue'
+import GlobalModal from '../components/Global/GlobalModal.vue'
 import { useTransactionStore } from '../store/transaction'
 import { useSettingsStore } from '../store/settings'
 import { iconMixin } from '../mixins/iconMixin'
-
+import { useCategoryStore } from '../store/category'  
 export default {
   name: 'DesktopDashboardView',
   components: {
     AddTransaction,
-    Dialog, DialogPanel, TransitionRoot, TransitionChild,
+    GlobalModal,
     Calendar, Trash2, Plus, Car, ReceiptIcon, Video, BriefcaseMedical, Gift, Circle, CircleEllipsis, Pizza, CircleDollarSign,
     HandCoins, Wallet, ChartCandlestick, Landmark, Citrus, ShoppingBag, House, Receipt, Clapperboard, Plane, Contact,
     Cross, ShoppingCart, Book, BriefcaseBusiness, BadgeDollarSign, Dumbbell, Sparkle, SearchIcon, CircleDot, CircleX,
-    TrendingUp, TrendingDown, ArrowUpCircle, ArrowDownCircle, PiggyBank, CalendarClock, RepeatIcon, ChevronLeft, ChevronRight
+    TrendingUp, TrendingDown, ArrowUpCircle, ArrowDownCircle, PiggyBank, CalendarClock, RepeatIcon, ChevronLeft, ChevronRight, 
   },
   mixins: [iconMixin],
   data() {
@@ -145,6 +140,9 @@ export default {
     },
     currencyCode() {
       return useSettingsStore().currencyCode
+    },
+    categories() {
+      return useCategoryStore().categories
     },
     filteredTransactions() {
       return this.transactions
@@ -213,6 +211,7 @@ export default {
     async fetchData() {
       await useSettingsStore().fetchSettings()
       await useTransactionStore().fetchTransactions('all')
+      await useCategoryStore().fetchCategories()
     },
     async handleTransactionAdded(transaction) {
       this.showAddModal = false

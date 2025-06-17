@@ -23,7 +23,7 @@ class TransactionService
         $cacheKey = "transactions_user_{$userId}_" . time();
 
         return Cache::remember($cacheKey, $this->cacheTimeout, function () use ($userId, $filter) {
-            $query = Transaction::with('category')->where('user_id', $userId);
+            $query = Transaction::with(['category','wallet:id,name'])->where('user_id', $userId);
 
             if ($filter) {
                 $dateArr = $this->getFromFilter($filter);
