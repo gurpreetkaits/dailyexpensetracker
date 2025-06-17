@@ -3,6 +3,7 @@ import { defineStore } from "pinia";
 import {
   getTransactionById,
   getTransactions,
+  getPaginatedTransactions,
   saveTransaction,
   updateTransaction,
   getTransactionStats,
@@ -14,6 +15,15 @@ import axios from "axios";
 export const useTransactionStore = defineStore("transaction", {
   state: () => ({
     transactions: [],
+    pagination: {
+      current_page: 1,
+      per_page: 10,
+      total: 0,
+      last_page: 1,
+      from: 0,
+      to: 0,
+      links: []
+    },
     summary: {
       totalExpense: 0,
       totalIncome: 0,
@@ -85,6 +95,41 @@ export const useTransactionStore = defineStore("transaction", {
       }
     },
 
+    async fetchPaginatedTransactions(page = 1, dateFilter = 'all') {
+      this.loading = true;
+      try {
+        const { data } = await getPaginatedTransactions(page, dateFilter);
+        this.transactions = data.transactions.data || [];
+        this.pagination = {
+          current_page: data.transactions.current_page || 1,
+          per_page: data.transactions.per_page || 10,
+          total: data.transactions.total || 0,
+          last_page: data.transactions.last_page || 1,
+          from: data.transactions.from || 0,
+          to: data.transactions.to || 0,
+          links: data.transactions.links || []
+        };
+        this.summary = data.summary;
+        this.totalBalance = this.getBalance;
+        return data;
+      } catch (error) {
+        console.error('Error fetching paginated transactions:', error);
+        this.transactions = [];
+        this.pagination = {
+          current_page: 1,
+          per_page: 10,
+          total: 0,
+          last_page: 1,
+          from: 0,
+          to: 0,
+          links: []
+        };
+        return null;
+      } finally {
+        this.loading = false;
+        this.isLoaded = true;
+      }
+    },
     async addTransaction(transaction) {
       try {
         const { data } = await saveTransaction(transaction);

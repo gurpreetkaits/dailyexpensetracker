@@ -52,6 +52,29 @@ class TransactionController extends Controller
         ]);
     }
 
+    public function paginated(Request $request)
+    {
+        $validated = $request->validate([
+            'filter' => ['nullable', 'in:today,monthly,yearly,all,weekly,yesterday'],
+            'page' => ['nullable', 'integer', 'min:1'],
+            'per_page' => ['nullable', 'integer', 'min:5', 'max:100'],
+        ]);
+
+        $transactions = $this->transactionService->getPaginatedUserTransactions(
+            auth()->id(),
+            $validated['filter'] ?? 'all',
+            $validated['page'] ?? 1,
+            $validated['per_page'] ?? 10
+        );
+
+        $summary = $this->transactionService->getTransactionSummary(auth()->id(), $validated['filter'] ?? 'all');
+
+        return response()->json([
+            'transactions' => $transactions,
+            'summary' => $summary
+        ]);
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([

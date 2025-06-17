@@ -39,6 +39,33 @@ class TransactionService
                 ->get();
         });
     }
+
+    /**
+     * Get paginated user's transactions with caching
+     * Paginated and filtered by date range
+     */
+    public function getPaginatedUserTransactions($userId, $filter, $page = 1, $perPage = 10)
+    {
+        $cacheKey = "paginated_transactions_user_{$userId}_{$filter}_page_{$page}_perPage_{$perPage}_" . time();
+
+        return Cache::remember($cacheKey, $this->cacheTimeout, function () use ($userId, $filter, $page, $perPage) {
+            $query = Transaction::with(['category','wallet:id,name'])->where('user_id', $userId);
+
+            if ($filter && $filter !== 'all') {
+                $dateArr = $this->getFromFilter($filter);
+                if ($dateArr) {
+                    $query->whereBetween('created_at', [
+                        $dateArr['start'],
+                        $dateArr['end']
+                    ]);
+                }
+            }
+
+            return $query->latest('created_at')
+                ->paginate($perPage, ['*'], 'page', $page);
+        });
+    }
+
     private function getFromFilter(string $filter): array
     {
         return match ($filter) {
@@ -68,6 +95,7 @@ class TransactionService
             ]
         };
     }
+
     /**
      * Get transaction summary (totals by type)
      */

@@ -25,6 +25,12 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::middleware('auth:sanctum')->group(function () {
+
+    Route::controller(TransactionController::class)->group(function () {
+        Route::get('transactions/search', 'search');
+        Route::get('transactions/paginated', 'paginated');
+    });
+    
     //Load Stats
     Route::get('transactions/stats', [StatsController::class, 'showStats']);
     Route::get('/stats/yearly-comparison', [StatsController::class, 'yearlyComparison']);
@@ -44,9 +50,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::resource('settings', SettingsController::class);
     Route::resource('currencies', CurrencyController::class);
     Route::resource('transactions', TransactionController::class);
-    Route::controller(TransactionController::class)->group(function () {
-        Route::get('transactions/search', [TransactionController::class, 'search']);
-    });
+    
     Route::resource('recurring-expenses', RecurringExpenseController::class);
     Route::get('stats', [StatsController::class, 'index']);
     Route::resource('goals', GoalsController::class);
@@ -96,4 +100,3 @@ Route::middleware('auth:sanctum')->group(function () {
 
 Route::post('register', [RegisteredUserController::class, 'store']);
 Route::post('login', [AuthenticatedSessionController::class, 'store']);
-

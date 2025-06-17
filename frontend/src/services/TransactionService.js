@@ -3,6 +3,11 @@ import axiosConf from "../config/axiosConf.js";
 export const getTransactions = async (dateFilter) => {
     return await axiosConf.get(`/api/transactions?${objectToQueryString({filter: dateFilter.toLowerCase()})}`);
 };
+
+export const getPaginatedTransactions = async (page = 1, dateFilter = 'all') => {
+    return await axiosConf.get(`/api/transactions/paginated?page=${page}&${objectToQueryString({filter: dateFilter.toLowerCase()})}`);
+};
+
 export const saveTransaction = async (transaction) => {
   const { data } = await axiosConf.post("/api/transactions", transaction);
   return data;

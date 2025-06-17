@@ -31,25 +31,21 @@
 
       <!-- Pagination Controls -->
       <div class="flex-shrink-0">
-        <div v-if="totalPages > 1" class="flex items-center gap-1">
-          <button @click="handlePageChange(currentPage - 1)"
-                  :disabled="currentPage === 1"
-                  class="px-2 py-1 rounded border text-sm disabled:opacity-50"
-                  :class="currentPage === 1 ? 'text-gray-400' : 'text-gray-700 hover:bg-gray-50'">
-            Previous
-          </button>
-          <button v-for="page in displayedPages"
-                  :key="page"
-                  @click="handlePageChange(page)"
-                  class="px-2 py-1 rounded border text-sm"
-                  :class="currentPage === page ? 'bg-emerald-500 text-white border-emerald-500' : 'text-gray-700 hover:bg-gray-50'">
-            {{ page }}
-          </button>
-          <button @click="handlePageChange(currentPage + 1)"
-                  :disabled="currentPage === totalPages"
-                  class="px-2 py-1 rounded border text-sm disabled:opacity-50"
-                  :class="currentPage === totalPages ? 'text-gray-400' : 'text-gray-700 hover:bg-gray-50'">
-            Next
+        <div v-if="paginationLinks.length > 3" class="flex items-center gap-1">
+          <button 
+            v-for="link in paginationLinks" 
+            :key="link.label"
+            @click="handlePageChange(link.url)"
+            :disabled="!link.url"
+            class="px-2 py-1 rounded border text-sm disabled:opacity-50"
+            :class="[
+              link.active 
+                ? 'bg-emerald-500 text-white border-emerald-500' 
+                : 'text-gray-700 hover:bg-gray-50',
+              !link.url ? 'text-gray-400' : ''
+            ]"
+            v-html="link.label"
+          >
           </button>
         </div>
       </div>
@@ -57,7 +53,12 @@
 
     <!-- Transactions Table with Pagination -->
     <div>
-      <div v-if="paginatedTransactions.length > 0" class="bg-white rounded-xl shadow-sm p-4 overflow-x-auto min-h-[440px]">
+      <!-- Loading State -->
+      <div v-if="loading" class="bg-white rounded-xl shadow-sm p-4 flex items-center justify-center min-h-[440px]">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
+      </div>
+
+      <div v-else-if="transactions.length > 0" class="bg-white rounded-xl shadow-sm p-4 overflow-x-auto min-h-[440px]">
         <table class="min-w-full text-sm">
           <thead>
             <tr class="text-gray-500 border-b">
@@ -70,7 +71,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="transaction in paginatedTransactions" :key="transaction.id" class="border-b last:border-0">
+            <tr v-for="transaction in transactions" :key="transaction.id" class="border-b last:border-0">
               <td class="py-2 flex items-center gap-2">
                 <div class="w-7 h-7 rounded-full flex items-center justify-center" :style="{
                   backgroundColor: (transaction.category?.color + '15') || (transaction.type === 'income' ? '#e6ffed' : '#ffeded'),
@@ -92,6 +93,13 @@
             </tr>
           </tbody>
         </table>
+
+        <!-- Pagination Info -->
+        <div class="mt-4 flex justify-between items-center text-sm text-gray-500">
+          <div>
+            Showing {{ pagination.from }} to {{ pagination.to }} of {{ pagination.total }} transactions
+          </div>
+        </div>
       </div>
       <div v-else class="bg-white rounded-xl shadow-sm p-4 flex flex-col items-center justify-center min-h-[440px]">
         <span class="text-gray-400 text-lg font-medium">No Transactions</span>
@@ -131,21 +139,28 @@ export default {
       searchQuery: '',
       currentPage: 1,
       itemsPerPage: 10,
-      saving: false
+      saving: false,
+      dateFilter: 'all'
     }
   },
   computed: {
     transactions() {
       return useTransactionStore().transactions
     },
+    pagination() {
+      return useTransactionStore().pagination
+    },
+    paginationLinks() {
+      return this.pagination.links || []
+    },
     currencyCode() {
       return useSettingsStore().currencyCode
     },
+    loading() {
+      return useTransactionStore().loading
+    },
     categories() {
       return useCategoryStore().categories
-    },
-    filteredTransactions() {
-      return this.transactions
     },
     totalIncome() {
       return this.transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + Number(t.amount), 0)
@@ -177,7 +192,7 @@ export default {
       }))
     },
     totalItems() {
-      return this.filteredTransactions.length
+      return this.transactions.length
     },
     totalPages() {
       return Math.ceil(this.totalItems / this.itemsPerPage)
@@ -188,47 +203,34 @@ export default {
     endIndex() {
       return Math.min(this.currentPage * this.itemsPerPage, this.totalItems)
     },
-    paginatedTransactions() {
-      const start = (this.currentPage - 1) * this.itemsPerPage
-      const end = start + this.itemsPerPage
-      return this.filteredTransactions.slice(start, end)
-    },
-    displayedPages() {
-      const pages = []
-      const maxVisiblePages = 5
-      let start = Math.max(1, this.currentPage - Math.floor(maxVisiblePages / 2))
-      let end = Math.min(this.totalPages, start + maxVisiblePages - 1)
-      if (end - start + 1 < maxVisiblePages) {
-        start = Math.max(1, end - maxVisiblePages + 1)
-      }
-      for (let i = start; i <= end; i++) {
-        pages.push(i)
-      }
-      return pages
-    }
   },
   methods: {
     async fetchData() {
       await useSettingsStore().fetchSettings()
-      await useTransactionStore().fetchTransactions('all')
-      await useCategoryStore().fetchCategories()
+      await useTransactionStore().fetchPaginatedTransactions(this.currentPage, this.dateFilter)
     },
     async handleTransactionAdded(transaction) {
-      this.showAddModal = false
-      await useTransactionStore().addTransaction(transaction)
-      await this.fetchData()
+      this.showAddModal = false;
+      await useTransactionStore().addTransaction(transaction);
+      await this.fetchData();
     },
     openAddModal() {
-      this.editingTransaction = null
-      this.showAddModal = true
+      this.editingTransaction = null;
+      this.showAddModal = true;
     },
     closeModal() {
-      this.showAddModal = false
-      this.editingTransaction = null
+      this.showAddModal = false;
+      this.editingTransaction = null;
     },
-    handlePageChange(page) {
-      if (page < 1 || page > this.totalPages) return
-      this.currentPage = page
+    handlePageChange(url) {
+      if (!url) return;
+      
+      // Extract page number from URL
+      const pageMatch = url.match(/page=(\d+)/);
+      if (pageMatch && pageMatch[1]) {
+        this.currentPage = parseInt(pageMatch[1]);
+        this.fetchData();
+      }
     },
     formatCurrency(amount, currencyCode) {
       return new Intl.NumberFormat('en-US', {
