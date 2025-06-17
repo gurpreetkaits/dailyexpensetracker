@@ -4,8 +4,20 @@ export const getTransactions = async (dateFilter) => {
     return await axiosConf.get(`/api/transactions?${objectToQueryString({filter: dateFilter.toLowerCase()})}`);
 };
 
-export const getPaginatedTransactions = async (page = 1, dateFilter = 'all') => {
-    return await axiosConf.get(`/api/transactions/paginated?page=${page}&${objectToQueryString({filter: dateFilter.toLowerCase()})}`);
+export const getPaginatedTransactions = async (page = 1, filters = {}) => {
+    const queryParams = {
+        page,
+        ...filters
+    };
+    
+    // Convert any filter values to lowercase if they're strings
+    Object.keys(queryParams).forEach(key => {
+        if (typeof queryParams[key] === 'string') {
+            queryParams[key] = queryParams[key].toLowerCase();
+        }
+    });
+    
+    return await axiosConf.get(`/api/transactions/paginated?${objectToQueryString(queryParams)}`);
 };
 
 export const saveTransaction = async (transaction) => {

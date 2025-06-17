@@ -24,6 +24,15 @@ export const useTransactionStore = defineStore("transaction", {
       to: 0,
       links: []
     },
+    filters: {
+      filter: 'all',
+      type: 'all',
+      wallet_id: null,
+      category_id: null,
+      search: '',
+      date_from: null,
+      date_to: null
+    },
     summary: {
       totalExpense: 0,
       totalIncome: 0,
@@ -95,10 +104,25 @@ export const useTransactionStore = defineStore("transaction", {
       }
     },
 
-    async fetchPaginatedTransactions(page = 1, dateFilter = 'all') {
+    async fetchPaginatedTransactions(page = 1, filters = {}) {
       this.loading = true;
+      
+      // Merge default filters with provided filters
+      const appliedFilters = {
+        ...this.filters,
+        ...filters,
+        page
+      };
+      
+      // Remove null/undefined/empty string values
+      Object.keys(appliedFilters).forEach(key => {
+        if (appliedFilters[key] === null || appliedFilters[key] === undefined || appliedFilters[key] === '') {
+          delete appliedFilters[key];
+        }
+      });
+      
       try {
-        const { data } = await getPaginatedTransactions(page, dateFilter);
+        const { data } = await getPaginatedTransactions(page, appliedFilters);
         this.transactions = data.transactions.data || [];
         this.pagination = {
           current_page: data.transactions.current_page || 1,
@@ -111,6 +135,10 @@ export const useTransactionStore = defineStore("transaction", {
         };
         this.summary = data.summary;
         this.totalBalance = this.getBalance;
+        
+        // Update filters state with applied filters
+        this.filters = { ...this.filters, ...filters };
+        
         return data;
       } catch (error) {
         console.error('Error fetching paginated transactions:', error);
@@ -129,6 +157,24 @@ export const useTransactionStore = defineStore("transaction", {
         this.loading = false;
         this.isLoaded = true;
       }
+    },
+    
+    updateFilters(filters) {
+      this.filters = { ...this.filters, ...filters };
+      return this.fetchPaginatedTransactions(1, this.filters);
+    },
+    
+    resetFilters() {
+      this.filters = {
+        filter: 'all',
+        type: 'all',
+        wallet_id: null,
+        category_id: null,
+        search: '',
+        date_from: null,
+        date_to: null
+      };
+      return this.fetchPaginatedTransactions(1, this.filters);
     },
     async addTransaction(transaction) {
       try {

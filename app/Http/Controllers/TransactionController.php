@@ -58,13 +58,17 @@ class TransactionController extends Controller
             'filter' => ['nullable', 'in:today,monthly,yearly,all,weekly,yesterday'],
             'page' => ['nullable', 'integer', 'min:1'],
             'per_page' => ['nullable', 'integer', 'min:5', 'max:100'],
+            'type' => ['nullable', 'in:expense,income,all'],
+            'wallet_id' => ['nullable', 'integer'],
+            'category_id' => ['nullable', 'integer'],
+            'search' => ['nullable', 'string', 'max:255'],
+            'date_from' => ['nullable', 'date'],
+            'date_to' => ['nullable', 'date'],
         ]);
 
         $transactions = $this->transactionService->getPaginatedUserTransactions(
             auth()->id(),
-            $validated['filter'] ?? 'all',
-            $validated['page'] ?? 1,
-            $validated['per_page'] ?? 10
+            $validated
         );
 
         $summary = $this->transactionService->getTransactionSummary(auth()->id(), $validated['filter'] ?? 'all');

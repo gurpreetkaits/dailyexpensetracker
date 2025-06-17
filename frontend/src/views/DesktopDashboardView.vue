@@ -19,6 +19,109 @@
       />
     </GlobalModal>
 
+    <!-- Filter Bar -->
+    <div class="bg-white rounded-xl shadow-sm px-4 py-2 mb-4">
+      <div class="flex flex-wrap items-center gap-2">
+        <!-- Search Filter -->
+        <div class="flex-grow min-w-[180px] max-w-xs">
+          <div class="relative">
+            <input 
+              type="text" 
+              v-model="filters.search" 
+              @input="debouncedSearch"
+              placeholder="Search transactions..." 
+              class="w-full px-3 py-1.5 text-sm bg-gray-50/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 focus:bg-white transition-all duration-200 hover:border-gray-300 cursor-pointer"
+            />
+            <SearchIcon class="absolute right-2.5 top-2 h-4 w-4 text-gray-400" />
+          </div>
+        </div>
+        
+        <!-- Type Filter -->
+        <div class="min-w-[110px]">
+          <select 
+            v-model="filters.type" 
+            @change="applyFilters"
+            class="w-full px-3 py-1.5 text-sm bg-gray-50/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 focus:bg-white transition-all duration-200 hover:border-gray-300 cursor-pointer"
+          >
+            <option value="all">All Types</option>
+            <option value="expense">Expense</option>
+            <option value="income">Income</option>
+          </select>
+        </div>
+        
+        <!-- Category Filter -->
+        <div class="min-w-[130px]">
+          <select 
+            v-model="filters.category_id" 
+            @change="applyFilters"
+            class="w-full px-3 py-1.5 text-sm bg-gray-50/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 focus:bg-white transition-all duration-200 hover:border-gray-300 cursor-pointer"
+          >
+            <option :value="null">All Categories</option>
+            <option v-for="category in categories" :key="category.id" :value="category.id">
+              {{ capitalizeFirstLetter(category.name) }}
+            </option>
+          </select>
+        </div>
+        
+        <!-- Wallet Filter -->
+        <div class="min-w-[120px]">
+          <select 
+            v-model="filters.wallet_id" 
+            @change="applyFilters"
+            class="w-full px-3 py-1.5 text-sm bg-gray-50/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 focus:bg-white transition-all duration-200 hover:border-gray-300 cursor-pointer"
+          >
+            <option :value="null">All Wallets</option>
+            <option v-for="wallet in wallets" :key="wallet.id" :value="wallet.id">
+              {{ wallet.name.toUpperCase() }}
+            </option>
+          </select>
+        </div>
+        
+        <!-- Date Filter -->
+        <div class="min-w-[120px]">
+          <select 
+            v-model="filters.filter" 
+            @change="applyFilters"
+            class="w-full px-3 py-1.5 text-sm bg-gray-50/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 focus:bg-white transition-all duration-200 hover:border-gray-300 cursor-pointer"
+          >
+            <option value="all">All Time</option>
+            <option value="today">Today</option>
+            <option value="yesterday">Yesterday</option>
+            <option value="weekly">This Week</option>
+            <option value="monthly">This Month</option>
+            <option value="yearly">This Year</option>
+          </select>
+        </div>
+        
+        <!-- Date Range Picker -->
+        <div class="flex items-center gap-1 min-w-[220px]">
+          <input 
+            type="date" 
+            v-model="filters.date_from" 
+            @change="applyFilters"
+            class="flex-1 px-3 py-1.5 text-sm bg-gray-50/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 focus:bg-white transition-all duration-200 hover:border-gray-300 cursor-pointer"
+          />
+          <span class="text-gray-500 text-sm">-</span>
+          <input 
+            type="date" 
+            v-model="filters.date_to" 
+            @change="applyFilters"
+            class="flex-1 px-3 py-1.5 text-sm bg-gray-50/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 focus:bg-white transition-all duration-200 hover:border-gray-300 cursor-pointer"
+          />
+        </div>
+        
+        <!-- Reset Filters Button -->
+        <div>
+          <button 
+            @click="resetFilters" 
+            class="px-3 py-1.5 text-sm border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500"
+          >
+            Reset
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Filter/Add/Pagination Card Bar -->
     <div class="bg-white rounded-xl shadow-sm px-4 py-3 mb-4 flex items-center justify-between gap-2">
       <!-- Add Transaction Button -->
@@ -119,8 +222,9 @@ import AddTransaction from '../components/AddTransaction.vue'
 import GlobalModal from '../components/Global/GlobalModal.vue'
 import { useTransactionStore } from '../store/transaction'
 import { useSettingsStore } from '../store/settings'
+import { useCategoryStore } from '../store/category'
+import { useWalletStore } from '../store/wallet'
 import { iconMixin } from '../mixins/iconMixin'
-import { useCategoryStore } from '../store/category'  
 export default {
   name: 'DesktopDashboardView',
   components: {
@@ -136,11 +240,18 @@ export default {
     return {
       showAddModal: false,
       editingTransaction: null,
-      searchQuery: '',
+      filters: {
+        search: '',
+        type: 'all',
+        category_id: null,
+        wallet_id: null,
+        filter: 'all',
+        date_from: null,
+        date_to: null
+      },
+      searchTimeout: null,
       currentPage: 1,
-      itemsPerPage: 10,
       saving: false,
-      dateFilter: 'all'
     }
   },
   computed: {
@@ -161,6 +272,9 @@ export default {
     },
     categories() {
       return useCategoryStore().categories
+    },
+    wallets() {
+      return useWalletStore().wallets
     },
     totalIncome() {
       return this.transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + Number(t.amount), 0)
@@ -207,7 +321,9 @@ export default {
   methods: {
     async fetchData() {
       await useSettingsStore().fetchSettings()
-      await useTransactionStore().fetchPaginatedTransactions(this.currentPage, this.dateFilter)
+      await useCategoryStore().fetchCategories()
+      await useWalletStore().fetchWallets()
+      await useTransactionStore().fetchPaginatedTransactions(this.currentPage, this.filters)
     },
     async handleTransactionAdded(transaction) {
       this.showAddModal = false;
@@ -231,6 +347,32 @@ export default {
         this.currentPage = parseInt(pageMatch[1]);
         this.fetchData();
       }
+    },
+    applyFilters() {
+      this.currentPage = 1;
+      useTransactionStore().fetchPaginatedTransactions(1, this.filters);
+    },
+    debouncedSearch() {
+      if (this.searchTimeout) {
+        clearTimeout(this.searchTimeout);
+      }
+      
+      this.searchTimeout = setTimeout(() => {
+        this.applyFilters();
+      }, 500);
+    },
+    resetFilters() {
+      this.filters = {
+        search: '',
+        type: 'all',
+        category_id: null,
+        wallet_id: null,
+        filter: 'all',
+        date_from: null,
+        date_to: null
+      };
+      this.currentPage = 1;
+      useTransactionStore().fetchPaginatedTransactions(1, this.filters);
     },
     formatCurrency(amount, currencyCode) {
       return new Intl.NumberFormat('en-US', {
