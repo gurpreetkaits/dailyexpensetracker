@@ -123,33 +123,35 @@
     </div>
 
     <!-- Filter/Add/Pagination Card Bar -->
-    <div class="bg-white rounded-xl shadow-sm px-4 py-3 mb-4 flex items-center justify-between gap-2">
-      <!-- Add Transaction Button -->
-      <div class="flex-shrink-0">
-        <button @click="openAddModal" class="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-medium px-5 py-2 rounded-lg shadow transition-all">
-          <Plus class="h-4 w-4" />
-          Add Transaction
-        </button>
-      </div>
-
-      <!-- Pagination Controls -->
-      <div class="flex-shrink-0">
-        <div v-if="paginationLinks.length > 3" class="flex items-center gap-1">
-          <button 
-            v-for="link in paginationLinks" 
-            :key="link.label"
-            @click="handlePageChange(link.url)"
-            :disabled="!link.url"
-            class="px-2 py-1 rounded border text-sm disabled:opacity-50"
-            :class="[
-              link.active 
-                ? 'bg-emerald-500 text-white border-emerald-500' 
-                : 'text-gray-700 hover:bg-gray-50',
-              !link.url ? 'text-gray-400' : ''
-            ]"
-            v-html="link.label"
-          >
+    <div class="bg-white rounded-xl shadow-sm px-4 py-3 mb-4">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <!-- Add Transaction Button -->
+        <div class="flex-shrink-0 mb-2 sm:mb-0">
+          <button @click="openAddModal" class="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-medium px-5 py-2 rounded-lg shadow transition-all">
+            <Plus class="h-4 w-4" />
+            Add Transaction
           </button>
+        </div>
+
+        <!-- Pagination Controls -->
+        <div class="flex-shrink-0 w-full sm:w-auto">
+          <div v-if="paginationLinks.length > 3" class="flex flex-wrap items-center justify-end gap-1">
+            <button 
+              v-for="link in paginationLinks" 
+              :key="link.label"
+              @click="handlePageChange(link.url)"
+              :disabled="!link.url"
+              class="px-2 py-1 rounded border text-sm disabled:opacity-50"
+              :class="[
+                link.active 
+                  ? 'bg-emerald-500 text-white border-emerald-500' 
+                  : 'text-gray-700 hover:bg-gray-50',
+                !link.url ? 'text-gray-400' : ''
+              ]"
+              v-html="link.label"
+            >
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -318,17 +320,36 @@ export default {
       return Math.min(this.currentPage * this.itemsPerPage, this.totalItems)
     },
   },
+  created() {
+    this.loadInitialData();
+  },
+  mounted() {
+    this.fetchTransactions();
+  },
   methods: {
+    async loadInitialData() {
+      await useSettingsStore().fetchSettings();
+      
+      // Only fetch categories and wallets if they're not already loaded
+      if (!useCategoryStore().categories.length) {
+        await useCategoryStore().fetchCategories();
+      }
+      
+      if (!useWalletStore().wallets.length) {
+        await useWalletStore().fetchWallets();
+      }
+    },
+    async fetchTransactions() {
+      await useTransactionStore().fetchPaginatedTransactions(this.currentPage, this.filters);
+    },
     async fetchData() {
-      await useSettingsStore().fetchSettings()
-      await useCategoryStore().fetchCategories()
-      await useWalletStore().fetchWallets()
-      await useTransactionStore().fetchPaginatedTransactions(this.currentPage, this.filters)
+      // Only fetch transactions, not categories and wallets
+      await this.fetchTransactions();
     },
     async handleTransactionAdded(transaction) {
       this.showAddModal = false;
       await useTransactionStore().addTransaction(transaction);
-      await this.fetchData();
+      await this.fetchTransactions();
     },
     openAddModal() {
       this.editingTransaction = null;
@@ -345,12 +366,12 @@ export default {
       const pageMatch = url.match(/page=(\d+)/);
       if (pageMatch && pageMatch[1]) {
         this.currentPage = parseInt(pageMatch[1]);
-        this.fetchData();
+        this.fetchTransactions();
       }
     },
     applyFilters() {
       this.currentPage = 1;
-      useTransactionStore().fetchPaginatedTransactions(1, this.filters);
+      this.fetchTransactions();
     },
     debouncedSearch() {
       if (this.searchTimeout) {
@@ -372,7 +393,7 @@ export default {
         date_to: null
       };
       this.currentPage = 1;
-      useTransactionStore().fetchPaginatedTransactions(1, this.filters);
+      this.fetchTransactions();
     },
     formatCurrency(amount, currencyCode) {
       return new Intl.NumberFormat('en-US', {
@@ -390,13 +411,6 @@ export default {
     capitalizeFirstLetter(str) {
       if (!str) return ''
       return str.charAt(0).toUpperCase() + str.slice(1)
-    }
-  },
-  async created() {
-    try {
-      await this.fetchData()
-    } catch (error) {
-      console.error('Error loading transactions:', error)
     }
   }
 }
