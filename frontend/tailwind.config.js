@@ -9,8 +9,21 @@ export default {
     "./index.html",
     "./src/**/*.{vue,js,ts,jsx,tsx}",
   ],
+  darkMode: 'class',
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        // Light mode colors
+        'light-bg': '#ffffff',
+        'light-text': '#333333',
+        'light-accent': '#3b82f6',
+        
+        // Dark mode colors
+        'dark-bg': '#1e293b',
+        'dark-text': '#f3f4f6',
+        'dark-accent': '#60a5fa',
+      }
+    },
   },
   plugins: [
     typography,

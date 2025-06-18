@@ -16,6 +16,12 @@ const routes = [
         component: () => import("../views/LoginView.vue"),
         name: 'login',
         meta: { requiresAuth: false, requiresSubscription: false }
+      },
+      {
+        path: "/",
+        component: () => import("../views/LoginView.vue"),
+        name: 'home',
+        meta: { requiresAuth: false, requiresSubscription: false }
       }
     ]
   },

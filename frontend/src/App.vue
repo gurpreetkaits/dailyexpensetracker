@@ -7,6 +7,7 @@
 import { useAuthStore } from './store/auth'
 import { mapActions, mapState } from 'pinia'
 import { useSettingsStore } from './store/settings'
+import { useThemeStore } from './store/theme'
 import { verifyToken } from './services/AuthService'
 import { usePolarStore } from './store/polar'
 import AdCashAuto from './components/Subscription/AdCashAuto.vue'
@@ -25,7 +26,8 @@ export default {
     ...mapState(usePolarStore, ['hasActiveSubscription'])
   },
   methods: {
-    ...mapActions(useSettingsStore, ['fetchSettings'])
+    ...mapActions(useSettingsStore, ['fetchSettings']),
+    ...mapActions(useThemeStore, ['initTheme'])
   },
   async created() {
     const authStore = useAuthStore()
@@ -39,6 +41,9 @@ export default {
         this.$router.push('/login')
       }
     }
+    
+    // Initialize theme
+    this.initTheme()
   },
   async mounted() {
   const polarStore = usePolarStore()
