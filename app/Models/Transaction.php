@@ -14,6 +14,7 @@ class Transaction extends Model
         'type',
         'amount',
         'note',
+        'reference_number',
         'category_id',
         'transaction_date',
         'wallet_id'

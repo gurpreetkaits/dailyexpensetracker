@@ -182,8 +182,13 @@ export const useTransactionStore = defineStore("transaction", {
         const completedTransaction = await getTransactionById(data.id);
         this.transactions.unshift(completedTransaction);
         await this.fetchTransactions();
+        return { success: true };
       } catch (error) {
         console.error(error);
+        return { 
+          success: false, 
+          errors: error.response?.data?.errors || { general: [{ message: 'An error occurred while saving the transaction.' }] }
+        };
       }
     },
     async updateTransaction(transaction) {
@@ -196,9 +201,13 @@ export const useTransactionStore = defineStore("transaction", {
         this.transactions[index] = {
           ...completedTransaction,
         };
-        return data;
+        return { success: true, data };
       } catch (error) {
         console.error(error);
+        return { 
+          success: false, 
+          errors: error.response?.data?.errors || { general: [{ message: 'An error occurred while updating the transaction.' }] }
+        };
       }
     },
     removeTransaction(id) {

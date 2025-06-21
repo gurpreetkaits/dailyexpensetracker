@@ -14,6 +14,8 @@
     >
       <AddTransaction 
         @transaction-added="handleTransactionAdded" 
+        @transaction-updated="handleTransactionUpdated"
+        @validation-error="handleValidationError"
         @close="closeModal" 
         :item="editingTransaction" 
       />
@@ -170,6 +172,7 @@
               <th class="py-2 text-left font-medium">Category</th>
               <th class="py-2 text-left font-medium">Type</th>
               <th class="py-2 text-left font-medium">Note</th>
+              <th class="py-2 text-left font-medium">Ref Number</th>
               <th class="py-2 text-left font-medium">Wallet</th>
               <th class="py-2 text-left font-medium">Amount</th>
               <th class="py-2 text-left font-medium">Date</th>
@@ -192,6 +195,7 @@
                 </span>
               </td>
               <td class="py-2">{{ transaction.note }}</td>
+              <td class="py-2">{{ transaction.reference_number || '-' }}</td>
               <td class="py-2">{{ transaction.wallet?.name.toUpperCase() || '-' }}</td>
               <td class="py-2">{{ formatCurrency(transaction.amount, currencyCode) }}</td>
               <td class="py-2">{{ formatDate(transaction.transaction_date) }}</td>
@@ -350,6 +354,15 @@ export default {
       this.showAddModal = false;
       await useTransactionStore().addTransaction(transaction);
       await this.fetchTransactions();
+    },
+    async handleTransactionUpdated(transaction) {
+      this.showAddModal = false;
+      await this.fetchTransactions();
+    },
+    handleValidationError(errors) {
+      // Keep the modal open when validation errors occur
+      // The errors are already handled in the AddTransaction component
+      console.log('Validation errors occurred:', errors);
     },
     openAddModal() {
       this.editingTransaction = null;

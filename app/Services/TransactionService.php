@@ -86,7 +86,8 @@ class TransactionService
                 $search = $filters['search'];
                 $query->where(function($q) use ($search) {
                     $q->where('note', 'like', "%{$search}%")
-                      ->orWhere('amount', 'like', "%{$search}%");
+                      ->orWhere('amount', 'like', "%{$search}%")
+                      ->orWhere('reference_number', 'like', "%{$search}%");
                 });
             }
             

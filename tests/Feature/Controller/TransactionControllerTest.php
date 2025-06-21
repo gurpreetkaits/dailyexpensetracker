@@ -48,6 +48,7 @@ class TransactionControllerTest extends TestCase
             'type' => 'income',
             'amount' => 500.00,
             'note' => 'Test income transaction',
+            'reference_number' => 'REF123456',
             'category_id' => $this->category->id,
             'transaction_date' => now()->format('Y-m-d'),
             'wallet_id' => $this->wallet->id
@@ -63,6 +64,7 @@ class TransactionControllerTest extends TestCase
             'type' => 'income',
             'amount' => 500.00,
             'note' => 'Test income transaction',
+            'reference_number' => 'REF123456',
             'category_id' => $this->category->id,
             'wallet_id' => $this->wallet->id
         ]);
@@ -70,6 +72,45 @@ class TransactionControllerTest extends TestCase
         // Verify wallet balance was updated
         $updatedWallet = Wallet::find($this->wallet->id);
         $this->assertEquals(1500.00, $updatedWallet->balance);
+    }
+
+    /**
+     * Test validation for duplicate reference number
+     */
+    public function test_duplicate_reference_number_validation()
+    {
+        $this->actingAs($this->user);
+
+        // Create first transaction with reference number
+        $firstTransaction = [
+            'type' => 'income',
+            'amount' => 500.00,
+            'note' => 'First transaction',
+            'reference_number' => 'DUPLICATE-REF',
+            'category_id' => $this->category->id,
+            'transaction_date' => now()->format('Y-m-d'),
+            'wallet_id' => $this->wallet->id
+        ];
+
+        $response = $this->postJson('/api/transactions', $firstTransaction);
+        $response->assertStatus(201);
+
+        // Try to create second transaction with same reference number
+        $secondTransaction = [
+            'type' => 'expense',
+            'amount' => 200.00,
+            'note' => 'Second transaction',
+            'reference_number' => 'DUPLICATE-REF', // Same reference number
+            'category_id' => $this->category->id,
+            'transaction_date' => now()->format('Y-m-d'),
+            'wallet_id' => $this->wallet->id
+        ];
+
+        $response = $this->postJson('/api/transactions', $secondTransaction);
+        
+        // Should fail with validation error
+        $response->assertStatus(422)
+                ->assertJsonValidationErrors(['reference_number']);
     }
 
     /**
@@ -90,6 +131,7 @@ class TransactionControllerTest extends TestCase
             'wallet_id' => $wallet->id,
             'type' => 'income',
             'amount' => 200.00,
+            'reference_number' => 'UPDATE-REF-1',
             'category_id' => $this->category->id,
             'note' => 'Original transaction'
         ];
@@ -105,6 +147,7 @@ class TransactionControllerTest extends TestCase
             'type' => 'income',
             'amount' => 300.00,
             'note' => 'Updated transaction',
+            'reference_number' => 'UPDATE-REF-2', // Updated reference number
             'category_id' => $category->id,
             'transaction_date' => now()->format('Y-m-d'),
             'wallet_id' => $wallet->id
@@ -120,7 +163,8 @@ class TransactionControllerTest extends TestCase
             'user_id' => $this->user->id,
             'category_id' => $category->id,
             'amount' => 300.00,
-            'note' => 'Updated transaction'
+            'note' => 'Updated transaction',
+            'reference_number' => 'UPDATE-REF-2'
         ]);
         $expectedBalance = 1300.00;
 
@@ -128,6 +172,54 @@ class TransactionControllerTest extends TestCase
             'id' => $wallet->id,
             'balance' => $expectedBalance
         ]);
+    }
+
+    /**
+     * Test validation when updating with a duplicate reference number
+     */
+    public function test_update_with_duplicate_reference_number()
+    {
+        $this->actingAs($this->user);
+
+        // Create first transaction
+        $firstTransaction = Transaction::create([
+            'user_id' => $this->user->id,
+            'wallet_id' => $this->wallet->id,
+            'type' => 'income',
+            'amount' => 100.00,
+            'reference_number' => 'EXISTING-REF',
+            'category_id' => $this->category->id,
+            'note' => 'First transaction'
+        ]);
+
+        // Create second transaction
+        $secondTransaction = Transaction::create([
+            'user_id' => $this->user->id,
+            'wallet_id' => $this->wallet->id,
+            'type' => 'expense',
+            'amount' => 50.00,
+            'reference_number' => 'UNIQUE-REF',
+            'category_id' => $this->category->id,
+            'note' => 'Second transaction'
+        ]);
+
+        // Try to update second transaction with reference number from first
+        $updateData = [
+            'id' => $secondTransaction->id,
+            'type' => 'expense',
+            'amount' => 75.00,
+            'note' => 'Updated transaction',
+            'reference_number' => 'EXISTING-REF', // Already used by first transaction
+            'category_id' => $this->category->id,
+            'transaction_date' => now()->format('Y-m-d'),
+            'wallet_id' => $this->wallet->id
+        ];
+
+        $response = $this->putJson("/api/transactions/{$secondTransaction->id}", $updateData);
+        
+        // Should fail with validation error
+        $response->assertStatus(422)
+                ->assertJsonValidationErrors(['reference_number']);
     }
 
     /**

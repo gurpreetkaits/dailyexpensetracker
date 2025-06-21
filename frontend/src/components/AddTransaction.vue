@@ -66,12 +66,21 @@
                         class="w-full py-1 bg-transparent outline-none border-none  focus:ring-0 focus:outline-none text-sm text-gray-700">
                 </div>
             </div>
+            <div class="px-3 py-2 border-t border-gray-100">
+                <div class="flex items-center gap-2">
+                    <input type="text" v-model="reference_number" placeholder="Reference number (optional)"
+                        class="w-full py-1 bg-transparent outline-none border-none focus:ring-0 focus:outline-none text-sm text-gray-700">
+                    <div v-if="errors.reference_number" class="text-red-500 text-sm">
+                        {{ errors.reference_number[0].message }}
+                    </div>
+                </div>
+            </div>
         </div>
 
 
-        <button v-if="isNew" @click="handleSubmit()" :disabled="!isValid"
+        <button v-if="isNew" @click="handleSubmit()" :disabled="!isValid || isSubmitting"
             class="w-full py-2.5 rounded-lg text-sm font-medium transition-all" :class="[
-                isValid ? (
+                isValid && !isSubmitting ? (
                     type === 'expense'
                         ? 'bg-red-500 hover:bg-red-600 text-white'
                         : 'bg-green-500 hover:bg-green-600 text-white'
@@ -82,9 +91,9 @@
         <!-- Handle Update -->
         <template v-else>
             <div class="grid grid-cols-4 gap-2">
-                <button @click="handleUpdate()" :disabled="!isValid"
+                <button @click="handleUpdate()" :disabled="!isValid || isSubmitting"
                     class="col-span-3 py-2.5 rounded-lg text-sm font-medium transition-all" :class="[
-                        isValid ? (
+                        isValid && !isSubmitting ? (
                             type === 'expense'
                                 ? 'bg-red-500 hover:bg-red-600 text-white'
                                 : 'bg-green-500 hover:bg-green-600 text-white'
@@ -108,6 +117,8 @@ import CategorySearch from './CategorySearch.vue'
 import dayjs from 'dayjs'
 import { numberMixin } from '../mixins/numberMixin.js'
 import { useWalletStore } from '../store/wallet'
+import { useTransactionStore } from '../store/transaction'
+import { useNotifications } from '../composables/useNotifications'
 import { onMounted } from 'vue'
 
 export default {
@@ -117,13 +128,17 @@ export default {
     ],
     setup() {
         const walletStore = useWalletStore()
+        const transactionStore = useTransactionStore()
+        const { notify } = useNotifications()
         
         onMounted(async () => {
             await walletStore.fetchWallets()
         })
 
         return {
-            walletStore
+            walletStore,
+            transactionStore,
+            notify
         }
     },
     data() {
@@ -131,10 +146,13 @@ export default {
             type: 'expense',
             amount: '',
             note: '',
+            reference_number: '',
             category: '',
             editableCategory: '',
             date: this.getDate(),
-            wallet_id: ''
+            wallet_id: '',
+            errors: {},
+            isSubmitting: false
         }
     },
     props: {
@@ -175,6 +193,7 @@ export default {
                     if (newItem.category) {
                         this.category = newItem.category.id;
                     }
+                    this.reference_number = newItem.reference_number || '';
                 } else {
                     this.type = 'expense';
                     this.amount = '';
@@ -182,6 +201,7 @@ export default {
                     this.category = '';
                     this.date = this.getDate()
                     this.wallet_id = '';
+                    this.reference_number = '';
                 }
             }
         }
@@ -190,40 +210,98 @@ export default {
         async handleSubmit() {
             if (!this.isValid) return;
             try {
+                this.isSubmitting = true;
+                this.errors = {};
+                
                 const transaction = {
                     type: this.type,
                     amount: parseFloat(this.amount),
                     note: this.note || '-',
+                    reference_number: this.reference_number || null,
                     category_id: this.category,
                     transaction_date: this.formatDate(this.date),
                     wallet_id: this.wallet_id
                 };
-                this.$emit('transaction-added', transaction);
-                this.resetForm();
+                
+                const result = await this.transactionStore.addTransaction(transaction);
+                
+                if (result.success) {
+                    this.$emit('transaction-added', transaction);
+                    this.resetForm();
+                } else {
+                    this.errors = result.errors;
+                    console.log(this.errors)
+                    // Display specific error for reference number if it exists
+                    if (this.errors.reference_number) {
+                        this.notify({
+                            type: 'error',
+                            message: this.errors.reference_number[0],
+                        });
+                    }
+                    // Emit validation-error event to notify parent component
+                    this.$emit('validation-error', this.errors);
+                }
             } catch (error) {
                 console.error(error);
+                this.notify({
+                    type: 'error',
+                    message: 'An error occurred while saving the transaction.',
+                    title: 'Error'
+                });
+                this.$emit('validation-error', { general: [{ message: 'An error occurred while saving the transaction.' }] });
+            } finally {
+                this.isSubmitting = false;
             }
         },
         async handleUpdate() {
             if (!this.isValid) return;
             try {
+                this.isSubmitting = true;
+                this.errors = {};
+                
                 const transaction = {
+                    id: this.item.id,
                     type: this.type,
                     amount: parseFloat(this.amount),
-                    note: this.note || (this.type === 'income' ? 'Income' : 'Expense'),
+                    note: this.note || '-',
+                    reference_number: this.reference_number || null,
                     category_id: this.category,
                     transaction_date: this.formatDate(this.date),
                     wallet_id: this.wallet_id
                 };
-                this.$emit('transaction-added', transaction);
-                this.resetForm();
+                
+                const result = await this.transactionStore.updateTransaction(transaction);
+                
+                if (result.success) {
+                    this.$emit('transaction-updated', transaction);
+                    this.resetForm();
+                } else {
+                    this.errors = result.errors;
+                    // Display specific error for reference number if it exists
+                    if (this.errors.reference_number) {
+                        this.notify({
+                            type: 'error',
+                            message: this.errors.reference_number[0],
+                        });
+                    }
+                    this.$emit('validation-error', this.errors);
+                }
             } catch (error) {
                 console.error(error);
+                this.notify({
+                    type: 'error',
+                    message: 'A validation error occurred.',
+                    title: 'Error'
+                });
+                this.$emit('validation-error', { general: [{ message: 'A validation error occurred.' }] });
+            } finally {
+                this.isSubmitting = false;
             }
         },
         resetForm() {
             this.amount = '';
             this.note = '';
+            this.reference_number = '';
             this.category = '';
             this.date = this.getDate();
             this.wallet_id = '';
@@ -234,6 +312,7 @@ export default {
         if (this.item) {
             this.amount = this.item.amount;
             this.note = this.item.note;
+            this.reference_number = this.item.reference_number || '';
             this.type = this.item.type;
             this.date = this.formatDate(this.item.transaction_date);
             this.wallet_id = this.item.wallet_id;

@@ -8,8 +8,8 @@ let seq = 0
 const notificationTypes = {
     success: {
         icon: '✓',
-        bgColor: 'bg-emerald-500/10 backdrop-blur-md',
-        borderColor: 'border-emerald-500/20',
+        bgColor: 'bg-emerald-200 backdrop-blur-md',
+        borderColor: 'border-emerald-200/20',
         textColor: 'text-emerald-700',
         iconColor: 'text-emerald-500',
         progressColor: 'bg-emerald-500',
@@ -17,8 +17,8 @@ const notificationTypes = {
     },
     error: {
         icon: '!',
-        bgColor: 'bg-red-500/10 backdrop-blur-md',
-        borderColor: 'border-red-500/20',
+        bgColor: 'bg-red-200 backdrop-blur-md',
+        borderColor: 'border-red-200/20',
         textColor: 'text-red-700',
         iconColor: 'text-red-500',
         progressColor: 'bg-red-500',
@@ -26,8 +26,8 @@ const notificationTypes = {
     },
     warning: {
         icon: '⚠',
-        bgColor: 'bg-amber-500/10 backdrop-blur-md',
-        borderColor: 'border-amber-500/20',
+        bgColor: 'bg-amber-200 backdrop-blur-md',
+        borderColor: 'border-amber-200/20',
         textColor: 'text-amber-700',
         iconColor: 'text-amber-500',
         progressColor: 'bg-amber-500',
@@ -35,8 +35,8 @@ const notificationTypes = {
     },
     info: {
         icon: 'ℹ',
-        bgColor: 'bg-blue-500/10 backdrop-blur-md',
-        borderColor: 'border-blue-500/20',
+        bgColor: 'bg-blue-200 backdrop-blur-md',
+        borderColor: 'border-blue-200/20',
         textColor: 'text-blue-700',
         iconColor: 'text-blue-500',
         progressColor: 'bg-blue-500',

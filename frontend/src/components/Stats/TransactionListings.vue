@@ -36,6 +36,7 @@
               <th class="py-2 text-left font-medium">Category</th>
               <th class="py-2 text-left font-medium">Type</th>
               <th class="py-2 text-left font-medium">Note</th>
+              <th class="py-2 text-left font-medium">Ref Number</th>
               <th class="py-2 text-left font-medium">Amount</th>
               <th class="py-2 text-left font-medium">Date</th>
             </tr>
@@ -57,6 +58,7 @@
                 </span>
               </td>
               <td class="py-2">{{ transaction.note }}</td>
+              <td class="py-2">{{ transaction.reference_number || '-' }}</td>
               <td class="py-2">{{ formatCurrency(transaction.amount, currencyCode) }}</td>
               <td class="py-2">{{ formatDate(transaction.transaction_date) }}</td>
             </tr>

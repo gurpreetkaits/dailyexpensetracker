@@ -108,6 +108,18 @@
             />
           </div>
 
+          <!-- Reference Number Input -->
+          <div class="space-y-1">
+            <label class="text-xs font-medium text-gray-600">Reference Number (Optional)</label>
+            <input
+              v-model="form.reference_number"
+              type="text"
+              class="w-full p-2.5 text-sm border rounded-md bg-gray-50 focus:bg-white
+                     focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              placeholder="Add a reference number..."
+            />
+          </div>
+
           <!-- Date Input -->
           <div class="space-y-1">
             <label class="text-xs font-medium text-gray-600">Date</label>
@@ -166,6 +178,7 @@
     amount: '',
     category: '',
     note: '',
+    reference_number: '',
     date: new Date().toISOString().split('T')[0],
     wallet_id: ''
   })
@@ -192,6 +205,7 @@
       amount: '',
       category: '',
       note: '',
+      reference_number: '',
       date: new Date().toISOString().split('T')[0],
       wallet_id: ''
     })
