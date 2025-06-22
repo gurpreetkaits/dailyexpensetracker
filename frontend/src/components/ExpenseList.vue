@@ -557,7 +557,6 @@ export default {
     },
     activityBarDataV2() {
       const store = useTransactionStore();
-      console.log('Chart Data from store:', store.activityBarDataV2);
       return store.activityBarDataV2 || [];
     },
     selectedPeriod() {
@@ -581,7 +580,6 @@ export default {
           this.saving = true;
           await this.fetchTransactions(newValue);
         } catch (error) {
-          console.error('Error updating transactions:', error);
         } finally {
           this.saving = false;
         }
@@ -629,16 +627,12 @@ export default {
         if (this.editingRecurring) {
           expense = { ...expense, id: this.editingRecurring.id }
           await this.updateRecurringExpense(expense)
-          console.log('Recurring expense updated')
         } else {
           await this.addRecurringExpense(expense)
-          console.log('Recurring expense created')
         }
         this.closeModal()
         this.setRecurringSummary()
       } catch (error) {
-        console.log('Failed to save recurring expense')
-        console.error(error)
       } finally {
         this.saving = false
       }
@@ -653,12 +647,9 @@ export default {
         }
         this.saving = true
         await this.removeRecurringExpense(this.editingRecurring.id)
-        console.log('Recurring expense deleted')
         this.closeModal()
         this.setRecurringSummary()
       } catch (error) {
-        console.log('Failed to delete recurring expense')
-        console.error(error)
       } finally {
         this.saving = false
       }
@@ -695,7 +686,6 @@ export default {
         this.removeTransaction(id)
         this.closeModal()
       } catch (e) {
-        console.log(e)
       }
     },
     createNewTransaction() {
@@ -724,12 +714,21 @@ export default {
       try {
         this.saving = true
         if (this.editingTransaction) {
-          await this.updateTransaction({ ...params, id: this.editingTransaction.id })
-          await this.fetchTransactions(this.dateFilter)
+          // For updates, ensure we have the correct ID
+          const transactionData = {
+            ...params,
+            id: this.editingTransaction.id
+          };
+
+          await this.updateTransaction(transactionData)
+
+          if (this.getActiveTab === 'daily') {
+            await this.fetchBarTransactions(this.periodTab)
+          }
         } else {
-          await this.addTransaction(params)
+          // For new transactions
           await this.fetchWallets()
-          
+
           // Get current week's start and end dates in ISO format
           const now = new Date()
           const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()))
@@ -737,7 +736,7 @@ export default {
           const endOfWeek = new Date(startOfWeek)
           endOfWeek.setDate(startOfWeek.getDate() + 6)
           endOfWeek.setHours(23, 59, 59, 999)
-          
+
           await this.fetchBarTransactions(this.periodTab, [
             startOfWeek.toISOString().split('T')[0],
             endOfWeek.toISOString().split('T')[0]
@@ -745,7 +744,6 @@ export default {
         }
         this.editingTransaction = null
       } catch (e) {
-        console.log(e)
       } finally {
         this.saving = false
       }
@@ -789,7 +787,6 @@ export default {
                       await this.fetchTransactions(this.dateFilter);
                   }
               } catch (error) {
-                  console.error('Search failed:', error);
               } finally {
                   this.saving = false;
               }
@@ -815,7 +812,6 @@ export default {
               this.totalPaidTillNow = this.details?.total_paid || 0;
 
           } catch (error) {
-              console.error('Error setting recurring summary:', error);
           }
       },
     walletIconComponent(type) {
@@ -842,7 +838,6 @@ export default {
           await this.fetchBarTransactions(period, [this.selectedBar.start, this.selectedBar.end]);
         }
       } catch (error) {
-        console.error('Error fetching activity bar data:', error);
       }
     },
     async handleBarClick(bar) {
@@ -858,15 +853,12 @@ export default {
         await this.fetchRecurringExpenses();
         this.setRecurringSummary();
       }
-      console.log('Fetching activity bar data...');
       const store = useTransactionStore();
       await store.fetchActivityBarDataV2(this.periodTab);
-      console.log('Initial activity bar data:', store.activityBarDataV2);
       if (store.selectedBar) {
         await store.fetchBarTransactions(this.periodTab, [store.selectedBar.start, store.selectedBar.end]);
       }
     } catch (error) {
-      console.error('Error loading data:', error);
     }
   }
 }

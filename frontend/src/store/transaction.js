@@ -106,21 +106,21 @@ export const useTransactionStore = defineStore("transaction", {
 
     async fetchPaginatedTransactions(page = 1, filters = {}) {
       this.loading = true;
-      
+
       // Merge default filters with provided filters
       const appliedFilters = {
         ...this.filters,
         ...filters,
         page
       };
-      
+
       // Remove null/undefined/empty string values
       Object.keys(appliedFilters).forEach(key => {
         if (appliedFilters[key] === null || appliedFilters[key] === undefined || appliedFilters[key] === '') {
           delete appliedFilters[key];
         }
       });
-      
+
       try {
         const { data } = await getPaginatedTransactions(page, appliedFilters);
         this.transactions = data.transactions.data || [];
@@ -135,10 +135,10 @@ export const useTransactionStore = defineStore("transaction", {
         };
         this.summary = data.summary;
         this.totalBalance = this.getBalance;
-        
+
         // Update filters state with applied filters
         this.filters = { ...this.filters, ...filters };
-        
+
         return data;
       } catch (error) {
         console.error('Error fetching paginated transactions:', error);
@@ -158,12 +158,12 @@ export const useTransactionStore = defineStore("transaction", {
         this.isLoaded = true;
       }
     },
-    
+
     updateFilters(filters) {
       this.filters = { ...this.filters, ...filters };
       return this.fetchPaginatedTransactions(1, this.filters);
     },
-    
+
     resetFilters() {
       this.filters = {
         filter: 'all',
@@ -185,8 +185,8 @@ export const useTransactionStore = defineStore("transaction", {
         return { success: true };
       } catch (error) {
         console.error(error);
-        return { 
-          success: false, 
+        return {
+          success: false,
           errors: error.response?.data?.errors || { general: [{ message: 'An error occurred while saving the transaction.' }] }
         };
       }
@@ -195,17 +195,26 @@ export const useTransactionStore = defineStore("transaction", {
       try {
         const { data } = await updateTransaction(transaction, transaction.id);
         const completedTransaction = await getTransactionById(data.id);
+
+        // Update in main transactions array using Vue's reactivity system
         const index = this.transactions.findIndex(
           (t) => t.id === transaction.id
         );
-        this.transactions[index] = {
-          ...completedTransaction,
-        };
-        return { success: true, data };
+
+        if (index !== -1) {
+          // Create a new array with the updated transaction
+          this.transactions = [
+            ...this.transactions.slice(0, index),
+            completedTransaction,
+            ...this.transactions.slice(index + 1)
+          ];
+        }
+
+        return { success: true, data: completedTransaction };
       } catch (error) {
         console.error(error);
-        return { 
-          success: false, 
+        return {
+          success: false,
           errors: error.response?.data?.errors || { general: [{ message: 'An error occurred while updating the transaction.' }] }
         };
       }
@@ -245,11 +254,11 @@ export const useTransactionStore = defineStore("transaction", {
         this.loading = false;
       }
     },
-    async fetchBarTransactions(period, bar) {
+    async fetchBarTransactions(period, bar = null) {
       this.loading = true;
       try {
         const { barTransactions } = await getActivityBarDataV2(period, bar);
-        this.barTransactions = barTransactions;
+            this.barTransactions = barTransactions;
       } catch (e) {
         console.error('fetchBarTransactions:', e);
       } finally {

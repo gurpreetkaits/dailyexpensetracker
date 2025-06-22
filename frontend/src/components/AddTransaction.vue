@@ -130,7 +130,7 @@ export default {
         const walletStore = useWalletStore()
         const transactionStore = useTransactionStore()
         const { notify } = useNotifications()
-        
+
         onMounted(async () => {
             await walletStore.fetchWallets()
         })
@@ -212,7 +212,7 @@ export default {
             try {
                 this.isSubmitting = true;
                 this.errors = {};
-                
+
                 const transaction = {
                     type: this.type,
                     amount: parseFloat(this.amount),
@@ -222,9 +222,9 @@ export default {
                     transaction_date: this.formatDate(this.date),
                     wallet_id: this.wallet_id
                 };
-                
-                // const result = await this.transactionStore.addTransaction(transaction);
-                
+
+                const result = await this.transactionStore.addTransaction(transaction);
+
                 if (result.success) {
                     this.$emit('transaction-added', transaction);
                     this.resetForm();
@@ -258,7 +258,7 @@ export default {
             try {
                 this.isSubmitting = true;
                 this.errors = {};
-                
+
                 const transaction = {
                     id: this.item.id,
                     type: this.type,
@@ -269,11 +269,11 @@ export default {
                     transaction_date: this.formatDate(this.date),
                     wallet_id: this.wallet_id
                 };
-                
+
                 const result = await this.transactionStore.updateTransaction(transaction);
-                
+
                 if (result.success) {
-                    // this.$emit('transaction-updated', transaction);
+                    this.$emit('transaction-added', transaction);
                     this.resetForm();
                 } else {
                     this.errors = result.errors;
