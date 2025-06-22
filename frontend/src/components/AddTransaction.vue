@@ -273,7 +273,7 @@ export default {
                 const result = await this.transactionStore.updateTransaction(transaction);
                 
                 if (result.success) {
-                    this.$emit('transaction-updated', transaction);
+                    // this.$emit('transaction-updated', transaction);
                     this.resetForm();
                 } else {
                     this.errors = result.errors;
@@ -305,6 +305,7 @@ export default {
             this.category = '';
             this.date = this.getDate();
             this.wallet_id = '';
+            this.$emit('close')
         },
     },
     async created() {
