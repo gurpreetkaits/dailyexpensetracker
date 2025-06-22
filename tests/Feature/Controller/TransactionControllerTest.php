@@ -69,6 +69,7 @@ class TransactionControllerTest extends TestCase
             'wallet_id' => $this->wallet->id
         ]);
 
+        $this->assertDatabaseCount('transactions', 1);
         // Verify wallet balance was updated
         $updatedWallet = Wallet::find($this->wallet->id);
         $this->assertEquals(1500.00, $updatedWallet->balance);

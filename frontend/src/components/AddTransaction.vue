@@ -223,7 +223,7 @@ export default {
                     wallet_id: this.wallet_id
                 };
                 
-                const result = await this.transactionStore.addTransaction(transaction);
+                // const result = await this.transactionStore.addTransaction(transaction);
                 
                 if (result.success) {
                     this.$emit('transaction-added', transaction);
