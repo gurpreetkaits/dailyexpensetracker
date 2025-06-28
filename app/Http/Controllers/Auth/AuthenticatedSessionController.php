@@ -96,11 +96,6 @@ class AuthenticatedSessionController extends Controller
      */
     public function sendOtp(Request $request): JsonResponse
     {
-        if(User::where('email', $request->email)->exists()) {
-            return response()->json([
-                'message' => 'This account already exists'
-            ], 404);
-        }
         try {
             $validator = Validator::make($request->all(), [
                 'email' => 'required|email'
@@ -116,8 +111,7 @@ class AuthenticatedSessionController extends Controller
             $email = $request->email;
             $otp = rand(100000, 999999);
 
-            User::create([
-                'email' => $email,
+            User::updateOrCreate(['email' => $email],[
                 'name' => explode('@', $email)[0],
                 'otp' => $otp
             ]);
