@@ -365,8 +365,15 @@
                         </svg>
                     </a>
                 </div>
-                <div class="mt-8 text-xs text-gray-400">
-                    &copy; {{ date('Y') }} All rights reserved.
+                <div class="mt-8 flex flex-col items-center space-y-2">
+                    <div class="flex items-center space-x-4 text-xs text-gray-500">
+                        <a href="{{ route('terms') }}" class="hover:text-emerald-600 transition-colors">Terms & Conditions</a>
+                        <span>•</span>
+                        <a href="{{ route('privacy') }}" class="hover:text-emerald-600 transition-colors">Privacy Policy</a>
+                    </div>
+                    <div class="text-xs text-gray-400">
+                        &copy; {{ date('Y') }} All rights reserved.
+                    </div>
                 </div>
             </div>
         </div>
