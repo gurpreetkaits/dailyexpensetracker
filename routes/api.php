@@ -100,3 +100,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
 Route::post('register', [RegisteredUserController::class, 'store']);
 Route::post('login', [AuthenticatedSessionController::class, 'store']);
+
+// OTP Authentication Routes
+Route::post('auth/send-otp', [AuthenticatedSessionController::class, 'sendOtp']);
+Route::post('auth/verify-otp', [AuthenticatedSessionController::class, 'verifyOtp']);
