@@ -45,7 +45,7 @@ class WalletController extends Controller
 
     public function destroy(Request $request,Wallet $wallet): JsonResponse
     {
-        if ($wallet->user_id !== auth()->id()) {
+        if ($wallet->user_id !== $request->user()->id) {
             abort(403, 'Unauthorized');
         }
         try {
