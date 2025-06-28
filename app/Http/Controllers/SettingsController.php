@@ -20,15 +20,15 @@ class SettingsController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'reminders' => 'nullable',
+            // 'reminders' => 'nullable',
             'currency_code' => 'required',
-            'income' => 'nullable|integer',
+            // 'income' => 'nullable|integer',
         ]);
 
         $settings = Setting::updateOrCreate([
             'user_id' => auth()->id(),
         ], [
-            'reminders' => $request->input('reminders'),
+            'reminders' => $request->input('reminders') ?? 0,
             'currency_code' => $request->input('currency_code'),
         ]);
 
