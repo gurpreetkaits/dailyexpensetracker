@@ -173,7 +173,7 @@ class TransactionController extends Controller
             $transaction->type = $validated['type'];
             $transaction->amount = $validated['amount'];
             $transaction->note = $validated['note'];
-            $transaction->reference_number = $validated['reference_number'];
+            $transaction->reference_number = $validated['reference_number'] ?? '';
             $transaction->category_id = $validated['category_id'];
             $transaction->transaction_date = $validated['transaction_date'];
             $transaction->wallet_id = $validated['wallet_id'];
