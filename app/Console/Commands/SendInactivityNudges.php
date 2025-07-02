@@ -39,10 +39,11 @@ class SendInactivityNudges extends Command
             foreach ($users as $u) {
                 Notification::send($u, new AskFeedbackNotification());
             }
+        }else{
+            $u = \App\Models\User::where('email',$email)->first();
+            Notification::send($u, new AskFeedbackNotification());
+            $this->info('Mail sent to '. $u->email);
         }
 
-        $u = \App\Models\User::where('email',$email)->first();
-        Notification::send($u, new AskFeedbackNotification());
-        $this->info('Mail sent to '. $u->email);
     }
 }
