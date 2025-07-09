@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Data\GetTransactionFilterData;
 use App\Enum\TransactionFilterEnum;
 use App\Enums\TransactionTypeEnum;
+use App\Models\Category;
 use App\Models\Transaction;
 use Illuminate\Support\Facades\Cache;
 use Carbon\Carbon;
@@ -49,7 +50,7 @@ class TransactionService
         $filter = $filters['filter'] ?? 'all';
         $page = $filters['page'] ?? 1;
         $perPage = $filters['per_page'] ?? 10;
-        
+
         $cacheKey = "paginated_transactions_user_{$userId}_{$filter}_page_{$page}_perPage_{$perPage}_" . md5(json_encode($filters));
 
         return Cache::remember($cacheKey, $this->cacheTimeout, function () use ($userId, $filters) {
@@ -65,22 +66,22 @@ class TransactionService
                     ]);
                 }
             }
-            
+
             // Apply transaction type filter
             if (!empty($filters['type']) && $filters['type'] !== 'all') {
                 $query->where('type', $filters['type']);
             }
-            
+
             // Apply wallet filter
             if (!empty($filters['wallet_id'])) {
                 $query->where('wallet_id', $filters['wallet_id']);
             }
-            
+
             // Apply category filter
             if (!empty($filters['category_id'])) {
                 $query->where('category_id', $filters['category_id']);
             }
-            
+
             // Apply search filter
             if (!empty($filters['search'])) {
                 $search = $filters['search'];
@@ -90,7 +91,7 @@ class TransactionService
                       ->orWhere('reference_number', 'like', "%{$search}%");
                 });
             }
-            
+
             // Apply custom date range
             if (!empty($filters['date_from']) && !empty($filters['date_to'])) {
                 $query->whereBetween('transaction_date', [
@@ -183,14 +184,14 @@ class TransactionService
     /**
      * Get daily summary
      */
-    private function getSummary($userId, $dateRange)
+    public function getSummary($userId, $dateRange)
     {
         return Transaction::where('user_id', $userId)
-            ->whereBetween('created_at', [
+            ->whereBetween('transaction_date', [
                 $dateRange['start'],
                 $dateRange['end']
             ])
-            // ->whereDate('created_at', Carbon::today())
+//            ->whereNotIn('category_id', Category::WALLET_TRANSFER_ID)
             ->selectRaw('SUM(CASE WHEN type = "expense" THEN amount ELSE 0 END) as expense_total')
             ->selectRaw(expression: 'SUM(CASE WHEN type = "income" THEN amount ELSE 0 END) as income_total')
             ->first();
@@ -202,8 +203,8 @@ class TransactionService
     private function getCategorySummary($userId)
     {
         return Transaction::where('user_id', $userId)
-            ->whereYear('created_at', Carbon::now()->year)
-            ->whereMonth('created_at', Carbon::now()->month)
+            ->whereYear('transaction_date', Carbon::now()->year)
+            ->whereMonth('transaction_date', Carbon::now()->month)
             ->selectRaw('category, SUM(amount) as total, COUNT(*) as count')
             ->groupBy('category')
             ->get();
@@ -221,7 +222,9 @@ class TransactionService
         return Transaction::where([
             'user_id' => $userId,
             'type' => TransactionTypeEnum::EXPENSE->value
-        ])->sum('amount');
+        ])
+//            ->whereNotIn('category_id', Category::WALLET_TRANSFER_ID)
+            ->sum('amount');
     }
 
     private function getTotalIncome($userId):float
@@ -229,7 +232,9 @@ class TransactionService
         return Transaction::where([
             'user_id' => $userId,
             'type' => TransactionTypeEnum::INCOME->value
-        ])->sum('amount');
+        ])
+//            ->whereNotIn('category_id', Category::WALLET_TRANSFER_ID)
+            ->sum('amount');
     }
 
     public function searchTransaction($dateFilter, $query)
@@ -241,7 +246,7 @@ class TransactionService
         // Apply date filter if provided
         if ($dateFilter) {
             $dateRange = $this->getFromFilter($dateFilter);
-            $transactions->whereBetween('created_at', [
+            $transactions->whereBetween('transaction_date', [
                 $dateRange['start'],
                 $dateRange['end']
             ]);
@@ -255,10 +260,10 @@ class TransactionService
         }
 
         // Return results ordered by latest created_at first
-        return $transactions->latest('created_at')->get();
+        return $transactions->latest('transaction_date')->get();
     }
 
-    public function getCategoryTransactions(GetTransactionFilterData $data)
+    public function getCategoryTransactions(GetTransactionFilterData $data): \Illuminate\Database\Eloquent\Collection|\Illuminate\Support\Collection
     {
         $query = Transaction::where([
             'user_id' => auth()->id(),
@@ -266,7 +271,7 @@ class TransactionService
         ]);
 
         if ($data->start_date) {
-            $query->whereBetween('created_at', [
+            $query->whereBetween('transaction_date', [
                 $data->start_date,
                 $data->end_date
             ]);
@@ -275,7 +280,7 @@ class TransactionService
         return $query->get();
     }
 
-    public function getActivityBarDataV2($userId, $period)
+    public function getActivityBarDataV2($userId, $period): array
     {
         $first = Transaction::where('user_id', $userId)->orderBy('created_at')->first();
         $last = Transaction::where('user_id', $userId)->orderByDesc('created_at')->first();
@@ -288,10 +293,10 @@ class TransactionService
             $dayStart = $now->copy()->startOfDay();
             $dayEnd = $now->copy()->endOfDay();
             $income = Transaction::where('user_id', $userId)
-                ->whereBetween('created_at', [$dayStart, $dayEnd])
+                ->whereBetween('transaction_date', [$dayStart, $dayEnd])
                 ->where('type', 'income')->sum('amount');
             $expense = Transaction::where('user_id', $userId)
-                ->whereBetween('created_at', [$dayStart, $dayEnd])
+                ->whereBetween('transaction_date', [$dayStart, $dayEnd])
                 ->where('type', 'expense')->sum('amount');
             $label = $dayStart->format('d M');
             $result[] = [
@@ -308,10 +313,10 @@ class TransactionService
                 $weekStart = $current->copy();
                 $weekEnd = $current->copy()->endOfWeek();
                 $income = Transaction::where('user_id', $userId)
-                    ->whereBetween('created_at', [$weekStart, $weekEnd])
+                    ->whereBetween('transaction_date', [$weekStart, $weekEnd])
                     ->where('type', 'income')->sum('amount');
                 $expense = Transaction::where('user_id', $userId)
-                    ->whereBetween('created_at', [$weekStart, $weekEnd])
+                    ->whereBetween('transaction_date', [$weekStart, $weekEnd])
                     ->where('type', 'expense')->sum('amount');
                 $label = $weekStart->format('d M') . ' - ' . $weekEnd->format('d M');
                 $result[] = [
@@ -330,10 +335,10 @@ class TransactionService
                 $monthStart = $current->copy();
                 $monthEnd = $current->copy()->endOfMonth();
                 $income = Transaction::where('user_id', $userId)
-                    ->whereBetween('created_at', [$monthStart, $monthEnd])
+                    ->whereBetween('transaction_date', [$monthStart, $monthEnd])
                     ->where('type', 'income')->sum('amount');
                 $expense = Transaction::where('user_id', $userId)
-                    ->whereBetween('created_at', [$monthStart, $monthEnd])
+                    ->whereBetween('transaction_date', [$monthStart, $monthEnd])
                     ->where('type', 'expense')->sum('amount');
                 $label = $monthStart->format('M Y');
                 $result[] = [
@@ -352,10 +357,10 @@ class TransactionService
                 $yearStart = $current->copy();
                 $yearEnd = $current->copy()->endOfYear();
                 $income = Transaction::where('user_id', $userId)
-                    ->whereBetween('created_at', [$yearStart, $yearEnd])
+                    ->whereBetween('transaction_date', [$yearStart, $yearEnd])
                     ->where('type', 'income')->sum('amount');
                 $expense = Transaction::where('user_id', $userId)
-                    ->whereBetween('created_at', [$yearStart, $yearEnd])
+                    ->whereBetween('transaction_date', [$yearStart, $yearEnd])
                     ->where('type', 'expense')->sum('amount');
                 $label = $yearStart->format('Y');
                 $result[] = [
@@ -369,10 +374,10 @@ class TransactionService
             }
         } elseif ($period === 'ALL') {
             $income = Transaction::where('user_id', $userId)
-                ->whereBetween('created_at', [$start, $end])
+                ->whereBetween('transaction_date', [$start, $end])
                 ->where('type', 'income')->sum('amount');
             $expense = Transaction::where('user_id', $userId)
-                ->whereBetween('created_at', [$start, $end])
+                ->whereBetween('transaction_date', [$start, $end])
                 ->where('type', 'expense')->sum('amount');
             $result[] = [
                 'label' => 'All Time',
@@ -385,13 +390,14 @@ class TransactionService
         return $result;
     }
 
-    public function getTransactionsForBar($userId, $start, $end)
+    public function getTransactionsForBar($userId, $start, $end): \Illuminate\Database\Eloquent\Collection
     {
         $startOfTheDay = Carbon::parse($start)->startOfDay();
         $endOfTheDay = Carbon::parse($end)->endOfDay();
+
         return Transaction::with('category')->where('user_id', $userId)
-            ->whereBetween('created_at', [$startOfTheDay, $endOfTheDay])
-            ->orderBy('created_at', 'desc')
+            ->whereBetween('transaction_date', [$startOfTheDay, $endOfTheDay])
+            ->orderBy('transaction_date', 'desc')
             ->get();
     }
 
