@@ -15,6 +15,32 @@
                 <h2 class="text-lg font-semibold text-gray-800">Settings</h2>
               </div>
               <div class="p-2">
+                <!-- Mobile-only navigation items -->
+                <div class="block sm:hidden border-b border-gray-200 pb-2 mb-2">
+                  <button 
+                    @click="navigateTo('overview2')"
+                    class="w-full px-4 py-3 text-sm font-medium rounded-lg transition-colors flex items-center gap-3 text-gray-600 hover:bg-gray-50"
+                  >
+                    <span class="w-5 h-5">📊</span>
+                    Overview2.0
+                  </button>
+                  <button 
+                    @click="navigateTo('categories')"
+                    class="w-full px-4 py-3 text-sm font-medium rounded-lg transition-colors flex items-center gap-3 text-gray-600 hover:bg-gray-50"
+                  >
+                    <span class="w-5 h-5">🏷️</span>
+                    Categories
+                  </button>
+                  <button 
+                    @click="navigateTo('wallets')"
+                    class="w-full px-4 py-3 text-sm font-medium rounded-lg transition-colors flex items-center gap-3 text-gray-600 hover:bg-gray-50"
+                  >
+                    <span class="w-5 h-5">💳</span>
+                    Wallets
+                  </button>
+                </div>
+                
+                <!-- Regular settings tabs -->
                 <button 
                   @click="activeTab = 'general'"
                   class="w-full px-4 py-3 text-sm font-medium rounded-lg transition-colors flex items-center gap-3"
@@ -280,6 +306,9 @@ export default {
         message: 'Subscription management portal will be available soon',
         type: 'info'
       })
+    },
+    navigateTo(routeName) {
+      this.$router.push({ name: routeName })
     }
   },
   async created() {

@@ -2,29 +2,69 @@
 <template>
   <div class=" mx-auto py-8">
     <div class="flex flex-col md:flex-row gap-6">
-      <!-- Tabs -->
-      <div class="md:w-1/4 w-full flex md:flex-col flex-row gap-2 md:gap-4 bg-white p-4">
-        <button
-          class="w-full py-1.5 rounded-lg text-sm font-medium transition-all text-left md:text-base md:px-4 px-2"
-          :class="selectedTab === 'general' ? 'bg-green-50 text-green-600' : 'bg-gray-50 text-gray-700 hover:bg-gray-100'"
-          @click="selectedTab = 'general'"
-        >
-          General
-        </button>
-        <button
-          class="w-full py-1.5 rounded-lg text-sm font-medium transition-all text-left md:text-base md:px-4 px-2"
-          :class="selectedTab === 'subscription' ? 'bg-green-50 text-green-600' : 'bg-gray-50 text-gray-700 hover:bg-gray-100'"
-          @click="selectedTab = 'subscription'"
-        >
-          Subscription
-        </button>
-        <button
-          class="w-full py-1.5 rounded-lg text-sm font-medium transition-all text-left md:text-base md:px-4 px-2"
-          :class="selectedTab === 'feedback' ? 'bg-green-50 text-green-600' : 'bg-gray-50 text-gray-700 hover:bg-gray-100'"
-          @click="selectedTab = 'feedback'"
-        >
-          Feedback
-        </button>
+      <!-- Menu Items -->
+      <div class="md:w-1/4 w-full bg-white p-4 rounded-lg shadow-sm">
+        <!-- Mobile-only navigation items -->
+        <div class="block md:hidden w-full border-b border-gray-200 pb-4 mb-4">
+          <div class="flex flex-col gap-2">
+            <button 
+              @click="navigateTo('overview2')"
+              class="w-full py-3 px-4 text-sm font-medium rounded-lg transition-all text-left bg-gray-50 text-gray-700 hover:bg-gray-100 flex items-center justify-between"
+            >
+              <div class="flex items-center gap-3">
+                <span class="text-base">📊</span>
+                <span>Overview2.0</span>
+              </div>
+              <span class="text-gray-400">›</span>
+            </button>
+            <button 
+              @click="navigateTo('categories')"
+              class="w-full py-3 px-4 text-sm font-medium rounded-lg transition-all text-left bg-gray-50 text-gray-700 hover:bg-gray-100 flex items-center justify-between"
+            >
+              <div class="flex items-center gap-3">
+                <span class="text-base">🏷️</span>
+                <span>Categories</span>
+              </div>
+              <span class="text-gray-400">›</span>
+            </button>
+            <button 
+              @click="navigateTo('wallets')"
+              class="w-full py-3 px-4 text-sm font-medium rounded-lg transition-all text-left bg-gray-50 text-gray-700 hover:bg-gray-100 flex items-center justify-between"
+            >
+              <div class="flex items-center gap-3">
+                <span class="text-base">💳</span>
+                <span>Wallets</span>
+              </div>
+              <span class="text-gray-400">›</span>
+            </button>
+          </div>
+        </div>
+        
+        <!-- Settings menu items -->
+        <div class="flex flex-col gap-2">
+          <button
+            class="w-full py-3 px-4 text-sm font-medium rounded-lg transition-all text-left bg-gray-50 text-gray-700 hover:bg-gray-100 flex items-center justify-between"
+            :class="selectedTab === 'general' ? 'bg-green-50 text-green-600' : ''"
+            @click="selectedTab = 'general'"
+          >
+            <div class="flex items-center gap-3">
+              <span class="text-base">⚙️</span>
+              <span>General</span>
+            </div>
+            <span class="text-gray-400">›</span>
+          </button>
+          <button
+            class="w-full py-3 px-4 text-sm font-medium rounded-lg transition-all text-left bg-gray-50 text-gray-700 hover:bg-gray-100 flex items-center justify-between"
+            :class="selectedTab === 'subscription' ? 'bg-green-50 text-green-600' : ''"
+            @click="selectedTab = 'subscription'"
+          >
+            <div class="flex items-center gap-3">
+              <span class="text-base">⭐</span>
+              <span>Subscription</span>
+            </div>
+            <span class="text-gray-400">›</span>
+          </button>
+        </div>
       </div>
       <!-- Tab Content -->
       <div class="flex-1">
@@ -129,32 +169,7 @@
             </div>
           </div>
         </div>
-        <div v-else-if="selectedTab === 'feedback'">
-          <div class="bg-white rounded-lg shadow hover:shadow-lg transition-all p-6">
-            <div class="pb-4 border-b">
-              <h2 class="text-xl font-semibold text-gray-800">Feedback or Submit a Bug/Feature Request</h2>
-              <small class="text-gray-500">For any query you can reach out to me at <a href="mailto:gurpreetkait.codes@gmail.com" class="text-blue-500">gurpreetkait.codes@gmail.com</a></small>
-            </div>
-            <div class="pt-6">
-              <form @submit.prevent="handleSendFeedback">
-                
-                <div>
-                  <textarea required placeholder="Let us know any feature requests or improvements!"
-                    class="w-full rounded-lg bg-gray-50 border-none focus:ring-2 focus:ring-blue-500 p-3 text-base text-gray-800 transition-all resize-none min-h-[90px]"
-                    v-model="feedback"></textarea>
-                </div>
-                <button type="submit"
-                        :disabled="isSendingFeedback"
-                        class="w-full py-2.5 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2"
-                        :class="isSendingFeedback ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-blue-50 text-blue-600 hover:bg-blue-100'">
-                  <span v-if="isSendingFeedback"
-                        class="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                  {{ isSendingFeedback ? 'Sending...' : 'Send' }}
-                </button>
-              </form>
-            </div>
-          </div>
-        </div>
+
         <!-- Reset Dialog -->
         <div v-if="showResetDialog" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div class="bg-white p-8 rounded-lg max-w-md w-full mx-4">
@@ -179,7 +194,7 @@
 
 <script>
 import { useSettingsStore } from '../store/settings'
-import { storeFeedback, fetchCurrencies, resetUserTransactions } from '../services/SettingsService'
+import { fetchCurrencies, resetUserTransactions } from '../services/SettingsService'
 import { mapState, mapActions } from 'pinia'
 import { ref } from 'vue'
 import { usePolarStore } from '../store/polar'
@@ -201,9 +216,7 @@ export default {
       loading: false,
       currencies: [],
       selectedCurrency: '',
-      showResetDialog: false,
-      feedback: '',
-      isSendingFeedback: false
+      showResetDialog: false
     }
   },
   computed: {
@@ -248,24 +261,16 @@ export default {
         this.loading = false
       }
     },
-    async handleSendFeedback() {
-      if (!this.feedback) return
-      this.isSendingFeedback = true
-      try {
-        await storeFeedback({ feedback: this.feedback })
-        this.feedback = ''
-      } catch (e) {
-        console.log(e)
-      } finally {
-        this.isSendingFeedback = false
-      }
-    },
+
     handleManageSubscription() {
       this.notify({
         title: 'Coming Soon',
         message: 'Subscription management portal will be available soon',
         type: 'info'
       })
+    },
+    navigateTo(routeName) {
+      this.$router.push({ name: routeName })
     }
   },
   async created() {

@@ -3,7 +3,7 @@
     <!-- Floating Feedback Button -->
     <button 
       @click="showModal = true"
-      class="fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200 z-50 group"
+      class="fixed bottom-20 sm:bottom-8 right-6 bg-blue-600 hover:bg-blue-700 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200 z-50 group"
       title="Send Feedback"
     >
       <MessageCircle class="h-6 w-6" />
