@@ -2,7 +2,7 @@
   <div class="space-y-4 relative pb-24 m-3">
     <!-- Start New Overview Card -->
     <template v-if="getActiveTab === 'daily'">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 bg-white rounded-xl shadow-sm p-4">
+      <div class="grid mb-4 bg-white rounded-xl shadow-sm p-4">
         <!-- Activity Card -->
         <div class="h-[300px] ">
           <TransactionsDoubleLineBarChart
@@ -13,46 +13,6 @@
             @period-change="handlePeriodChange"
             @bar-click="handleBarClick"
           />
-        </div>
-        <!-- Recent Wallet Card -->
-        <div
-          v-if="recentWallet"
-          class="relative overflow-hidden rounded-xl p-4 flex flex-col justify-between lg:h-[300px] sm:h-[200px]"
-          :class="{
-            'bg-gradient-to-br from-emerald-500 to-emerald-600': recentWallet.type === 'bank',
-            'bg-gradient-to-br from-blue-500 to-blue-600': recentWallet.type === 'card',
-            'bg-gradient-to-br from-purple-500 to-purple-600': recentWallet.type === 'cash'
-          }"
-        >
-          <!-- Decorative Elements -->
-          <div class="absolute inset-0 opacity-10 pointer-events-none select-none">
-            <div class="absolute -right-4 -top-4 h-20 w-20 md:h-24 md:w-24 rounded-full bg-white"></div>
-            <div class="absolute -left-4 -bottom-4 h-24 w-24 md:h-32 md:w-32 rounded-full bg-white"></div>
-          </div>
-          <div class="relative z-10">
-            <div class="flex items-center gap-3 mb-2">
-              <div :class="walletIconBgClass(recentWallet.type)" class="w-10 h-10 rounded-full flex items-center justify-center bg-white/20">
-                <component :is="walletIconComponent(recentWallet.type)" class="h-5 w-5 text-white" />
-              </div>
-              <div>
-                <div class="font-medium text-white">{{ recentWallet.name }}</div>
-                <div class="text-xs text-white/80 capitalize">{{ recentWallet.type }} Wallet</div>
-              </div>
-            </div>
-            <div class="flex justify-between items-center mb-2">
-              <div>
-                <div class="text-xs text-white/80">Balance</div>
-                <div class="font-semibold text-white">{{ formatCurrency(recentWallet.balance, currencyCode) }}</div>
-              </div>
-              <div>
-                <div class="text-xs text-white/80">Currency</div>
-                <div class="font-semibold text-white">{{ recentWallet.currency }}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div v-else class="bg-white rounded-xl shadow-sm p-4 flex flex-col justify-between">
-          <div class="text-gray-400 text-sm">No recent wallet activity</div>
         </div>
       </div>
     </template>
@@ -273,7 +233,7 @@
                       </div>
                       <div class="flex-1 min-w-0">
                         <h4 class="font-medium text-gray-900 truncate">
-                          {{ transaction.category ? capitalizeFirstLetter(transaction.category.name) : transaction.note }}
+                          {{ transaction.category ? capitalizeFirstLetter(transaction.category.name) : '-' }}
                         </h4>
                         <p class="text-sm text-gray-500 truncate" :title="transaction.note">{{ transaction.note }}</p>
                       </div>
@@ -305,7 +265,7 @@
                       </div>
                       <div class="flex-1 min-w-0">
                         <h4 class="font-medium text-gray-900 truncate">
-                          {{ transaction.category ? capitalizeFirstLetter(transaction.category.name) : transaction.note }}
+                          {{ transaction.category ? capitalizeFirstLetter(transaction.category.name) : '-' }}
                         </h4>
                         <p class="text-sm text-gray-500 truncate" :title="transaction.note">{{ transaction.note }}</p>
                       </div>
@@ -351,7 +311,7 @@
                   </div>
                   <div class="flex-1 min-w-0">
                     <h4 class="font-medium text-gray-900 truncate">
-                      {{ transaction.category ? capitalizeFirstLetter(transaction.category.name) : transaction.note }}
+                      {{ transaction.category ? capitalizeFirstLetter(transaction.category.name) : '-' }}
                     </h4>
                     <p class="text-xs text-gray-500 truncate max-w-[100px]" :title="transaction.note">{{ transaction.note }}</p>
                   </div>
