@@ -38,7 +38,7 @@ class NewBlogPostNotification extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('New Blog Post Available! 📖')
+            ->subject($this->blogTitle)
             ->markdown('emails.new_blog_post',[
                 'user' => $notifiable,
                 'blogTitle' => $this->blogTitle,
