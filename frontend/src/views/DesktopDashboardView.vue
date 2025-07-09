@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-7xl mx-auto relative">
+  <div class="mx-auto p-4 mb-10">
     <!-- Add Transaction Button -->
 <!--    <button @click="openAddModal" class="fixed bottom-8 right-8 z-50 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-xl transition-all">-->
 <!--      <Plus class="h-7 w-7" />-->
@@ -204,7 +204,7 @@
                 </div>
                 <span>{{ transaction.category ? capitalizeFirstLetter(transaction.category.name) : '-' }}</span>
               </td>
-              <td class="py-2 w-16">{{ transaction.note }}</td>
+              <td class="py-2" style="max-width: 250px;">{{ transaction.note }}</td>
               <td class="py-2">{{ transaction.reference_number || '-' }}</td>
               <td class="py-2">
                 <span v-if="transaction.wallet">
