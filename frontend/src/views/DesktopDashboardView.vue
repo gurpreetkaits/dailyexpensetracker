@@ -6,18 +6,18 @@
     </button>
 
     <!-- GlobalModal implementation -->
-    <GlobalModal 
-      :model-value="showAddModal" 
-      @update:model-value="showAddModal = $event" 
+    <GlobalModal
+      :model-value="showAddModal"
+      @update:model-value="showAddModal = $event"
       title="Add Transaction"
       size="max-w-md"
     >
-      <AddTransaction 
-        @transaction-added="handleTransactionAdded" 
+      <AddTransaction
+        @transaction-added="handleTransactionAdded"
         @transaction-updated="handleTransactionUpdated"
         @validation-error="handleValidationError"
-        @close="closeModal" 
-        :item="editingTransaction" 
+        @close="closeModal"
+        :item="editingTransaction"
       />
     </GlobalModal>
 
@@ -27,21 +27,21 @@
         <!-- Search Filter -->
         <div class="flex-grow min-w-[180px] max-w-xs">
           <div class="relative">
-            <input 
-              type="text" 
-              v-model="filters.search" 
+            <input
+              type="text"
+              v-model="filters.search"
               @input="debouncedSearch"
-              placeholder="Search transactions..." 
+              placeholder="Search transactions..."
               class="w-full px-3 py-1.5 text-sm bg-gray-50/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 focus:bg-white transition-all duration-200 hover:border-gray-300 cursor-pointer"
             />
             <SearchIcon class="absolute right-2.5 top-2 h-4 w-4 text-gray-400" />
           </div>
         </div>
-        
+
         <!-- Type Filter -->
         <div class="min-w-[110px]">
-          <select 
-            v-model="filters.type" 
+          <select
+            v-model="filters.type"
             @change="applyFilters"
             class="w-full px-3 py-1.5 text-sm bg-gray-50/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 focus:bg-white transition-all duration-200 hover:border-gray-300 cursor-pointer"
           >
@@ -50,11 +50,11 @@
             <option value="income">Income</option>
           </select>
         </div>
-        
+
         <!-- Category Filter -->
         <div class="min-w-[130px]">
-          <select 
-            v-model="filters.category_id" 
+          <select
+            v-model="filters.category_id"
             @change="applyFilters"
             class="w-full px-3 py-1.5 text-sm bg-gray-50/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 focus:bg-white transition-all duration-200 hover:border-gray-300 cursor-pointer"
           >
@@ -64,11 +64,11 @@
             </option>
           </select>
         </div>
-        
+
         <!-- Wallet Filter -->
         <div class="min-w-[120px]">
-          <select 
-            v-model="filters.wallet_id" 
+          <select
+            v-model="filters.wallet_id"
             @change="applyFilters"
             class="w-full px-3 py-1.5 text-sm bg-gray-50/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 focus:bg-white transition-all duration-200 hover:border-gray-300 cursor-pointer"
           >
@@ -78,11 +78,11 @@
             </option>
           </select>
         </div>
-        
+
         <!-- Date Filter -->
         <div class="min-w-[120px]">
-          <select 
-            v-model="filters.filter" 
+          <select
+            v-model="filters.filter"
             @change="applyFilters"
             class="w-full px-3 py-1.5 text-sm bg-gray-50/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 focus:bg-white transition-all duration-200 hover:border-gray-300 cursor-pointer"
           >
@@ -94,28 +94,28 @@
             <option value="yearly">This Year</option>
           </select>
         </div>
-        
+
         <!-- Date Range Picker -->
         <div class="flex items-center gap-1 min-w-[220px]">
-          <input 
-            type="date" 
-            v-model="filters.date_from" 
+          <input
+            type="date"
+            v-model="filters.date_from"
             @change="applyFilters"
             class="flex-1 px-3 py-1.5 text-sm bg-gray-50/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 focus:bg-white transition-all duration-200 hover:border-gray-300 cursor-pointer"
           />
           <span class="text-gray-500 text-sm">-</span>
-          <input 
-            type="date" 
-            v-model="filters.date_to" 
+          <input
+            type="date"
+            v-model="filters.date_to"
             @change="applyFilters"
             class="flex-1 px-3 py-1.5 text-sm bg-gray-50/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 focus:bg-white transition-all duration-200 hover:border-gray-300 cursor-pointer"
           />
         </div>
-        
+
         <!-- Reset Filters Button -->
         <div>
-          <button 
-            @click="resetFilters" 
+          <button
+            @click="resetFilters"
             class="px-3 py-1.5 text-sm border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500"
           >
             Reset
@@ -138,15 +138,15 @@
         <!-- Pagination Controls -->
         <div class="flex-shrink-0 w-full sm:w-auto">
           <div v-if="paginationLinks.length > 3" class="flex flex-wrap items-center justify-end gap-1">
-            <button 
-              v-for="link in paginationLinks" 
+            <button
+              v-for="link in paginationLinks"
               :key="link.label"
               @click="handlePageChange(link.url)"
               :disabled="!link.url"
               class="px-2 py-1 rounded border text-sm disabled:opacity-50"
               :class="[
-                link.active 
-                  ? 'bg-emerald-500 text-white border-emerald-500' 
+                link.active
+                  ? 'bg-emerald-500 text-white border-emerald-500'
                   : 'text-gray-700 hover:bg-gray-50',
                 !link.url ? 'text-gray-400' : ''
               ]"
@@ -239,7 +239,7 @@ export default {
     Calendar, Trash2, Plus, Car, ReceiptIcon, Video, BriefcaseMedical, Gift, Circle, CircleEllipsis, Pizza, CircleDollarSign,
     HandCoins, Wallet, ChartCandlestick, Landmark, Citrus, ShoppingBag, House, Receipt, Clapperboard, Plane, Contact,
     Cross, ShoppingCart, Book, BriefcaseBusiness, BadgeDollarSign, Dumbbell, Sparkle, SearchIcon, CircleDot, CircleX,
-    TrendingUp, TrendingDown, ArrowUpCircle, ArrowDownCircle, PiggyBank, CalendarClock, RepeatIcon, ChevronLeft, ChevronRight, 
+    TrendingUp, TrendingDown, ArrowUpCircle, ArrowDownCircle, PiggyBank, CalendarClock, RepeatIcon, ChevronLeft, ChevronRight,
   },
   mixins: [iconMixin],
   data() {
@@ -333,12 +333,12 @@ export default {
   methods: {
     async loadInitialData() {
       await useSettingsStore().fetchSettings();
-      
+
       // Only fetch categories and wallets if they're not already loaded
       if (!useCategoryStore().categories.length) {
         await useCategoryStore().fetchCategories();
       }
-      
+
       if (!useWalletStore().wallets.length) {
         await useWalletStore().fetchWallets();
       }
@@ -352,7 +352,7 @@ export default {
     },
     async handleTransactionAdded(transaction) {
       this.showAddModal = false;
-      await useTransactionStore().addTransaction(transaction);
+      // await useTransactionStore().addTransaction(transaction);
       await this.fetchTransactions();
     },
     async handleTransactionUpdated(transaction) {
@@ -374,7 +374,7 @@ export default {
     },
     handlePageChange(url) {
       if (!url) return;
-      
+
       // Extract page number from URL
       const pageMatch = url.match(/page=(\d+)/);
       if (pageMatch && pageMatch[1]) {
@@ -390,7 +390,7 @@ export default {
       if (this.searchTimeout) {
         clearTimeout(this.searchTimeout);
       }
-      
+
       this.searchTimeout = setTimeout(() => {
         this.applyFilters();
       }, 500);
