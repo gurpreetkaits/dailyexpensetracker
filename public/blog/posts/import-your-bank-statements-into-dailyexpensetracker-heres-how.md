@@ -39,13 +39,15 @@ No extra editing needed—DailyExpenseTracker handles the rest.
 
 In the **Desktop Dashboard**, hit the **`↓` Import** button (bottom toolbar). A modal pops up.
 
-### 2. Choose Your Wallet
+
+### 2. Upload Your File
+
+Drag & drop or click **Browse** to choose your CSV/XLSX file.
+
+### 3. Choose Your Wallet After Upload
 
 Select the wallet you'd like the transactions to land in—Savings, Credit Card, or your shiny new EUR Wallet. If you skip this step, the importer picks your first wallet automatically.
 
-### 3. Upload Your File
-
-Drag & drop or click **Browse** to choose your CSV/XLSX file.
 
 ### 4. Map the Columns
 
@@ -57,7 +59,7 @@ Tick "Remember this mapping" once. Next time, the file from the same bank loads 
 
 ### 6. Review & Import
 
-Hit **Import**. You'll see a real-time progress bar and a spinning **Refresh** icon. When done, the transactions appear instantly with the wallet balance updated in brackets.
+Hit **Import**. When done, the transactions appear instantly with the wallet balance updated in brackets.
 
 ## Smart Features Under the Hood
 
