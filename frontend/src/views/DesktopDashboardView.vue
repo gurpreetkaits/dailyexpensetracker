@@ -184,7 +184,6 @@
           <thead>
             <tr class="text-gray-500 border-b">
               <th class="py-2 text-left font-medium">Category</th>
-              <th class="py-2 text-left font-medium">Type</th>
               <th class="py-2 text-left font-medium">Note</th>
               <th class="py-2 text-left font-medium">Ref Number</th>
               <th class="py-2 text-left font-medium">Wallet</th>
@@ -194,7 +193,8 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="transaction in transactions" :key="transaction.id" class="border-b last:border-0">
+            <tr v-for="transaction in transactions" :key="transaction.id" 
+                class="border-b hover:bg-gray-50/50 transition-colors">
               <td class="py-2 flex items-center gap-2">
                 <div class="w-7 h-7 rounded-full flex items-center justify-center" :style="{
                   backgroundColor: (transaction.category?.color + '15') || (transaction.type === 'income' ? '#e6ffed' : '#ffeded'),
@@ -203,11 +203,6 @@
                   <component :is="transaction.category?.icon || (transaction.type === 'income' ? 'CircleDollarSign' : 'ShoppingBag')" class="h-4 w-4" />
                 </div>
                 <span>{{ transaction.category ? capitalizeFirstLetter(transaction.category.name) : '-' }}</span>
-              </td>
-              <td class="py-2">
-                <span :class="transaction.type === 'expense' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'" class="px-2 py-0.5 rounded-full text-xs capitalize">
-                  {{ transaction.type }}
-                </span>
               </td>
               <td class="py-2 w-8">{{ transaction.note }}</td>
               <td class="py-2">{{ transaction.reference_number || '-' }}</td>
@@ -218,7 +213,9 @@
                 </span>
                 <span v-else>-</span>
               </td>
-              <td class="py-2">{{ formatCurrency(transaction.amount, currencyCode) }}</td>
+              <td class="py-2" :class="transaction.type === 'expense' ? 'text-red-600' : 'text-green-600'">
+                {{ transaction.type === 'expense' ? '-' : '+' }}{{ formatCurrency(transaction.amount, currencyCode) }}
+              </td>
               <td class="py-2">{{ formatDate(transaction.transaction_date) }}</td>
               <td class="py-2 text-center">
                 <button
