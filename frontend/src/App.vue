@@ -1,6 +1,8 @@
 <template>
     <router-view />
     <AdCashAuto v-if="showAds" />
+    <FloatingFeedbackButton />
+    <NotificationContainer />
 </template>
 
 <script>
@@ -11,11 +13,15 @@ import { useThemeStore } from './store/theme'
 import { verifyToken } from './services/AuthService'
 import { usePolarStore } from './store/polar'
 import AdCashAuto from './components/Subscription/AdCashAuto.vue'
+import FloatingFeedbackButton from './components/FloatingFeedbackButton.vue'
+import NotificationContainer from './components/Global/NotificationContainer.vue'
 
 export default {
   name: 'App',
   components: {
-    AdCashAuto
+    AdCashAuto,
+    FloatingFeedbackButton,
+    NotificationContainer
   },
   data() {
     return {

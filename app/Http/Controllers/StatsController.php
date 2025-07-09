@@ -42,8 +42,8 @@ class StatsController extends Controller
 
         $query = Transaction::query()
             ->where('user_id', auth()->id());
-        $query->whereBetween('created_at', [$validated['start_date'], $validated['end_date']]);
-    
+        $query->whereBetween('transaction_date', [$validated['start_date'], $validated['end_date']]);
+
 
         // Get category wise expenses
         $categoryStats = $query->clone()

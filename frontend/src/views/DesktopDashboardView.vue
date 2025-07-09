@@ -1,9 +1,9 @@
 <template>
   <div class="max-w-7xl mx-auto relative">
     <!-- Add Transaction Button -->
-    <button @click="openAddModal" class="fixed bottom-8 right-8 z-50 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-xl transition-all">
-      <Plus class="h-7 w-7" />
-    </button>
+<!--    <button @click="openAddModal" class="fixed bottom-8 right-8 z-50 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-xl transition-all">-->
+<!--      <Plus class="h-7 w-7" />-->
+<!--    </button>-->
 
         <!-- GlobalModal implementation -->
     <GlobalModal
@@ -190,6 +190,7 @@
               <th class="py-2 text-left font-medium">Wallet</th>
               <th class="py-2 text-left font-medium">Amount</th>
               <th class="py-2 text-left font-medium">Date</th>
+              <th class="py-2 text-center font-medium">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -210,9 +211,24 @@
               </td>
               <td class="py-2 w-8">{{ transaction.note }}</td>
               <td class="py-2">{{ transaction.reference_number || '-' }}</td>
-              <td class="py-2">{{ transaction.wallet?.name.toUpperCase() || '-' }}</td>
+              <td class="py-2">
+                <span v-if="transaction.wallet">
+                  {{ transaction.wallet.name.toUpperCase() }}
+                  <span class="text-gray-500 text-xs">({{ formatCurrency(transaction.wallet.balance, currencyCode) }})</span>
+                </span>
+                <span v-else>-</span>
+              </td>
               <td class="py-2">{{ formatCurrency(transaction.amount, currencyCode) }}</td>
               <td class="py-2">{{ formatDate(transaction.transaction_date) }}</td>
+              <td class="py-2 text-center">
+                <button
+                  @click="openDeleteDialog(transaction)"
+                  class="text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-50 transition-colors"
+                  title="Delete Transaction"
+                >
+                  <Trash2 class="h-4 w-4" />
+                </button>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -228,6 +244,44 @@
         <span class="text-gray-400 text-lg font-medium">No Transactions</span>
       </div>
     </div>
+
+    <!-- Delete Confirmation Modal -->
+    <Transition
+      enter-active-class="transition duration-200 ease-out"
+      enter-from-class="transform scale-95 opacity-0"
+      enter-to-class="transform scale-100 opacity-100"
+      leave-active-class="transition duration-150 ease-in"
+      leave-from-class="transform scale-100 opacity-100"
+      leave-to-class="transform scale-95 opacity-0"
+    >
+      <div v-if="showDeleteDialog"
+           class="fixed inset-0 z-50 overflow-y-auto bg-black/50 backdrop-blur-sm"
+           @click="showDeleteDialog = false">
+        <div class="flex min-h-full items-center justify-center p-4">
+          <div class="relative bg-white rounded-lg shadow-lg max-w-sm w-full mx-4 p-6"
+               @click.stop>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">
+              Delete Transaction
+            </h3>
+            <p class="text-sm text-gray-500 mb-6">
+              Are you sure you want to delete this transaction? This action cannot be undone.
+            </p>
+            <div class="flex justify-end gap-3">
+              <button type="button"
+                      @click="showDeleteDialog = false"
+                      class="px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-md">
+                Cancel
+              </button>
+              <button type="button"
+                      @click="confirmDelete"
+                      class="px-3 py-1.5 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md">
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Transition>
   </div>
 </template>
 
@@ -239,6 +293,7 @@ import {
   TrendingUp, TrendingDown, ArrowUpCircle, ArrowDownCircle, PiggyBank, CalendarClock, RepeatIcon, ChevronLeft, ChevronRight, Upload,
   RefreshCcw
 } from 'lucide-vue-next'
+import { Transition } from 'vue'
 import AddTransaction from '../components/AddTransaction.vue'
 import GlobalModal from '../components/Global/GlobalModal.vue'
 import ImportModal from '../components/ImportModal.vue'
@@ -248,12 +303,14 @@ import { useCategoryStore } from '../store/category'
 import { useWalletStore } from '../store/wallet'
 import { iconMixin } from '../mixins/iconMixin'
 import { useNotifications } from '../composables/useNotifications'
+import { deleteTransaction } from '../services/TransactionService'
 export default {
   name: 'DesktopDashboardView',
   components: {
     AddTransaction,
     GlobalModal,
     ImportModal,
+    Transition,
     Calendar, Trash2, Plus, Car, ReceiptIcon, Video, BriefcaseMedical, Gift, Circle, CircleEllipsis, Pizza, CircleDollarSign,
     HandCoins, Wallet, ChartCandlestick, Landmark, Citrus, ShoppingBag, House, Receipt, Clapperboard, Plane, Contact,
     Cross, ShoppingCart, Book, BriefcaseBusiness, BadgeDollarSign, Dumbbell, Sparkle, SearchIcon, CircleDot, CircleX,
@@ -264,7 +321,9 @@ export default {
     return {
       showAddModal: false,
       showImportModal: false,
+      showDeleteDialog: false,
       editingTransaction: null,
+      transactionToDelete: null,
       filters: {
         search: '',
         type: 'all',
@@ -397,12 +456,50 @@ export default {
     async refreshTransactions() {
       await this.fetchTransactions();
     },
+    openDeleteDialog(transaction) {
+      this.transactionToDelete = transaction;
+      this.showDeleteDialog = true;
+    },
+    async confirmDelete() {
+      if (!this.transactionToDelete) return;
+
+      try {
+        await deleteTransaction(this.transactionToDelete.id);
+
+        // Remove transaction from store
+        useTransactionStore().removeTransaction(this.transactionToDelete.id);
+
+        // Refresh the transactions list
+        await this.fetchTransactions();
+
+        const { notify } = useNotifications();
+        notify({
+          title: 'Success',
+          message: 'Transaction deleted successfully',
+          type: 'success'
+        });
+
+        this.showDeleteDialog = false;
+        this.transactionToDelete = null;
+      } catch (error) {
+        console.error('Error deleting transaction:', error);
+        const { notify } = useNotifications();
+        notify({
+          title: 'Error',
+          message: 'Failed to delete transaction',
+          type: 'error'
+        });
+      } finally {
+        this.showDeleteDialog = false;
+        this.transactionToDelete = null;
+      }
+    },
     async handleImportCompleted(results) {
       // Reset current page to 1 to show the latest transactions
       this.currentPage = 1;
       // Refresh the transactions after import
       await this.fetchTransactions();
-      
+
       // Show success notification
       if (results && results.imported_count > 0) {
         const { notify } = useNotifications();

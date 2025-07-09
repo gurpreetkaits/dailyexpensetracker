@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Feedback;
 use App\Models\User;
+use App\Notifications\EmailRecievedFeedbackNotificaiton;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Notification;
 
 class FeedbackController extends Controller
 {
@@ -22,6 +24,8 @@ class FeedbackController extends Controller
         $validate = $request->validate([
             'feedback' => 'required|string',
         ]);
+
+        Notification::send($request->user(), new EmailRecievedFeedbackNotificaiton($validate['feedback']));
 
         Feedback::create([
             'user_id' => $request->user()->id,

@@ -200,6 +200,26 @@ class TransactionController extends Controller
         return response()->json(['data' => null], 200);
     }
 
+    public function restore($id)
+    {
+        $transaction = Transaction::withTrashed()->where('user_id', auth()->id())->findOrFail($id);
+        $this->transactionService->restoreTransaction($transaction);
+        return response()->json(['data' => $transaction], 200);
+    }
+
+    public function forceDestroy($id)
+    {
+        $transaction = Transaction::withTrashed()->where('user_id', auth()->id())->findOrFail($id);
+        $this->transactionService->forceDeleteTransaction($transaction);
+        return response()->json(['data' => null], 200);
+    }
+
+    public function trashed()
+    {
+        $trashedTransactions = $this->transactionService->getTrashedTransactions(auth()->id());
+        return response()->json(['data' => $trashedTransactions], 200);
+    }
+
     public function show($id)
     {
         return Transaction::with('category')->where('user_id', Auth::id())->findOrFail($id);

@@ -48,6 +48,12 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('transactions/activity-bar-data-v2', [TransactionController::class, 'activityBarDataV2']);
     Route::delete('user-setttings/transactions/reset', [SettingsController::class, 'deleteTransactions']);
+    
+    // Soft delete routes for transactions
+    Route::get('transactions/trashed', [TransactionController::class, 'trashed']);
+    Route::post('transactions/{id}/restore', [TransactionController::class, 'restore']);
+    Route::delete('transactions/{id}/force', [TransactionController::class, 'forceDestroy']);
+    
     Route::resource('settings', SettingsController::class);
     Route::resource('currencies', CurrencyController::class);
     Route::resource('transactions', TransactionController::class);

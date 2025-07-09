@@ -53,7 +53,7 @@ class TransactionService
         $cacheKey = "paginated_transactions_user_{$userId}_{$filter}_page_{$page}_perPage_{$perPage}_" . md5(json_encode($filters));
 
         return Cache::remember($cacheKey, $this->cacheTimeout, function () use ($userId, $filters) {
-            $query = Transaction::with(['category','wallet:id,name'])->where('user_id', $userId);
+            $query = Transaction::with(['category','wallet:id,name,balance'])->where('user_id', $userId);
 
             // Apply date filter from predefined filters
             if (!empty($filters['filter']) && $filters['filter'] !== 'all') {
@@ -400,10 +400,43 @@ class TransactionService
         DB::transaction(function () use ($transaction) {
             $wallet = app(WalletService::class);
             $wallet->syncWallet($transaction,'delete');
-            $transaction->delete();
+            $transaction->delete(); // This will now be a soft delete
         });
 
         $this->clearUserTransactionCache($transaction->user_id);
         return $transaction;
+    }
+
+    public function restoreTransaction(Transaction $transaction)
+    {
+        DB::transaction(function () use ($transaction) {
+            $transaction->restore();
+            $wallet = app(WalletService::class);
+            $wallet->syncWallet($transaction,'create'); // Re-sync wallet balance
+        });
+
+        $this->clearUserTransactionCache($transaction->user_id);
+        return $transaction;
+    }
+
+    public function forceDeleteTransaction(Transaction $transaction)
+    {
+        DB::transaction(function () use ($transaction) {
+            $wallet = app(WalletService::class);
+            $wallet->syncWallet($transaction,'delete');
+            $transaction->forceDelete(); // Permanently delete
+        });
+
+        $this->clearUserTransactionCache($transaction->user_id);
+        return $transaction;
+    }
+
+    public function getTrashedTransactions($userId)
+    {
+        return Transaction::with(['category','wallet:id,name'])
+            ->where('user_id', $userId)
+            ->onlyTrashed()
+            ->latest('deleted_at')
+            ->get();
     }
 }
