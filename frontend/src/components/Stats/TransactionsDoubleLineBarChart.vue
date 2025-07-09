@@ -37,7 +37,7 @@ const props = defineProps({
   },
   period: {
     type: String,
-    default: 'D'
+    default: 'W'
   },
   selectedBar: {
     type: Object,
