@@ -109,7 +109,7 @@
                     </div>
                     <div class="mb-4">
                         <p class="text-gray-700 mb-2">
-                            If we perfectly address your needs 
+                            If we perfectly address your needs
                             <span v-if="selectedNeeds.length > 0 || otherNeed.trim()">
                                 (e.g., {{ formattedNeedsQuery }})
                             </span>,
@@ -167,9 +167,9 @@ export default {
             ],
             selectedNeeds: [],
             otherNeed: '',
-            isHappy: null, 
-            willingToPay: null, 
-            feedbackText: '' 
+            isHappy: null,
+            willingToPay: null,
+            feedbackText: ''
         }
     },
     computed: {
@@ -187,11 +187,11 @@ export default {
     methods: {
         async proceedToApp() {
             try {
-                await this.router.push({ name: 'overview' });
+                await this.router.push({ name: 'overview2' });
             } catch (error) {
                 console.error('Navigation error:', error);
                 // Fallback navigation if the first attempt fails
-                this.router.replace({ path: '/overview' });
+                this.router.replace({ path: '/overview2' });
             }
         },
 
@@ -314,7 +314,7 @@ export default {
                 const userObj = await getAppleUserInfo(data.authorization.code)
                 const response = await login(userObj)
                 this.authStore.setAuth(response.token, response.user)
-                this.router.push('/overview')
+                this.router.push('/overview2')
             } catch (error) {
                 this.handleError(error)
             }
@@ -323,7 +323,7 @@ export default {
     mounted() {
         // If already logged in, redirect to overview
         if (this.authStore.token) {
-            this.router.push('/overview');
+            this.router.push('/overview2');
         }
     }
 }
