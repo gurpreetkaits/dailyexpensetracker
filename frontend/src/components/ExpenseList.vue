@@ -423,7 +423,7 @@ export default {
       editingRecurring: null,
       editingGoal: false,
       searchTimeout: null,
-      periodTab: 'D',
+      periodTab: 'W',
     }
   },
   computed: {
