@@ -193,7 +193,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="transaction in transactions" :key="transaction.id" 
+            <tr v-for="transaction in transactions" :key="transaction.id"
                 class="border-b hover:bg-gray-50/50 transition-colors">
               <td class="py-2 flex items-center gap-2">
                 <div class="w-7 h-7 rounded-full flex items-center justify-center" :style="{
@@ -204,7 +204,7 @@
                 </div>
                 <span>{{ transaction.category ? capitalizeFirstLetter(transaction.category.name) : '-' }}</span>
               </td>
-              <td class="py-2 w-8">{{ transaction.note }}</td>
+              <td class="py-2 w-16">{{ transaction.note }}</td>
               <td class="py-2">{{ transaction.reference_number || '-' }}</td>
               <td class="py-2">
                 <span v-if="transaction.wallet">
