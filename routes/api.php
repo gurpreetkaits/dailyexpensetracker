@@ -8,6 +8,7 @@ use App\Http\Controllers\ChatController;
 use App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\GoalsController;
+use App\Http\Controllers\ImportController;
 use App\Http\Controllers\PolarSubscriptionController;
 use App\Http\Controllers\RecurringExpenseController;
 use App\Http\Controllers\SettingsController;
@@ -69,7 +70,15 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Survey route
     Route::post('user/survey', [ServeyController::class, 'store']);
-
+    
+    // Import routes
+    Route::prefix('import')->group(function () {
+        Route::post('upload', [ImportController::class, 'uploadFile']);
+        Route::post('mappings', [ImportController::class, 'saveMappings']);
+        Route::get('mappings', [ImportController::class, 'getMappings']);
+        Route::delete('mappings/{id}', [ImportController::class, 'deleteMapping']);
+        Route::post('transactions', [ImportController::class, 'importTransactions']);
+    });
 
     //Polar Subscription Routes
     Route::post('polar/webhook', [PolarSubscriptionController::class, 'handleWebhook']);

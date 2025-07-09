@@ -17,7 +17,8 @@ class Transaction extends Model
         'reference_number',
         'category_id',
         'transaction_date',
-        'wallet_id'
+        'wallet_id',
+        'needs_ai',
     ];
 
     protected $casts = [

@@ -103,7 +103,7 @@ class TransactionService
                 $query->where('transaction_date', '<=', $filters['date_to']);
             }
 
-            return $query->latest('created_at')
+            return $query->latest('transaction_date')
                 ->paginate($filters['per_page'] ?? 10, ['*'], 'page', $filters['page'] ?? 1);
         });
     }

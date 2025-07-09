@@ -5,7 +5,7 @@
       <Plus class="h-7 w-7" />
     </button>
 
-    <!-- GlobalModal implementation -->
+        <!-- GlobalModal implementation -->
     <GlobalModal
       :model-value="showAddModal"
       @update:model-value="showAddModal = $event"
@@ -20,6 +20,13 @@
         :item="editingTransaction"
       />
     </GlobalModal>
+
+    <!-- Import Modal -->
+    <ImportModal
+      :model-value="showImportModal"
+      @update:model-value="showImportModal = $event"
+      @import-completed="handleImportCompleted"
+    />
 
     <!-- Filter Bar -->
     <div class="bg-white rounded-xl shadow-sm px-4 py-2 mb-4">
@@ -128,10 +135,17 @@
     <div class="bg-white rounded-xl shadow-sm px-4 py-3 mb-4">
       <div class="flex flex-wrap items-center justify-between gap-2">
         <!-- Add Transaction Button -->
-        <div class="flex-shrink-0 mb-2 sm:mb-0">
-          <button @click="openAddModal" class="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-medium px-5 py-2 rounded-lg shadow transition-all">
+        <div class="flex-shrink-0 mb-2 sm:mb-0 flex items-center gap-2">
+          <button @click="openAddModal" class="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-medium px-3 py-1 rounded-lg shadow transition-all">
             <Plus class="h-4 w-4" />
             Add Transaction
+          </button>
+          <button @click="openImportModal" class="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white font-medium px-3 py-1 rounded-lg shadow transition-all">
+            <Upload class="h-4 w-4" />
+            Import
+          </button>
+          <button @click="refreshTransactions" :disabled="loading" class="flex items-center justify-center bg-gray-500 hover:bg-gray-600 text-white w-8 h-8 rounded-lg shadow transition-all disabled:opacity-50 disabled:cursor-not-allowed" title="Refresh Transactions">
+            <RefreshCcw class="h-4 w-4" :class="{'animate-spin': loading}" />
           </button>
         </div>
 
@@ -194,7 +208,7 @@
                   {{ transaction.type }}
                 </span>
               </td>
-              <td class="py-2">{{ transaction.note }}</td>
+              <td class="py-2 w-8">{{ transaction.note }}</td>
               <td class="py-2">{{ transaction.reference_number || '-' }}</td>
               <td class="py-2">{{ transaction.wallet?.name.toUpperCase() || '-' }}</td>
               <td class="py-2">{{ formatCurrency(transaction.amount, currencyCode) }}</td>
@@ -222,29 +236,34 @@ import {
   Calendar, Trash2, Plus, Car, ReceiptIcon, Video, BriefcaseMedical, Gift, Circle, CircleEllipsis, Pizza, CircleDollarSign,
   HandCoins, Wallet, ChartCandlestick, Landmark, Citrus, ShoppingBag, House, Receipt, Clapperboard, Plane, Contact,
   Cross, ShoppingCart, Book, BriefcaseBusiness, BadgeDollarSign, Dumbbell, Sparkle, SearchIcon, CircleDot, CircleX,
-  TrendingUp, TrendingDown, ArrowUpCircle, ArrowDownCircle, PiggyBank, CalendarClock, RepeatIcon, ChevronLeft, ChevronRight
+  TrendingUp, TrendingDown, ArrowUpCircle, ArrowDownCircle, PiggyBank, CalendarClock, RepeatIcon, ChevronLeft, ChevronRight, Upload,
+  RefreshCcw
 } from 'lucide-vue-next'
 import AddTransaction from '../components/AddTransaction.vue'
 import GlobalModal from '../components/Global/GlobalModal.vue'
+import ImportModal from '../components/ImportModal.vue'
 import { useTransactionStore } from '../store/transaction'
 import { useSettingsStore } from '../store/settings'
 import { useCategoryStore } from '../store/category'
 import { useWalletStore } from '../store/wallet'
 import { iconMixin } from '../mixins/iconMixin'
+import { useNotifications } from '../composables/useNotifications'
 export default {
   name: 'DesktopDashboardView',
   components: {
     AddTransaction,
     GlobalModal,
+    ImportModal,
     Calendar, Trash2, Plus, Car, ReceiptIcon, Video, BriefcaseMedical, Gift, Circle, CircleEllipsis, Pizza, CircleDollarSign,
     HandCoins, Wallet, ChartCandlestick, Landmark, Citrus, ShoppingBag, House, Receipt, Clapperboard, Plane, Contact,
     Cross, ShoppingCart, Book, BriefcaseBusiness, BadgeDollarSign, Dumbbell, Sparkle, SearchIcon, CircleDot, CircleX,
-    TrendingUp, TrendingDown, ArrowUpCircle, ArrowDownCircle, PiggyBank, CalendarClock, RepeatIcon, ChevronLeft, ChevronRight,
+    TrendingUp, TrendingDown, ArrowUpCircle, ArrowDownCircle, PiggyBank, CalendarClock, RepeatIcon, ChevronLeft, ChevronRight, Upload, RefreshCcw
   },
   mixins: [iconMixin],
   data() {
     return {
       showAddModal: false,
+      showImportModal: false,
       editingTransaction: null,
       filters: {
         search: '',
@@ -371,6 +390,28 @@ export default {
     closeModal() {
       this.showAddModal = false;
       this.editingTransaction = null;
+    },
+    openImportModal() {
+      this.showImportModal = true;
+    },
+    async refreshTransactions() {
+      await this.fetchTransactions();
+    },
+    async handleImportCompleted(results) {
+      // Reset current page to 1 to show the latest transactions
+      this.currentPage = 1;
+      // Refresh the transactions after import
+      await this.fetchTransactions();
+      
+      // Show success notification
+      if (results && results.imported_count > 0) {
+        const { notify } = useNotifications();
+        notify({
+          title: 'Import Successful',
+          message: `${results.imported_count} transactions imported successfully`,
+          type: 'success'
+        });
+      }
     },
     handlePageChange(url) {
       if (!url) return;
