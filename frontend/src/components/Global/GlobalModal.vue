@@ -6,7 +6,7 @@
     
     <transition name="modal">
       <div v-if="modelValue" class="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-auto" :class="size">
+        <div class="bg-white rounded-lg shadow-xl w-full mx-auto" :class="size">
           <!-- Header -->
           <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
             <h3 class="text-lg font-semibold text-gray-900">{{ title }}</h3>
@@ -46,7 +46,7 @@ export default {
     },
     size: {
       type: String,
-      default: 'max-w-md',
+      default: 'max-w-7xl',
       validator: (value) => ['max-w-sm', 'max-w-md', 'max-w-lg', 'max-w-xl', 'max-w-2xl', 'max-w-3xl', 'max-w-4xl', 'max-w-5xl', 'max-w-6xl', 'max-w-7xl'].includes(value)
     },
     closeOnBackdrop: {
