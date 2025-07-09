@@ -27,6 +27,9 @@ Route::get('/user', function (Request $request) {
 
 Route::middleware('auth:sanctum')->group(function () {
 
+    // Logout
+    Route::post('logout', [AuthenticatedSessionController::class, 'apiLogout']);
+
     Route::controller(TransactionController::class)->group(function () {
         Route::get('transactions/search', 'search');
         Route::get('transactions/paginated', 'paginated');

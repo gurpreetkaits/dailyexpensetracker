@@ -77,3 +77,9 @@ export const getGoogleUserInfo = async (code) => {
     console.error("Failed to exchaange token", e);
   }
 };
+
+export const logoutApi = async () => {
+  await getCsrfToken();
+  const { data } = await axiosConf.post('/api/logout');
+  return data;
+};

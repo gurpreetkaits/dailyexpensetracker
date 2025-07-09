@@ -1,7 +1,7 @@
 <template>
     <router-view />
     <AdCashAuto v-if="showAds" />
-    <FloatingFeedbackButton />
+    <FloatingFeedbackButton v-if="showFeedbackButton" />
     <NotificationContainer />
 </template>
 
@@ -29,7 +29,10 @@ export default {
     }
   },
   computed: {
-    ...mapState(usePolarStore, ['hasActiveSubscription'])
+    ...mapState(usePolarStore, ['hasActiveSubscription']),
+    showFeedbackButton() {
+      return this.$route.path !== '/login';
+    }
   },
   methods: {
     ...mapActions(useSettingsStore, ['fetchSettings']),

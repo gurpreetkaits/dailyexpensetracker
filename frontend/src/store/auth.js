@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { verifyToken } from "../services/AuthService";
+import { verifyToken, logoutApi } from "../services/AuthService";
 import axios from 'axios';
 
 // Create axios instance with auth token
@@ -60,10 +60,11 @@ export const useAuthStore = defineStore("auth", {
     },
     async logout() {
       try {
-        this.clearAuth();
-        this.$router.push('/login');
+        await logoutApi();
       } catch (error) {
-        console.error('Logout failed:', error);
+        console.error('Backend logout failed:', error);
+      } finally {
+        this.clearAuth();
       }
     },
   },

@@ -229,4 +229,19 @@ class AuthenticatedSessionController extends Controller
 
         return redirect('/');
     }
+
+    /**
+     * Logout the user from API (Sanctum token).
+     */
+    public function apiLogout(Request $request): JsonResponse
+    {
+        if ($request->user()) {
+            // Revoke only the current access token
+            $request->user()->currentAccessToken()?->delete();
+        }
+
+        return response()->json([
+            'message' => 'Logged out successfully'
+        ]);
+    }
 }

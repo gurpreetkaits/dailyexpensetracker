@@ -17,7 +17,7 @@
             <div v-if="errorMessage" class="mb-4 p-3 bg-red-100 text-red-700 rounded">
                 {{ errorMessage }}
             </div>
-            <form @submit.prevent="handleLogin" v-if="!showSurvey" class="mt-8 space-y-6">
+            <form @submit.prevent="handleLogin" v-if="!showSurvey && !isLoggedIn" class="mt-8 space-y-6">
                 <!-- Google Login Button -->
                 <div v-if="isDev">
                 <div class="mb-4">
@@ -53,7 +53,7 @@
                     {{ loading ? 'Loading...' : 'Login' }}
                 </button>
                 </div>
-                <button @click="googleLogin" type="button"
+                <button v-if="!isLoggedIn" @click="googleLogin" type="button"
                     class="w-full flex items-center justify-center gap-2 border border-gray-300 p-3 rounded-md hover:bg-gray-50 transition-colors duration-150"
                     :disabled="loading">
                     <svg class="w-5 h-5" viewBox="0 0 24 24">
@@ -72,10 +72,20 @@
                     </svg>
                     Continue with Google
                 </button>
+                <router-link v-else to="/overview2" class="w-full bg-emerald-600 text-white p-3 rounded-lg text-center hover:bg-emerald-700 transition-colors duration-150">
+                  Go to Dashboard
+                </router-link>
                 <!-- Apple Login Button -->
                 <!-- <GoogleLogin :callback="callback">
                 </GoogleLogin> -->
             </form>
+
+            <!-- Dashboard shortcut when already logged in -->
+            <div v-else-if="isLoggedIn" class="mt-8 space-y-6 w-full max-w-md">
+              <router-link to="/overview2" class="block w-full bg-emerald-600 text-white p-3 rounded-lg text-center hover:bg-emerald-700 transition-colors font-medium">
+                Go to Dashboard
+              </router-link>
+            </div>
         </div>
 
         <!-- Survey Modal -->
@@ -182,6 +192,9 @@ export default {
             if (allNeeds.length === 1) return allNeeds[0];
             if (allNeeds.length === 2) return allNeeds.join(' and ');
             return allNeeds.slice(0, -1).join(', ') + ', and ' + allNeeds.slice(-1);
+        },
+        isLoggedIn() {
+            return !!this.authStore.token;
         }
     },
     methods: {
