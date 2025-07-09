@@ -14,7 +14,10 @@ class NewFeatureNotification extends Notification implements ShouldQueue
     /**
      * Create a new notification instance.
      */
-    public function __construct(public string $feature)
+    public function __construct(
+        public string $subject,
+        public string $filename
+    )
     {
         //
     }
@@ -35,8 +38,8 @@ class NewFeatureNotification extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-                    ->subject('Better track your expenses now!')
-                    ->markdown('emails.new_feature', ['feature' => $this->feature,'user' => $notifiable]);
+                    ->subject($this->subject)
+                    ->markdown('emails.'.$this->filename, ['user' => $notifiable]);
     }
 
     /**

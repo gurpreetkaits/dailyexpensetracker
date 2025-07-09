@@ -29,20 +29,12 @@ class NewFeatureAnnouncementCommand extends Command
      */
     public function handle()
     {
-        $feature = $this->ask('feature','test feature');
-        $singleUser = $this->ask('single-user');
-        if($singleUser){
-            $user = User::where('email', $singleUser)->first();
-            if($user){
-                Notification::send($user, new NewFeatureNotification($feature));
-            }else{
-                $this->error('User not found');
-            }
-        }else{
-            $users = UserSegmentsService::active();
-            foreach ($users as $user) {
-                Notification::send($user, new NewFeatureNotification($feature));
-            }
+        $feature = $this->ask('filename','blade file name');
+        $subject = $this->ask('subject','New Feature Announcement');
+
+        $users = User::all();
+        foreach ($users as $user) {
+            Notification::send($user, new NewFeatureNotification($subject,$feature));
         }
     }
 }
