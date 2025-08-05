@@ -95,25 +95,26 @@ class WalletController extends Controller
             $toWallet->increment('balance', $request->amount);
 
             $category = Category::where('name', 'Wallet Transfer')->first();
-            Transaction::create([
-                'user_id' => auth()->id(),
-                'wallet_id' => $fromWallet->id,
-                'amount' => $request->amount,
-                'type' => 'expense',
-                'category_id' => $category->id,
-                'note' => $request->note ?? "Transfer to {$toWallet->name}",
-                'transaction_date' => now(),
-            ]);
+            
+            // Transaction::create([
+            //     'user_id' => auth()->id(),
+            //     'wallet_id' => $fromWallet->id,
+            //     'amount' => $request->amount,
+            //     'type' => 'expense',
+            //     'category_id' => $category->id,
+            //     'note' => $request->note ?? "Transfer to {$toWallet->name}",
+            //     'transaction_date' => now(),
+            // ]);
 
-            Transaction::create([
-                'user_id' => auth()->id(),
-                'wallet_id' => $toWallet->id,
-                'amount' => $request->amount,
-                'type' => 'income',
-                'category_id' => $category->id,
-                'note' => $request->note ?? "Transfer from {$fromWallet->name}",
-                'transaction_date' => now(),
-            ]);
+            // Transaction::create([
+            //     'user_id' => auth()->id(),
+            //     'wallet_id' => $toWallet->id,
+            //     'amount' => $request->amount,
+            //     'type' => 'income',
+            //     'category_id' => $category->id,
+            //     'note' => $request->note ?? "Transfer from {$fromWallet->name}",
+            //     'transaction_date' => now(),
+            // ]);
 
             $this->service->recordBalanceHistory($fromWallet->id, $fromWallet->balance);
             $this->service->recordBalanceHistory($toWallet->id, $toWallet->balance);
