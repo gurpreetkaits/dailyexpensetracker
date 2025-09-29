@@ -15,8 +15,7 @@
             </router-link>
         </div>
 
-        <div>
-
+        <div class="space-y-4">
             <button
                 @click="handleLogout"
                 class="flex items-center p-2 w-full rounded-md hover:bg-red-100 transition-colors text-sm font-medium text-red-600 hover:text-red-700"
@@ -24,19 +23,44 @@
                 <LogOut class="w-5 h-5 mr-3 flex-shrink-0" />
                 <span>Logout</span>
             </button>
+
+            <!-- Creator Section -->
+            <div class="border-t border-gray-200 pt-4">
+                <div class="text-xs text-gray-500 mb-3 font-medium">Creator</div>
+                
+                <a 
+                    href="https://x.com/gurpreetkait" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    class="flex items-center p-2 w-full rounded-md hover:bg-gray-50 transition-colors text-sm font-medium text-gray-700 hover:text-gray-900 mb-2"
+                >
+                    <Twitter class="w-5 h-5 mr-3 flex-shrink-0 text-blue-400" />
+                    <span>@gurpreetkait</span>
+                </a>
+                
+                <a 
+                    href="https://buymeacoffee.com/gurpreetkait" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    class="flex items-center p-2 w-full rounded-md hover:bg-orange-50 transition-colors text-sm font-medium text-orange-600 hover:text-orange-700"
+                >
+                    <Coffee class="w-5 h-5 mr-3 flex-shrink-0" />
+                    <span>Buy me a coffee</span>
+                </a>
+            </div>
         </div>
     </nav>
 </template>
 
 <script>
-import { Settings, Home, User, BarChart, MessageCircle, Star, LogOut, MessageCircleCode, Wallet, Landmark } from 'lucide-vue-next';
+import { Settings, Home, User, BarChart, MessageCircle, Star, LogOut, MessageCircleCode, Wallet, Landmark, Coffee, Twitter } from 'lucide-vue-next';
 import { mapState, mapActions } from 'pinia';
 import { useAuthStore } from '../../store/auth.js';
 import { useRouter } from 'vue-router';
 
 export default {
     name: 'DesktopNav',
-    components: { LogOut, MessageCircle, Wallet, Landmark },
+    components: { LogOut, MessageCircle, Wallet, Landmark, Coffee, Twitter },
     data() {
         return {
             navigation: [
