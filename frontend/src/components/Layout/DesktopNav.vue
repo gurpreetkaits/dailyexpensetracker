@@ -39,7 +39,7 @@
                 </a>
                 
                 <a 
-                    href="https://buymeacoffee.com/gurpreetkait" 
+                    href="https://buymeacoffee.com/gurpreetkash" 
                     target="_blank" 
                     rel="noopener noreferrer"
                     class="flex items-center p-2 w-full rounded-md hover:bg-orange-50 transition-colors text-sm font-medium text-orange-600 hover:text-orange-700"
