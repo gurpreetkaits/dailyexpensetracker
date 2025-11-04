@@ -347,11 +347,5 @@ input[type="number"] {
 
 input[type="date"]::-webkit-calendar-picker-indicator {
     cursor: pointer;
-    opacity: 0;
-    position: absolute;
-    right: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
 }
 </style>
