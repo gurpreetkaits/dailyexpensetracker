@@ -44,12 +44,20 @@
             </select>
         </div>
 
-        <!-- Enhanced Date Input -->
-        <div class="grid grid-cols-1 gap-2 mb-3">
-            <div>
-                <CategorySearch v-model="category" :selectableCategory="editableCategory" :formType="type" />
-            </div>
+        <!-- Category Selection -->
+        <div class="mb-3">
+            <CategorySearch v-model="category" :selectableCategory="editableCategory" :formType="type" />
+        </div>
 
+        <!-- Date Input -->
+        <div class="mb-3">
+            <input 
+                v-model="date" 
+                type="date" 
+                class="w-full p-2.5 text-sm border rounded-md bg-gray-50 focus:bg-white
+                       focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                required
+            />
         </div>
         <!-- Amount Input -->
         <div class="bg-gray-50 rounded-lg mb-3">
@@ -166,7 +174,7 @@ export default {
     },
     computed: {
         isValid() {
-            return this.amount && this.amount > 0 && this.wallet_id
+            return this.amount && this.amount > 0 && this.wallet_id && this.date
         },
         isNew() {
             return !this.item
