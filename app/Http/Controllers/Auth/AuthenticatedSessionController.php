@@ -67,7 +67,9 @@ class AuthenticatedSessionController extends Controller
                     'currency_code' => 'USD',
                     'reminders' => 0,
                 ]);
+            }
 
+            if (Wallet::where('user_id', $user->id)->doesntExist()) {
                 Wallet::create([
                     'user_id' => $user->id,
                     'type' => 'cash',
@@ -178,21 +180,17 @@ class AuthenticatedSessionController extends Controller
             }
             Cache::forget("otp_$email");
 
-            $user = User::where('email', $email)->first();
+            $user->update(['email_verified_at' => now()]);
 
-            if (!$user) {
-                $user = User::create([
-                    'name' => explode('@', $email)[0], // Use part before @ as default name
-                    'email' => $email,
-                    'email_verified_at' => now()
-                ]);
-
+            if (Setting::where('user_id', $user->id)->doesntExist()) {
                 Setting::create([
                     'user_id' => $user->id,
                     'currency_code' => 'USD',
                     'reminders' => 0,
                 ]);
+            }
 
+            if (Wallet::where('user_id', $user->id)->doesntExist()) {
                 Wallet::create([
                     'user_id' => $user->id,
                     'type' => 'cash',
