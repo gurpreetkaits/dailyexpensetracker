@@ -73,6 +73,7 @@ class AuthenticatedSessionController extends Controller
                     'type' => 'cash',
                     'name' => 'Default',
                     'balance' => 0,
+                    'currency' => 'USD',
                 ]);
             }
 
@@ -197,6 +198,7 @@ class AuthenticatedSessionController extends Controller
                     'type' => 'cash',
                     'name' => 'Default',
                     'balance' => 0,
+                    'currency' => 'USD',
                 ]);
             }
 
