@@ -5,6 +5,7 @@ import {
   updateRecurringExpense,
   deleteRecurringExpense,
   getRecurringSuggestions,
+  getLoanDetails,
 } from "../services/RecurringExpense";
 
 export const useRecurringExpenseStore = defineStore("recurringExpense", {
@@ -19,26 +20,42 @@ export const useRecurringExpenseStore = defineStore("recurringExpense", {
     suggestions: [],
     loading: false,
     loadingSuggestions: false,
+    loadingLoanDetails: false,
     error: null,
     summary: {
-      monthly_payment_total: 0,
-      total_amount_paid: 0,
-      total_interest_paid: 0,
-      total_pending_payments: 0,
+      this_month_total: 0,
+      active_count: 0,
+      subscription_count: 0,
+      bill_count: 0,
+      emi_count: 0,
+      other_count: 0,
+      next_payment: null,
       total_remaining_balance: 0,
-      total_yearly_cost: 0,
-      upcoming_payments: []
-    }
+      emi_payments_made: 0,
+      emi_payments_total: 0,
+      emi_summary: {
+        total_monthly_emi: 0,
+        total_loan_amount: 0,
+        total_payable: 0,
+        total_interest_paid: 0,
+        total_interest_remaining: 0,
+        total_principal_paid: 0,
+        total_principal_remaining: 0,
+        overall_completion: 0,
+        highest_interest_loan: null,
+        soonest_ending_loan: null,
+        loans: []
+      }
+    },
+    selectedLoanDetails: null,
+    selectedLoanAmortization: []
   }),
 
   getters: {
-    totalYearlyCost: (state) => {
-      return state.recurringExpenses
-        .filter(e => e.is_active)
-        .reduce((sum, e) => sum + (e.yearly_cost || 0), 0);
-    },
-    activeExpensesCount: (state) => {
-      return state.recurringExpenses.filter(e => e.is_active).length;
+    hasEMIs: (state) => state.summary.emi_count > 0,
+    emiProgress: (state) => {
+      if (state.summary.emi_payments_total === 0) return 0;
+      return Math.round((state.summary.emi_payments_made / state.summary.emi_payments_total) * 100);
     }
   },
 
@@ -123,5 +140,25 @@ export const useRecurringExpenseStore = defineStore("recurringExpense", {
         this.loading = false;
       }
     },
+
+    async fetchLoanDetails(id) {
+      this.loadingLoanDetails = true;
+      try {
+        const response = await getLoanDetails(id);
+        this.selectedLoanDetails = response.data.loan;
+        this.selectedLoanAmortization = response.data.amortization_schedule;
+        return response.data;
+      } catch (error) {
+        this.error = error.message;
+        throw error;
+      } finally {
+        this.loadingLoanDetails = false;
+      }
+    },
+
+    clearLoanDetails() {
+      this.selectedLoanDetails = null;
+      this.selectedLoanAmortization = [];
+    }
   },
 });

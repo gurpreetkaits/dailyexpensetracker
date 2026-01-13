@@ -46,7 +46,16 @@ class RecurringExpense extends Model
         'remaining_balance',
         'monthly_payment_total',
         'yearly_cost',
-        'next_payment_date'
+        'next_payment_date',
+        'principal_paid_till_date',
+        'interest_remaining',
+        'total_payable',
+        'loan_end_date',
+        'payments_completed',
+        'payments_remaining',
+        'completion_percentage',
+        'current_month_interest',
+        'current_month_principal'
     ];
 
     protected $with = ['category', 'wallet'];
@@ -270,7 +279,194 @@ class RecurringExpense extends Model
         return $upcoming;
     }
     /**
-     * Get totals for all recurring expenses of a user
+     * Get principal paid till date for EMI
      */
+    public function getPrincipalPaidTillDateAttribute()
+    {
+        if (!$this->type || $this->type !== 'emi') {
+            return 0;
+        }
 
+        return round($this->total_amount_paid - $this->interest_paid_till_date, 2);
+    }
+
+    /**
+     * Get remaining interest to be paid
+     */
+    public function getInterestRemainingAttribute()
+    {
+        if (!$this->type || $this->type !== 'emi') {
+            return 0;
+        }
+
+        return max(0, round($this->total_interest - $this->interest_paid_till_date, 2));
+    }
+
+    /**
+     * Get total payable amount (principal + total interest)
+     */
+    public function getTotalPayableAttribute()
+    {
+        if (!$this->type || $this->type !== 'emi') {
+            return 0;
+        }
+
+        return round($this->principal_amount + $this->total_interest, 2);
+    }
+
+    /**
+     * Get loan end date
+     */
+    public function getLoanEndDateAttribute()
+    {
+        if (!$this->type || $this->type !== 'emi' || !$this->first_payment_date) {
+            return null;
+        }
+
+        return $this->first_payment_date->copy()
+            ->addMonths($this->tenure_months - 1)
+            ->setDay($this->payment_day)
+            ->format('Y-m-d');
+    }
+
+    /**
+     * Get number of payments completed
+     */
+    public function getPaymentsCompletedAttribute()
+    {
+        if (!$this->type || $this->type !== 'emi') {
+            return 0;
+        }
+
+        $startDate = $this->first_payment_date;
+        $today = Carbon::today();
+
+        if ($startDate->greaterThan($today)) {
+            return 0;
+        }
+
+        $monthsPassed = $startDate->diffInMonths($today);
+        return min($monthsPassed, $this->tenure_months);
+    }
+
+    /**
+     * Get number of payments remaining
+     */
+    public function getPaymentsRemainingAttribute()
+    {
+        if (!$this->type || $this->type !== 'emi') {
+            return 0;
+        }
+
+        return max(0, $this->tenure_months - $this->payments_completed);
+    }
+
+    /**
+     * Get completion percentage
+     */
+    public function getCompletionPercentageAttribute()
+    {
+        if (!$this->type || $this->type !== 'emi' || $this->tenure_months == 0) {
+            return 0;
+        }
+
+        return round(($this->payments_completed / $this->tenure_months) * 100, 1);
+    }
+
+    /**
+     * Get current month's interest component
+     */
+    public function getCurrentMonthInterestAttribute()
+    {
+        if (!$this->type || $this->type !== 'emi') {
+            return 0;
+        }
+
+        $monthlyRate = ($this->interest_rate / 12) / 100;
+        return round($this->remaining_balance * $monthlyRate, 2);
+    }
+
+    /**
+     * Get current month's principal component
+     */
+    public function getCurrentMonthPrincipalAttribute()
+    {
+        if (!$this->type || $this->type !== 'emi') {
+            return 0;
+        }
+
+        return round($this->amount - $this->current_month_interest, 2);
+    }
+
+    /**
+     * Get full amortization schedule
+     */
+    public function getAmortizationSchedule()
+    {
+        if (!$this->type || $this->type !== 'emi') {
+            return [];
+        }
+
+        $schedule = [];
+        $monthlyRate = ($this->interest_rate / 12) / 100;
+        $emi = $this->amount;
+        $balance = $this->principal_amount;
+        $paymentDate = $this->first_payment_date->copy();
+        $today = Carbon::today();
+
+        for ($i = 1; $i <= $this->tenure_months; $i++) {
+            $interestComponent = round($balance * $monthlyRate, 2);
+            $principalComponent = round($emi - $interestComponent, 2);
+            $balance = max(0, round($balance - $principalComponent, 2));
+
+            $isPaid = $paymentDate->lessThanOrEqualTo($today);
+
+            $schedule[] = [
+                'payment_number' => $i,
+                'date' => $paymentDate->format('Y-m-d'),
+                'emi' => $emi,
+                'principal' => $principalComponent,
+                'interest' => $interestComponent,
+                'balance' => $balance,
+                'is_paid' => $isPaid
+            ];
+
+            $paymentDate->addMonth();
+        }
+
+        return $schedule;
+    }
+
+    /**
+     * Get loan summary for this EMI
+     */
+    public function getLoanSummary()
+    {
+        if (!$this->type || $this->type !== 'emi') {
+            return null;
+        }
+
+        return [
+            'name' => $this->name,
+            'principal_amount' => $this->principal_amount,
+            'interest_rate' => $this->interest_rate,
+            'tenure_months' => $this->tenure_months,
+            'emi_amount' => $this->amount,
+            'total_interest' => $this->total_interest,
+            'total_payable' => $this->total_payable,
+            'payments_completed' => $this->payments_completed,
+            'payments_remaining' => $this->payments_remaining,
+            'completion_percentage' => $this->completion_percentage,
+            'principal_paid' => $this->principal_paid_till_date,
+            'interest_paid' => $this->interest_paid_till_date,
+            'principal_remaining' => $this->remaining_balance,
+            'interest_remaining' => $this->interest_remaining,
+            'current_month_principal' => $this->current_month_principal,
+            'current_month_interest' => $this->current_month_interest,
+            'first_payment_date' => $this->first_payment_date->format('Y-m-d'),
+            'loan_end_date' => $this->loan_end_date,
+            'next_payment_date' => $this->next_payment_date,
+            'is_active' => $this->is_active
+        ];
+    }
 }

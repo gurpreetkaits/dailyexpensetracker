@@ -32,3 +32,12 @@ export const getRecurringSuggestions = async () => {
         throw error
     }
 }
+
+export const getLoanDetails = async (id) => {
+    try {
+        const { data } = await axios.get(`/api/recurring-expenses/${id}/loan-details`)
+        return data
+    } catch (error) {
+        throw error
+    }
+}

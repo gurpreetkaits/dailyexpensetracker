@@ -28,113 +28,187 @@
       </div>
     </template>
       <template v-else>
-          <div class="bg-white rounded-xl shadow-sm p-4">
-              <div class="bg-gray-50 rounded-lg p-3 space-y-3">
-                  <!-- Cost Summary Grid -->
-                  <div class="grid grid-cols-2 gap-3">
-                      <!-- Monthly -->
-                      <div class="bg-white p-3 rounded-lg">
-                          <p class="text-xs text-gray-500">Monthly</p>
-                          <p class="text-lg font-semibold text-red-600">
-                              {{ formatCurrency(nextMonthPayable, currencyCode) }}
+          <!-- Compact Summary Card -->
+          <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+              <!-- This Month Total -->
+              <div class="p-3 sm:p-4 bg-gradient-to-r from-gray-900 to-gray-800">
+                  <div class="flex items-center justify-between">
+                      <div>
+                          <p class="text-xs text-gray-400 mb-0.5">This Month</p>
+                          <p class="text-xl sm:text-2xl font-bold text-white">
+                              {{ formatCurrency(summary.this_month_total, currencyCode) }}
                           </p>
                       </div>
-                      <!-- Yearly -->
-                      <div class="bg-white p-3 rounded-lg">
-                          <p class="text-xs text-gray-500">Yearly</p>
-                          <p class="text-lg font-semibold text-orange-600">
-                              {{ formatCurrency(totalYearlyCost, currencyCode) }}
-                          </p>
+                      <div class="text-right">
+                          <p class="text-xs text-gray-400">Active</p>
+                          <p class="text-lg font-semibold text-white">{{ summary.active_count }}</p>
+                      </div>
+                  </div>
+              </div>
+
+              <div class="p-3 sm:p-4 space-y-3">
+                  <!-- Next Payment -->
+                  <div v-if="summary.next_payment" class="flex items-center justify-between py-2.5 sm:py-2 px-3 bg-blue-50 rounded-lg active:bg-blue-100 transition-colors">
+                      <div class="flex items-center gap-2 sm:gap-3 min-w-0">
+                          <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                              <CalendarClock class="h-4 w-4 text-blue-600" />
+                          </div>
+                          <div class="min-w-0">
+                              <p class="text-xs text-blue-600 font-medium">Next Payment</p>
+                              <p class="text-sm font-semibold text-gray-900 truncate">{{ summary.next_payment.name }}</p>
+                          </div>
+                      </div>
+                      <div class="text-right flex-shrink-0 ml-2">
+                          <p class="text-sm font-semibold text-gray-900">{{ formatCurrency(summary.next_payment.amount, currencyCode) }}</p>
+                          <p class="text-xs text-gray-500">{{ formatRelativeDate(summary.next_payment.date) }}</p>
                       </div>
                   </div>
 
-                  <!-- EMI Details - Show only if there are EMI type expenses -->
-                  <template v-if="hasEMIExpenses">
-                      <hr class="border-gray-200">
-                      <div class="space-y-2">
-                          <h4 class="text-xs font-medium text-gray-700">EMI Summary</h4>
-                          <div class="grid grid-cols-2 gap-2 text-sm">
-                              <div class="bg-white p-2 rounded-lg">
-                                  <p class="text-xs text-gray-500">Interest Paid</p>
-                                  <p class="font-medium text-blue-600">
-                                      {{ formatCurrency(getTotalInterestPaid, currencyCode) }}
-                                  </p>
+                  <!-- Type Breakdown -->
+                  <div class="flex items-center justify-center gap-2 sm:gap-3 py-2 flex-wrap">
+                      <span v-if="summary.subscription_count" class="inline-flex items-center gap-1 px-2 py-1 bg-purple-50 text-purple-700 rounded-full text-xs font-medium">
+                          <Tv class="h-3 w-3" /> {{ summary.subscription_count }} Subs
+                      </span>
+                      <span v-if="summary.bill_count" class="inline-flex items-center gap-1 px-2 py-1 bg-green-50 text-green-700 rounded-full text-xs font-medium">
+                          <Receipt class="h-3 w-3" /> {{ summary.bill_count }} Bills
+                      </span>
+                      <span v-if="summary.emi_count" class="inline-flex items-center gap-1 px-2 py-1 bg-amber-50 text-amber-700 rounded-full text-xs font-medium">
+                          <Landmark class="h-3 w-3" /> {{ summary.emi_count }} EMIs
+                      </span>
+                      <span v-if="summary.other_count" class="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-medium">
+                          {{ summary.other_count }} Other
+                      </span>
+                  </div>
+
+                  <!-- EMI Section (only if has EMIs) -->
+                  <div v-if="summary.emi_count > 0" class="pt-3 border-t border-gray-100 space-y-3">
+                      <!-- EMI Header with Monthly Burden -->
+                      <div class="flex items-center justify-between">
+                          <div class="flex items-center gap-2">
+                              <Landmark class="h-4 w-4 text-amber-500" />
+                              <span class="text-sm font-medium text-gray-700">Loans & EMIs</span>
+                          </div>
+                          <span class="text-xs sm:text-sm font-bold text-amber-600">{{ formatCurrency(emiSummary.total_monthly_emi, currencyCode) }}/mo</span>
+                      </div>
+
+                      <!-- Overall Progress -->
+                      <div>
+                          <div class="flex items-center justify-between mb-1">
+                              <span class="text-xs text-gray-500">Overall Progress</span>
+                              <span class="text-xs font-medium text-amber-600">{{ emiSummary.overall_completion }}%</span>
+                          </div>
+                          <div class="w-full bg-gray-100 rounded-full h-2.5 sm:h-2">
+                              <div class="bg-gradient-to-r from-amber-400 to-amber-500 h-2.5 sm:h-2 rounded-full transition-all" :style="{ width: emiSummary.overall_completion + '%' }"></div>
+                          </div>
+                          <div class="flex justify-between mt-1.5 sm:mt-1">
+                              <span class="text-xs text-gray-400">{{ summary.emi_payments_made }} paid</span>
+                              <span class="text-xs text-gray-400">{{ summary.emi_payments_total - summary.emi_payments_made }} left</span>
+                          </div>
+                      </div>
+
+                      <!-- Interest Insights -->
+                      <div class="grid grid-cols-2 gap-2">
+                          <div class="bg-red-50 rounded-lg p-2.5 sm:p-3">
+                              <p class="text-xs text-red-600 mb-0.5">Interest Paid</p>
+                              <p class="text-xs sm:text-sm font-semibold text-red-700">{{ formatCurrency(emiSummary.total_interest_paid, currencyCode) }}</p>
+                          </div>
+                          <div class="bg-amber-50 rounded-lg p-2.5 sm:p-3">
+                              <p class="text-xs text-amber-600 mb-0.5">Interest Left</p>
+                              <p class="text-xs sm:text-sm font-semibold text-amber-700">{{ formatCurrency(emiSummary.total_interest_remaining, currencyCode) }}</p>
+                          </div>
+                      </div>
+
+                      <!-- Outstanding Balance -->
+                      <div class="bg-gray-50 rounded-lg p-3">
+                          <div class="flex items-center justify-between">
+                              <div class="min-w-0">
+                                  <p class="text-xs text-gray-500">Outstanding</p>
+                                  <p class="text-base sm:text-lg font-bold text-gray-900">{{ formatCurrency(summary.total_remaining_balance, currencyCode) }}</p>
                               </div>
-                              <div class="bg-white p-2 rounded-lg">
-                                  <p class="text-xs text-gray-500">Remaining Balance</p>
-                                  <p class="font-medium text-blue-600">
-                                      {{ formatCurrency(getTotalRemainingBalance, currencyCode) }}
-                                  </p>
+                              <div class="text-right flex-shrink-0">
+                                  <p class="text-xs text-gray-500">Borrowed</p>
+                                  <p class="text-xs sm:text-sm font-medium text-gray-600">{{ formatCurrency(emiSummary.total_loan_amount, currencyCode) }}</p>
                               </div>
                           </div>
                       </div>
-                  </template>
 
-                  <hr class="border-gray-200">
-
-                  <!-- Quick Stats -->
-                  <div class="flex justify-between text-sm">
-                      <span class="text-gray-600">Total Paid Till Now</span>
-                      <span class="font-medium text-green-600">{{ formatCurrency(totalPaidTillNow, currencyCode) }}</span>
-                  </div>
-                  <div class="flex justify-between text-sm">
-                      <span class="text-gray-600">Pending This Month</span>
-                      <span class="font-medium text-yellow-600">{{ formatCurrency(getTotalPendingPayments, currencyCode) }}</span>
-                  </div>
-
-                  <!-- Upcoming Payments Preview -->
-                  <template v-if="getUpcomingPayments.length">
-                      <hr class="border-gray-200">
-                      <div class="space-y-2">
-                          <h4 class="text-xs font-medium text-gray-700">Upcoming Payments</h4>
-                          <div class="space-y-1">
-                              <div v-for="payment in getUpcomingPayments.slice(0, 3)" :key="payment.date"
-                                   class="flex justify-between text-sm">
-                                  <span class="text-gray-500">{{ payment.name }} - {{ formatDate(payment.date) }}</span>
-                                  <span class="font-medium text-gray-700">{{ formatCurrency(payment.amount, currencyCode) }}</span>
+                      <!-- Loan Cards (clickable) -->
+                      <div v-if="emiSummary.loans && emiSummary.loans.length > 0" class="space-y-2">
+                          <p class="text-xs font-medium text-gray-600">Your Loans</p>
+                          <div v-for="loan in emiSummary.loans" :key="loan.id"
+                               @click="viewLoanDetails(loan.id)"
+                               class="flex items-center justify-between p-3 bg-white border border-gray-100 rounded-lg active:bg-amber-50 sm:hover:border-amber-200 sm:hover:bg-amber-50/30 cursor-pointer transition-colors">
+                              <div class="flex items-center gap-2 sm:gap-3 min-w-0">
+                                  <div class="w-9 h-9 sm:w-8 sm:h-8 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                      <Landmark class="h-4 w-4 text-amber-600" />
+                                  </div>
+                                  <div class="min-w-0">
+                                      <p class="text-sm font-medium text-gray-900 truncate">{{ loan.name }}</p>
+                                      <p class="text-xs text-gray-500">{{ loan.interest_rate }}% • {{ loan.payments_remaining }} left</p>
+                                  </div>
+                              </div>
+                              <div class="text-right flex-shrink-0 ml-2">
+                                  <p class="text-sm font-semibold text-gray-900">{{ formatCurrency(loan.emi_amount, currencyCode) }}</p>
+                                  <div class="flex items-center justify-end gap-1">
+                                      <div class="w-10 sm:w-12 bg-gray-200 rounded-full h-1.5 sm:h-1">
+                                          <div class="bg-amber-500 h-1.5 sm:h-1 rounded-full" :style="{ width: loan.completion_percentage + '%' }"></div>
+                                      </div>
+                                      <span class="text-xs text-gray-400">{{ loan.completion_percentage }}%</span>
+                                  </div>
                               </div>
                           </div>
                       </div>
-                  </template>
+
+                      <!-- Highlights -->
+                      <div v-if="emiSummary.highest_interest_loan || emiSummary.soonest_ending_loan" class="grid grid-cols-2 gap-2">
+                          <div v-if="emiSummary.highest_interest_loan"
+                               @click="viewLoanDetails(emiSummary.highest_interest_loan.id)"
+                               class="bg-red-50 rounded-lg p-3 sm:p-2.5 cursor-pointer active:bg-red-100 sm:hover:bg-red-100 transition-colors">
+                              <p class="text-xs text-red-600">Highest Interest</p>
+                              <p class="text-sm font-medium text-red-800 truncate">{{ emiSummary.highest_interest_loan.name }}</p>
+                              <p class="text-xs text-red-700 font-semibold">{{ emiSummary.highest_interest_loan.interest_rate }}%</p>
+                          </div>
+                          <div v-if="emiSummary.soonest_ending_loan"
+                               @click="viewLoanDetails(emiSummary.soonest_ending_loan.id)"
+                               class="bg-green-50 rounded-lg p-3 sm:p-2.5 cursor-pointer active:bg-green-100 sm:hover:bg-green-100 transition-colors">
+                              <p class="text-xs text-green-600">Ending Soon</p>
+                              <p class="text-sm font-medium text-green-800 truncate">{{ emiSummary.soonest_ending_loan.name }}</p>
+                              <p class="text-xs text-green-700 font-semibold">{{ emiSummary.soonest_ending_loan.payments_remaining }} EMIs left</p>
+                          </div>
+                      </div>
+                  </div>
               </div>
           </div>
 
-          <!-- Smart Suggestions -->
-          <div v-if="suggestions.length > 0" class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl shadow-sm p-4">
-              <div class="flex items-center justify-between mb-3">
-                  <div class="flex items-center gap-2">
-                      <Sparkles class="h-4 w-4 text-blue-600" />
-                      <h3 class="text-sm font-medium text-gray-800">Detected Patterns</h3>
-                  </div>
-                  <span class="text-xs text-gray-500">{{ suggestions.length }} found</span>
+          <!-- Smart Suggestions (compact) -->
+          <div v-if="suggestions.length > 0" class="bg-white rounded-xl shadow-sm p-3">
+              <div class="flex items-center gap-2 mb-2">
+                  <Sparkles class="h-3.5 w-3.5 text-blue-500" />
+                  <span class="text-xs font-medium text-gray-600">Suggested from transactions</span>
               </div>
-              <div class="space-y-2">
-                  <div v-for="suggestion in suggestions.slice(0, 3)" :key="suggestion.name"
-                       @click="addFromSuggestion(suggestion)"
-                       class="flex items-center justify-between bg-white rounded-lg p-3 cursor-pointer hover:shadow-md transition-all">
-                      <div class="flex-1">
-                          <h4 class="font-medium text-gray-800">{{ suggestion.name }}</h4>
-                          <p class="text-xs text-gray-500">
-                              {{ formatCurrency(suggestion.amount, currencyCode) }}/{{ suggestion.recurrence }}
-                              <span class="ml-2 text-blue-600">{{ suggestion.confidence }}% confidence</span>
-                          </p>
-                      </div>
-                      <button class="text-blue-600 hover:text-blue-700 text-sm font-medium">
-                          + Add
-                      </button>
-                  </div>
+              <div class="flex gap-2 overflow-x-auto pb-1 -mx-3 px-3 scrollbar-hide">
+                  <button
+                      v-for="suggestion in suggestions.slice(0, 4)"
+                      :key="suggestion.name"
+                      @click="addFromSuggestion(suggestion)"
+                      class="flex-shrink-0 inline-flex items-center gap-1.5 sm:gap-2 px-3 py-2.5 sm:py-2 bg-gray-50 active:bg-gray-100 sm:hover:bg-gray-100 rounded-lg text-sm transition-colors"
+                  >
+                      <span class="font-medium text-gray-800">{{ suggestion.name }}</span>
+                      <span class="text-gray-500 text-xs sm:text-sm">{{ formatCurrency(suggestion.amount, currencyCode) }}</span>
+                      <Plus class="h-3.5 w-3.5 text-blue-500" />
+                  </button>
               </div>
           </div>
       </template>
     <!-- End New Overview Card -->
 
     <!-- Switch -->
-    <div class="bg-white rounded-2xl shadow-sm p-1 mb-6">
-      <div class="grid grid-cols-2 gap-2">
+    <div class="bg-white rounded-2xl shadow-sm p-1 mb-4 sm:mb-6">
+      <div class="grid grid-cols-2 gap-1">
         <button v-for="type in ['Daily', 'Recurring']" :key="type" @click="setActiveTab(type.toLowerCase())"
-          class="py-1 px-2 rounded-xl text-sm font-medium transition-all" :class="getActiveTab === type.toLowerCase()
+          class="py-2.5 sm:py-2 px-3 sm:px-2 rounded-xl text-sm font-medium transition-all active:scale-95" :class="getActiveTab === type.toLowerCase()
             ? 'bg-blue-50 text-blue-600'
-            : 'text-gray-500 hover:bg-gray-50'">
+            : 'text-gray-500 active:bg-gray-100 sm:hover:bg-gray-50'">
           {{ type }}
         </button>
       </div>
@@ -162,17 +236,17 @@
         </div>
 
         <!-- Recurring Expenses List with Type Grouping -->
-        <div v-else class="space-y-4">
+        <div v-else class="space-y-3 sm:space-y-4">
           <!-- Group by Type Tabs -->
-          <div class="flex gap-2 overflow-x-auto pb-2">
+          <div class="flex gap-2 overflow-x-auto pb-2 -mx-3 px-3 scrollbar-hide">
             <button
               v-for="tab in expenseTypeTabs"
               :key="tab.key"
               @click="selectedExpenseType = tab.key"
-              class="px-3 py-1.5 text-sm rounded-full whitespace-nowrap transition-colors"
+              class="px-3 py-2 sm:py-1.5 text-sm rounded-full whitespace-nowrap transition-colors active:scale-95"
               :class="selectedExpenseType === tab.key
                 ? 'bg-blue-100 text-blue-700'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'"
+                : 'bg-gray-100 text-gray-600 active:bg-gray-200 sm:hover:bg-gray-200'"
             >
               {{ tab.label }} ({{ getExpensesByType(tab.key).length }})
             </button>
@@ -225,12 +299,12 @@
           </div>
 
           <!-- Mobile View -->
-          <div class="sm:hidden space-y-3">
+          <div class="sm:hidden space-y-2">
             <div v-for="expense in filteredExpensesByType" :key="expense.id" @click="editRecurringExpense(expense)"
-              class="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-all cursor-pointer">
+              class="bg-white rounded-xl p-3.5 shadow-sm active:bg-gray-50 transition-all cursor-pointer">
               <div class="flex items-center gap-3">
                 <!-- Icon with Category Color -->
-                <div class="w-10 h-10 rounded-full flex items-center justify-center"
+                <div class="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0"
                      :style="{ backgroundColor: getExpenseColor(expense) + '15', color: getExpenseColor(expense) }">
                   <component :is="getExpenseIcon(expense)" class="h-5 w-5" />
                 </div>
@@ -238,14 +312,14 @@
                 <!-- Details -->
                 <div class="flex-1 min-w-0">
                   <div class="flex items-center gap-2">
-                    <h4 class="font-medium text-gray-900 truncate">{{ expense.name }}</h4>
+                    <h4 class="font-medium text-gray-900 truncate text-base">{{ expense.name }}</h4>
                     <span class="px-1.5 py-0.5 text-xs rounded-full flex-shrink-0"
                           :class="getTypeBadgeClass(expense.type)">
                       {{ expense.type === 'subscription' ? 'Sub' : expense.type === 'emi' ? 'EMI' : capitalizeFirstLetter(expense.type) }}
                     </span>
                   </div>
-                  <div class="flex items-center gap-2 text-sm text-gray-500">
-                    <span>{{ formatCurrency(expense.amount, currencyCode) }}/{{ expense.recurrence === 'monthly' ? 'mo' : expense.recurrence === 'quarterly' ? 'qtr' : 'yr' }}</span>
+                  <div class="flex items-center gap-2 text-sm text-gray-500 mt-0.5">
+                    <span class="font-medium text-gray-700">{{ formatCurrency(expense.amount, currencyCode) }}/{{ expense.recurrence === 'monthly' ? 'mo' : expense.recurrence === 'quarterly' ? 'qtr' : 'yr' }}</span>
                     <span class="text-gray-300">•</span>
                     <span>{{ expense.payment_day }}{{ getDayOrdinal(expense.payment_day) }}</span>
                   </div>
@@ -426,6 +500,9 @@
 
     <!-- Export Modal -->
     <ExportModal :show="showExportModal" @close="showExportModal = false" @exported="showExportModal = false" />
+
+    <!-- Loan Detail Modal -->
+    <LoanDetailModal v-model="showLoanDetailModal" :loanId="selectedLoanId" />
   </div>
 </template>
 <script>
@@ -454,6 +531,7 @@ import GlobalModal from './Global/GlobalModal.vue'
 import TransactionsDoubleLineBarChart from './Stats/TransactionsDoubleLineBarChart.vue'
 import DailyBarChart from './Stats/DailyBarChart.vue'
 import ExportModal from './ExportModal.vue'
+import LoanDetailModal from './LoanDetailModal.vue'
 import { Wallet, CreditCard, Banknote, Download } from 'lucide-vue-next'
 export default {
   name: 'ExpenseList',
@@ -471,6 +549,7 @@ export default {
     TransactionsDoubleLineBarChart,
     DailyBarChart,
     ExportModal,
+    LoanDetailModal,
     Wallet, CreditCard, Banknote, Download
   },
   setup() {
@@ -494,6 +573,8 @@ export default {
       searchTimeout: null,
       periodTab: 'W',
       showExportModal: false,
+      showLoanDetailModal: false,
+      selectedLoanId: null,
       selectedExpenseType: 'all',
       selectedSuggestion: null,
       expenseTypeTabs: [
@@ -598,6 +679,27 @@ export default {
 
     hasEMIExpenses() {
       return this.recurringExpenses.some(expense => expense.type === 'emi')
+    },
+    emiProgressPercent() {
+      if (!this.summary.emi_payments_total || this.summary.emi_payments_total === 0) {
+        return 0;
+      }
+      return Math.min(100, Math.round((this.summary.emi_payments_made / this.summary.emi_payments_total) * 100));
+    },
+    emiSummary() {
+      return this.summary.emi_summary || {
+        total_monthly_emi: 0,
+        total_loan_amount: 0,
+        total_payable: 0,
+        total_interest_paid: 0,
+        total_interest_remaining: 0,
+        total_principal_paid: 0,
+        total_principal_remaining: 0,
+        overall_completion: 0,
+        highest_interest_loan: null,
+        soonest_ending_loan: null,
+        loans: []
+      };
     },
     recentTransaction() {
       return this.transactions && this.transactions.length > 0 ? this.transactions[0] : null
@@ -713,6 +815,10 @@ export default {
       } else {
         this.showAddModal = true;
       }
+    },
+    viewLoanDetails(loanId) {
+      this.selectedLoanId = loanId;
+      this.showLoanDetailModal = true;
     },
     setActiveTab(tab) {
       this.activeTab = tab;
@@ -873,6 +979,23 @@ export default {
         day: 'numeric'
       })
     },
+    formatRelativeDate(date) {
+      if (!date) return '';
+      const targetDate = new Date(date);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      targetDate.setHours(0, 0, 0, 0);
+
+      const diffTime = targetDate.getTime() - today.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+      if (diffDays === 0) return 'Today';
+      if (diffDays === 1) return 'Tomorrow';
+      if (diffDays < 0) return `${Math.abs(diffDays)} days ago`;
+      if (diffDays <= 7) return `in ${diffDays} days`;
+      if (diffDays <= 30) return `in ${Math.ceil(diffDays / 7)} weeks`;
+      return this.formatDate(date);
+    },
 
     // Helper function to calculate months between two dates
     getMonthsBetween(startDate, endDate) {
@@ -1011,3 +1134,14 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+/* Hide scrollbar but allow scroll */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+</style>

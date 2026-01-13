@@ -140,12 +140,18 @@ class RecurringExpenseController extends Controller
         ];
     }
 
-//    public function getDashboardStats()
-//    {
-//        $userId = auth()->id();
-//        return [
-//            'monthly_payment_total' => RecurringExpense::getMonthlyPaymentTotal($userId),
-//            'recurring_expenses' => auth()->user()->recurringExpenses
-//        ];
-//    }
+    /**
+     * Get detailed loan information with amortization schedule
+     */
+    public function getLoanDetails(RecurringExpense $recurringExpense): JsonResponse
+    {
+        abort_if($recurringExpense->user_id !== auth()->id(), Response::HTTP_FORBIDDEN);
+        abort_if($recurringExpense->type !== 'emi', Response::HTTP_BAD_REQUEST, 'This is not an EMI/Loan');
+
+        return $this->success('Loan details fetched successfully', [
+            'loan' => $recurringExpense->getLoanSummary(),
+            'amortization_schedule' => $recurringExpense->getAmortizationSchedule(),
+            'expense' => $recurringExpense
+        ]);
+    }
 }
