@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\RecurringExpense;
+use App\Services\RecurringExpenseDetectionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -11,12 +12,43 @@ use Illuminate\Validation\Rule;
 class RecurringExpenseController extends Controller
 {
     private $model = RecurringExpense::class;
+
     public function index(): JsonResponse
     {
-        return $this->success('Recurring expenses fetched successfully',[
-            'recurring_expenses' => auth()->user()->recurringExpenses,
-            'total' => auth()->user()->getTotalExpenseDetails()
+        $expenses = auth()->user()->recurringExpenses()
+            ->with(['category', 'wallet'])
+            ->get();
+
+        return $this->success('Recurring expenses fetched successfully', [
+            'recurring_expenses' => $expenses,
+            'total' => auth()->user()->getTotalExpenseDetails(),
+            'grouped' => $this->groupByType($expenses)
         ]);
+    }
+
+    /**
+     * Get suggested recurring expenses from transaction patterns
+     */
+    public function suggestions(RecurringExpenseDetectionService $service): JsonResponse
+    {
+        $suggestions = $service->detectRecurringPatterns(auth()->id());
+
+        return $this->success('Suggestions fetched successfully', [
+            'suggestions' => $suggestions
+        ]);
+    }
+
+    /**
+     * Group expenses by type
+     */
+    private function groupByType($expenses): array
+    {
+        return [
+            'subscriptions' => $expenses->where('type', 'subscription')->values(),
+            'emis' => $expenses->where('type', 'emi')->values(),
+            'bills' => $expenses->where('type', 'bill')->values(),
+            'other' => $expenses->where('type', 'other')->values()
+        ];
     }
 
     public function store(Request $request)
@@ -27,14 +59,20 @@ class RecurringExpenseController extends Controller
             'amount' => 'required|numeric|min:0',
             'payment_day' => 'required|integer|min:1|max:31',
             'first_payment_date' => 'required|date',
-            'recurrence' => ['required', 'string', Rule::in(['monthly'])],
+            'recurrence' => ['required', 'string', Rule::in(['monthly', 'quarterly', 'yearly'])],
 
             // EMI specific validations
             'principal_amount' => 'required_if:type,emi|nullable|numeric|min:0',
             'interest_rate' => 'required_if:type,emi|nullable|numeric|min:0|max:100',
             'tenure_months' => 'required_if:type,emi|nullable|integer|min:1|max:360',
             'total_interest' => 'nullable|numeric|min:0',
-            'end_date' => 'nullable|date|after:first_payment_date|required_if:type,emi'
+            'end_date' => 'nullable|date|after:first_payment_date|required_if:type,emi',
+
+            // New fields
+            'category_id' => 'nullable|exists:categories,id',
+            'wallet_id' => 'nullable|exists:wallets,id',
+            'icon' => 'nullable|string|max:50',
+            'color' => 'nullable|string|max:20'
         ]);
 
         // Remove null values from validated data
@@ -42,7 +80,9 @@ class RecurringExpenseController extends Controller
             return $value !== null;
         });
 
-        return auth()->user()->recurringExpenses()->create($validated);
+        $expense = auth()->user()->recurringExpenses()->create($validated);
+
+        return $expense->load(['category', 'wallet']);
     }
 
     public function update(Request $request, RecurringExpense $recurringExpense)
@@ -55,14 +95,20 @@ class RecurringExpenseController extends Controller
             'amount' => 'required|numeric|min:0',
             'payment_day' => 'required|integer|min:1|max:31',
             'first_payment_date' => 'required|date',
-            'recurrence' => ['required', 'string', Rule::in(['monthly'])],
+            'recurrence' => ['required', 'string', Rule::in(['monthly', 'quarterly', 'yearly'])],
 
             // EMI specific validations
             'principal_amount' => 'required_if:type,emi|nullable|numeric|min:0',
             'interest_rate' => 'required_if:type,emi|nullable|numeric|min:0|max:100',
             'tenure_months' => 'required_if:type,emi|nullable|integer|min:1|max:360',
             'total_interest' => 'nullable|numeric|min:0',
-            'end_date' => 'nullable|date|after:first_payment_date|required_if:type,emi'
+            'end_date' => 'nullable|date|after:first_payment_date|required_if:type,emi',
+
+            // New fields
+            'category_id' => 'nullable|exists:categories,id',
+            'wallet_id' => 'nullable|exists:wallets,id',
+            'icon' => 'nullable|string|max:50',
+            'color' => 'nullable|string|max:20'
         ]);
 
         // Remove null values from validated data
@@ -71,7 +117,7 @@ class RecurringExpenseController extends Controller
         });
 
         $recurringExpense->update($validated);
-        return $recurringExpense->fresh();
+        return $recurringExpense->fresh()->load(['category', 'wallet']);
     }
 
     public function destroy(RecurringExpense $recurringExpense): Response

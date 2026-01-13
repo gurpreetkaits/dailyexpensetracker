@@ -23,3 +23,12 @@ export const updateRecurringExpense = (id, expense) => {
 export const deleteRecurringExpense = (id) => {
     return axios.delete(`/api/recurring-expenses/${id}`)
 }
+
+export const getRecurringSuggestions = async () => {
+    try {
+        const { data } = await axios.get('/api/recurring-expenses-suggestions')
+        return data
+    } catch (error) {
+        throw error
+    }
+}

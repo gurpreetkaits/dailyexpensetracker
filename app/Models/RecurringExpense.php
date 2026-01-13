@@ -23,7 +23,11 @@ class RecurringExpense extends Model
         'tenure_months',
         'total_interest',
         'type',
-        'recurrence'
+        'recurrence',
+        'category_id',
+        'wallet_id',
+        'icon',
+        'color'
     ];
 
     protected $casts = [
@@ -40,12 +44,69 @@ class RecurringExpense extends Model
         'total_amount_paid',
         'pending_payments',
         'remaining_balance',
-        'monthly_payment_total'  // Added this
+        'monthly_payment_total',
+        'yearly_cost',
+        'next_payment_date'
     ];
+
+    protected $with = ['category', 'wallet'];
 
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
+
+    public function wallet()
+    {
+        return $this->belongsTo(Wallet::class);
+    }
+
+    /**
+     * Get yearly cost based on recurrence
+     */
+    public function getYearlyCostAttribute()
+    {
+        if (!$this->is_active) {
+            return 0;
+        }
+
+        $multiplier = match ($this->recurrence) {
+            'monthly' => 12,
+            'quarterly' => 4,
+            'yearly' => 1,
+            default => 12
+        };
+
+        return round($this->amount * $multiplier, 2);
+    }
+
+    /**
+     * Get next payment date
+     */
+    public function getNextPaymentDateAttribute()
+    {
+        $today = Carbon::today();
+        $nextPaymentDate = $today->copy()->setDay(min($this->payment_day, $today->daysInMonth));
+
+        // If we've passed this month's payment date, move to next month
+        if ($today->day > $this->payment_day) {
+            $nextPaymentDate->addMonth();
+        }
+
+        // For EMI, check if we're still within tenure
+        if ($this->type === 'emi') {
+            $monthsFromStart = $this->first_payment_date->diffInMonths($nextPaymentDate);
+            if ($monthsFromStart >= $this->tenure_months) {
+                return null; // EMI completed
+            }
+        }
+
+        return $nextPaymentDate->format('Y-m-d');
     }
 
     /**

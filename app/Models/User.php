@@ -101,6 +101,7 @@ class User extends Authenticatable implements AuthMustVerifyEmail
         $totalAmountPaid = 0;
         $totalPendingPayments = 0;
         $totalRemainingBalance = 0;
+        $totalYearlyCost = 0;
         $allUpcomingPayments = [];
 
         foreach ($expenses as $expense) {
@@ -108,6 +109,7 @@ class User extends Authenticatable implements AuthMustVerifyEmail
             $totalAmountPaid += $expense->total_amount_paid;
             $totalPendingPayments += $expense->pending_payments;
             $totalRemainingBalance += $expense->remaining_balance;
+            $totalYearlyCost += $expense->yearly_cost;
             $allUpcomingPayments = array_merge($allUpcomingPayments, $expense->getUpcomingPayments(3));
         }
 
@@ -121,7 +123,8 @@ class User extends Authenticatable implements AuthMustVerifyEmail
             'total_amount_paid' => round($totalAmountPaid, 2),
             'total_pending_payments' => round($totalPendingPayments, 2),
             'total_remaining_balance' => round($totalRemainingBalance, 2),
-            'upcoming_payments' => array_slice($allUpcomingPayments, 0, 3), // Only return next 3 payments
+            'total_yearly_cost' => round($totalYearlyCost, 2),
+            'upcoming_payments' => array_slice($allUpcomingPayments, 0, 3),
             'monthly_payment_total' => round($expenses->sum('amount'), 2)
         ];
     }

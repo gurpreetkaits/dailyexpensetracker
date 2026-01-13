@@ -78,13 +78,12 @@ class TransactionsExport implements FromCollection, WithHeadings, WithMapping, W
 
     public function map($transaction): array
     {
-        $amountPrefix = $transaction->type === 'expense' ? '-' : '+';
-
+        // Export plain numbers without currency symbols for better compatibility
         return [
             Carbon::parse($transaction->transaction_date)->format('Y-m-d'),
             ucfirst($transaction->type),
             $transaction->category?->name ?? 'Uncategorized',
-            $amountPrefix . number_format($transaction->amount, 2),
+            round($transaction->amount, 2),
             $transaction->note ?? '',
             $transaction->wallet?->name ?? '',
             $transaction->reference_number ?? '',

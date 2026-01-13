@@ -29,76 +29,99 @@
     </template>
       <template v-else>
           <div class="bg-white rounded-xl shadow-sm p-4">
-              <div>
-                  <div class="bg-gray-50 rounded-lg p-3 space-y-3">
-                      <!-- Total Monthly Payable -->
-                      <div class="flex justify-between mb-2">
-                          <span class="text-xs font-medium text-gray-700">Total Monthly Payable</span>
-                          <p class="text-sm font-medium text-red-700">
+              <div class="bg-gray-50 rounded-lg p-3 space-y-3">
+                  <!-- Cost Summary Grid -->
+                  <div class="grid grid-cols-2 gap-3">
+                      <!-- Monthly -->
+                      <div class="bg-white p-3 rounded-lg">
+                          <p class="text-xs text-gray-500">Monthly</p>
+                          <p class="text-lg font-semibold text-red-600">
                               {{ formatCurrency(nextMonthPayable, currencyCode) }}
                           </p>
                       </div>
+                      <!-- Yearly -->
+                      <div class="bg-white p-3 rounded-lg">
+                          <p class="text-xs text-gray-500">Yearly</p>
+                          <p class="text-lg font-semibold text-orange-600">
+                              {{ formatCurrency(totalYearlyCost, currencyCode) }}
+                          </p>
+                      </div>
+                  </div>
 
-                      <!-- EMI Details - Show only if there are EMI type expenses -->
-                      <template v-if="hasEMIExpenses">
-                          <hr class="border-gray-200">
-                          <div class="space-y-2">
-                              <h4 class="text-xs font-medium text-gray-700">EMI Summary</h4>
-
-                              <div class="grid grid-cols-2 gap-2 text-sm">
-                                  <!-- Interest Paid -->
-                                  <div class="bg-white p-2 rounded-lg">
-                                      <p class="text-xs text-gray-500">Interest Paid</p>
-                                      <p class="font-medium text-blue-600">
-                                          {{ formatCurrency(getTotalInterestPaid, currencyCode) }}
-                                      </p>
-                                  </div>
-
-                                  <!-- Remaining Balance -->
-                                  <div class="bg-white p-2 rounded-lg">
-                                      <p class="text-xs text-gray-500">Remaining Balance</p>
-                                      <p class="font-medium text-blue-600">
-                                          {{ formatCurrency(getTotalRemainingBalance, currencyCode) }}
-                                      </p>
-                                  </div>
-                              </div>
-                          </div>
-                      </template>
-
+                  <!-- EMI Details - Show only if there are EMI type expenses -->
+                  <template v-if="hasEMIExpenses">
                       <hr class="border-gray-200">
-
-                      <!-- Total Paid -->
-                      <div class="flex justify-between">
-                          <span class="text-xs font-medium text-gray-700">Total Paid Till Now</span>
-                          <p class="text-sm font-medium text-green-700">
-                              {{ formatCurrency(totalPaidTillNow, currencyCode) }}
-                          </p>
-                      </div>
-
-                      <!-- Pending Payments -->
-                      <div class="flex justify-between">
-                          <span class="text-xs font-medium text-gray-700">Pending Payments</span>
-                          <p class="text-sm font-medium text-yellow-600">
-                              {{ formatCurrency(getTotalPendingPayments, currencyCode) }}
-                          </p>
-                      </div>
-
-                      <!-- Upcoming Payments Preview -->
-                      <template v-if="getUpcomingPayments.length">
-                          <hr class="border-gray-200">
-                          <div class="space-y-2">
-                              <h4 class="text-xs font-medium text-gray-700">Upcoming Payments</h4>
-                              <div class="space-y-1">
-                                  <div v-for="payment in getUpcomingPayments.slice(0, 3)" :key="payment.date"
-                                       class="flex justify-between text-sm">
-                                      <span class="text-gray-500">{{ formatDate(payment.date) }}</span>
-                                      <span class="font-medium text-gray-700">
-                  {{ formatCurrency(payment.amount, currencyCode) }}
-                </span>
-                                  </div>
+                      <div class="space-y-2">
+                          <h4 class="text-xs font-medium text-gray-700">EMI Summary</h4>
+                          <div class="grid grid-cols-2 gap-2 text-sm">
+                              <div class="bg-white p-2 rounded-lg">
+                                  <p class="text-xs text-gray-500">Interest Paid</p>
+                                  <p class="font-medium text-blue-600">
+                                      {{ formatCurrency(getTotalInterestPaid, currencyCode) }}
+                                  </p>
+                              </div>
+                              <div class="bg-white p-2 rounded-lg">
+                                  <p class="text-xs text-gray-500">Remaining Balance</p>
+                                  <p class="font-medium text-blue-600">
+                                      {{ formatCurrency(getTotalRemainingBalance, currencyCode) }}
+                                  </p>
                               </div>
                           </div>
-                      </template>
+                      </div>
+                  </template>
+
+                  <hr class="border-gray-200">
+
+                  <!-- Quick Stats -->
+                  <div class="flex justify-between text-sm">
+                      <span class="text-gray-600">Total Paid Till Now</span>
+                      <span class="font-medium text-green-600">{{ formatCurrency(totalPaidTillNow, currencyCode) }}</span>
+                  </div>
+                  <div class="flex justify-between text-sm">
+                      <span class="text-gray-600">Pending This Month</span>
+                      <span class="font-medium text-yellow-600">{{ formatCurrency(getTotalPendingPayments, currencyCode) }}</span>
+                  </div>
+
+                  <!-- Upcoming Payments Preview -->
+                  <template v-if="getUpcomingPayments.length">
+                      <hr class="border-gray-200">
+                      <div class="space-y-2">
+                          <h4 class="text-xs font-medium text-gray-700">Upcoming Payments</h4>
+                          <div class="space-y-1">
+                              <div v-for="payment in getUpcomingPayments.slice(0, 3)" :key="payment.date"
+                                   class="flex justify-between text-sm">
+                                  <span class="text-gray-500">{{ payment.name }} - {{ formatDate(payment.date) }}</span>
+                                  <span class="font-medium text-gray-700">{{ formatCurrency(payment.amount, currencyCode) }}</span>
+                              </div>
+                          </div>
+                      </div>
+                  </template>
+              </div>
+          </div>
+
+          <!-- Smart Suggestions -->
+          <div v-if="suggestions.length > 0" class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl shadow-sm p-4">
+              <div class="flex items-center justify-between mb-3">
+                  <div class="flex items-center gap-2">
+                      <Sparkles class="h-4 w-4 text-blue-600" />
+                      <h3 class="text-sm font-medium text-gray-800">Detected Patterns</h3>
+                  </div>
+                  <span class="text-xs text-gray-500">{{ suggestions.length }} found</span>
+              </div>
+              <div class="space-y-2">
+                  <div v-for="suggestion in suggestions.slice(0, 3)" :key="suggestion.name"
+                       @click="addFromSuggestion(suggestion)"
+                       class="flex items-center justify-between bg-white rounded-lg p-3 cursor-pointer hover:shadow-md transition-all">
+                      <div class="flex-1">
+                          <h4 class="font-medium text-gray-800">{{ suggestion.name }}</h4>
+                          <p class="text-xs text-gray-500">
+                              {{ formatCurrency(suggestion.amount, currencyCode) }}/{{ suggestion.recurrence }}
+                              <span class="ml-2 text-blue-600">{{ suggestion.confidence }}% confidence</span>
+                          </p>
+                      </div>
+                      <button class="text-blue-600 hover:text-blue-700 text-sm font-medium">
+                          + Add
+                      </button>
                   </div>
               </div>
           </div>
@@ -138,22 +161,47 @@
           </p>
         </div>
 
-        <!-- Recurring Expenses List -->
-        <div v-else class="space-y-3">
+        <!-- Recurring Expenses List with Type Grouping -->
+        <div v-else class="space-y-4">
+          <!-- Group by Type Tabs -->
+          <div class="flex gap-2 overflow-x-auto pb-2">
+            <button
+              v-for="tab in expenseTypeTabs"
+              :key="tab.key"
+              @click="selectedExpenseType = tab.key"
+              class="px-3 py-1.5 text-sm rounded-full whitespace-nowrap transition-colors"
+              :class="selectedExpenseType === tab.key
+                ? 'bg-blue-100 text-blue-700'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'"
+            >
+              {{ tab.label }} ({{ getExpensesByType(tab.key).length }})
+            </button>
+          </div>
+
+          <!-- Desktop View -->
           <div class="hidden sm:block space-y-3">
-            <div v-for="expense in recurringExpenses" :key="expense.id" @click="editRecurringExpense(expense)"
+            <div v-for="expense in filteredExpensesByType" :key="expense.id" @click="editRecurringExpense(expense)"
               class="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-all cursor-pointer">
               <div class="flex items-center gap-3">
-                <!-- Icon -->
-                <div class="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center">
-                  <RepeatIcon class="h-5 w-5 text-blue-500" />
+                <!-- Icon with Category Color -->
+                <div class="w-10 h-10 rounded-full flex items-center justify-center"
+                     :style="{ backgroundColor: getExpenseColor(expense) + '15', color: getExpenseColor(expense) }">
+                  <component :is="getExpenseIcon(expense)" class="h-5 w-5" />
                 </div>
 
                 <!-- Details -->
                 <div class="flex-1 min-w-0">
-                  <h4 class="font-medium text-gray-900">{{ expense.name }}</h4>
+                  <div class="flex items-center gap-2">
+                    <h4 class="font-medium text-gray-900">{{ expense.name }}</h4>
+                    <span class="px-2 py-0.5 text-xs rounded-full"
+                          :class="getTypeBadgeClass(expense.type)">
+                      {{ capitalizeFirstLetter(expense.type) }}
+                    </span>
+                  </div>
                   <p class="text-sm text-gray-500">
-                    Every {{ expense.payment_day }}{{ getDayOrdinal(expense.payment_day) }}
+                    {{ expense.recurrence === 'monthly' ? 'Every' : expense.recurrence === 'quarterly' ? 'Every 3 months,' : 'Yearly,' }}
+                    {{ expense.payment_day }}{{ getDayOrdinal(expense.payment_day) }}
+                    <span v-if="expense.category" class="ml-1">• {{ expense.category.name }}</span>
                   </p>
                 </div>
 
@@ -162,14 +210,14 @@
                   <p class="font-medium text-gray-900">
                     {{ formatCurrency(expense.amount, currencyCode) }}
                   </p>
-                  <p class="text-sm text-gray-400">per month</p>
+                  <p class="text-xs text-gray-400">{{ formatCurrency(expense.yearly_cost, currencyCode) }}/yr</p>
                 </div>
 
                 <!-- Next Payment -->
                 <div class="text-right min-w-[100px]">
                   <p class="text-xs text-gray-500">Next payment</p>
                   <p class="text-sm text-gray-700">
-                    {{ formatDate(getNextPaymentDate(expense)) }}
+                    {{ expense.next_payment_date ? formatDate(expense.next_payment_date) : 'Completed' }}
                   </p>
                 </div>
               </div>
@@ -178,19 +226,26 @@
 
           <!-- Mobile View -->
           <div class="sm:hidden space-y-3">
-            <div v-for="expense in recurringExpenses" :key="expense.id" @click="editRecurringExpense(expense)"
+            <div v-for="expense in filteredExpensesByType" :key="expense.id" @click="editRecurringExpense(expense)"
               class="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-all cursor-pointer">
               <div class="flex items-center gap-3">
-                <!-- Icon -->
-                <div class="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center">
-                  <RepeatIcon class="h-5 w-5 text-blue-500" />
+                <!-- Icon with Category Color -->
+                <div class="w-10 h-10 rounded-full flex items-center justify-center"
+                     :style="{ backgroundColor: getExpenseColor(expense) + '15', color: getExpenseColor(expense) }">
+                  <component :is="getExpenseIcon(expense)" class="h-5 w-5" />
                 </div>
 
                 <!-- Details -->
                 <div class="flex-1 min-w-0">
-                  <h4 class="font-medium text-gray-900">{{ expense.name }}</h4>
+                  <div class="flex items-center gap-2">
+                    <h4 class="font-medium text-gray-900 truncate">{{ expense.name }}</h4>
+                    <span class="px-1.5 py-0.5 text-xs rounded-full flex-shrink-0"
+                          :class="getTypeBadgeClass(expense.type)">
+                      {{ expense.type === 'subscription' ? 'Sub' : expense.type === 'emi' ? 'EMI' : capitalizeFirstLetter(expense.type) }}
+                    </span>
+                  </div>
                   <div class="flex items-center gap-2 text-sm text-gray-500">
-                    <span>{{ formatCurrency(expense.amount, currencyCode) }}/mo</span>
+                    <span>{{ formatCurrency(expense.amount, currencyCode) }}/{{ expense.recurrence === 'monthly' ? 'mo' : expense.recurrence === 'quarterly' ? 'qtr' : 'yr' }}</span>
                     <span class="text-gray-300">•</span>
                     <span>{{ expense.payment_day }}{{ getDayOrdinal(expense.payment_day) }}</span>
                   </div>
@@ -351,7 +406,7 @@
     <GlobalModal v-model="showDesktopModal" :title="getActiveTab === 'daily' ? (editingTransaction ? 'Edit Transaction' : 'New Transaction') : 'Recurring Expense'" size="max-w-md">
       <template #default>
         <AddTransaction v-if="getActiveTab === 'daily'" @transaction-added="handleTransactionAdded" @remove="removeItem" :item="editingTransaction" @close="closeModal" />
-        <RecurringExpenseForm v-else :editingExpense="editingRecurring" :loading="saving" @save="handleRecurringExpenseSave" @delete="handleRecurringExpenseDelete" @cancel="closeModal" />
+        <RecurringExpenseForm v-else :editingExpense="editingRecurring" :suggestion="selectedSuggestion" :loading="saving" @save="handleRecurringExpenseSave" @delete="handleRecurringExpenseDelete" @cancel="closeModal" />
       </template>
     </GlobalModal>
     <!-- End Desktop Model -->
@@ -363,7 +418,7 @@
             :item="editingTransaction" />
         </template>
         <template v-else>
-          <RecurringExpenseForm :editingExpense="editingRecurring" :loading="saving" @save="handleRecurringExpenseSave"
+          <RecurringExpenseForm :editingExpense="editingRecurring" :suggestion="selectedSuggestion" :loading="saving" @save="handleRecurringExpenseSave"
             @delete="handleRecurringExpenseDelete" @cancel="closeModal" />
         </template>
       </BottomSheet>
@@ -375,12 +430,11 @@
 </template>
 <script>
 import {
-  Calendar, Trash2, Plus, Car, ReceiptIcon, Video, BriefcaseMedical, Gift, Circle, CircleEllipsis, Pizza, CircleDollarSign
-  , HandCoins, ChartCandlestick, Landmark,
+  Calendar, Trash2, Plus, Car, ReceiptIcon, Video, BriefcaseMedical, Gift, Circle, CircleEllipsis, Pizza, CircleDollarSign,
+  HandCoins, ChartCandlestick, Landmark,
   Citrus, ShoppingBag, House, Receipt, Clapperboard, Plane, Contact,
   Cross, ShoppingCart, Book, BriefcaseBusiness, BadgeDollarSign,
-  Dumbbell,
-  Sparkle,SearchIcon,
+  Dumbbell, Sparkle, Sparkles, SearchIcon, Tv, Zap, Wifi, Music, Cloud, Smartphone,
   CircleDot, CircleX, TrendingUp, TrendingDown, ArrowUpCircle, ArrowDownCircle, PiggyBank, CalendarClock, RepeatIcon
 } from 'lucide-vue-next'
 import BottomSheet from './BottomSheet.vue'
@@ -409,13 +463,9 @@ export default {
     BottomSheet,
     AddTransaction, HandCoins, ChartCandlestick, Landmark,
     Citrus, House, Receipt, Clapperboard, Plane, Contact,
-    Cross, ShoppingCart, Book, BriefcaseBusiness, BadgeDollarSign, Car,SearchIcon,
-    Dumbbell,
-    Sparkle,
-    CircleDot, CircleX, TrendingUp,
-    TrendingDown,
-    ArrowUpCircle,
-    ArrowDownCircle,
+    Cross, ShoppingCart, Book, BriefcaseBusiness, BadgeDollarSign, Car, SearchIcon,
+    Dumbbell, Sparkle, Sparkles, Tv, Zap, Wifi, Music, Cloud, Smartphone,
+    CircleDot, CircleX, TrendingUp, TrendingDown, ArrowUpCircle, ArrowDownCircle,
     PiggyBank, RepeatIcon, CalendarClock,
     Dialog, DialogPanel, TransitionRoot, TransitionChild, RecurringExpenseForm, GlobalModal,
     TransactionsDoubleLineBarChart,
@@ -444,6 +494,15 @@ export default {
       searchTimeout: null,
       periodTab: 'W',
       showExportModal: false,
+      selectedExpenseType: 'all',
+      selectedSuggestion: null,
+      expenseTypeTabs: [
+        { key: 'all', label: 'All' },
+        { key: 'subscription', label: 'Subscriptions' },
+        { key: 'bill', label: 'Bills' },
+        { key: 'emi', label: 'EMIs' },
+        { key: 'other', label: 'Other' }
+      ]
     }
   },
   computed: {
@@ -464,10 +523,19 @@ export default {
     ...mapState(useWalletStore, ['wallets']),
 
     // Recurring Expense
-    ...mapState(useRecurringExpenseStore, ['recurringExpenses','summary']),
+    ...mapState(useRecurringExpenseStore, ['recurringExpenses', 'summary', 'suggestions']),
 
     getActiveTab() {
       return this.activeTab.toLowerCase()
+    },
+    totalYearlyCost() {
+      return this.summary.total_yearly_cost || 0;
+    },
+    filteredExpensesByType() {
+      if (this.selectedExpenseType === 'all') {
+        return this.recurringExpenses;
+      }
+      return this.recurringExpenses.filter(e => e.type === this.selectedExpenseType);
     },
     filteredTransactions() {
       return this.transactions
@@ -574,6 +642,8 @@ export default {
       if (newTab === 'recurring') {
         await this.fetchRecurringExpenses()
         this.setRecurringSummary()
+        // Fetch suggestions in background
+        this.fetchSuggestions()
       }
     }
   },
@@ -599,8 +669,51 @@ export default {
       'fetchRecurringExpenses',
       'addRecurringExpense',
       'updateRecurringExpense',
-      'removeRecurringExpense'
+      'removeRecurringExpense',
+      'fetchSuggestions'
     ]),
+    getExpensesByType(type) {
+      if (type === 'all') return this.recurringExpenses;
+      return this.recurringExpenses.filter(e => e.type === type);
+    },
+    getExpenseColor(expense) {
+      if (expense.category?.color) return expense.category.color;
+      const typeColors = {
+        subscription: '#8B5CF6',
+        emi: '#F59E0B',
+        bill: '#10B981',
+        other: '#6B7280'
+      };
+      return typeColors[expense.type] || '#6B7280';
+    },
+    getExpenseIcon(expense) {
+      if (expense.icon) return expense.icon;
+      const typeIcons = {
+        subscription: 'Tv',
+        emi: 'Landmark',
+        bill: 'Zap',
+        other: 'RepeatIcon'
+      };
+      return typeIcons[expense.type] || 'RepeatIcon';
+    },
+    getTypeBadgeClass(type) {
+      const classes = {
+        subscription: 'bg-purple-100 text-purple-700',
+        emi: 'bg-amber-100 text-amber-700',
+        bill: 'bg-green-100 text-green-700',
+        other: 'bg-gray-100 text-gray-700'
+      };
+      return classes[type] || 'bg-gray-100 text-gray-700';
+    },
+    addFromSuggestion(suggestion) {
+      this.selectedSuggestion = suggestion;
+      this.editingRecurring = null;
+      if (window.innerWidth >= 768) {
+        this.showDesktopModal = true;
+      } else {
+        this.showAddModal = true;
+      }
+    },
     getDayOrdinal(day) {
       if (day > 3 && day < 21) return 'th'
       switch (day % 10) {
@@ -702,6 +815,7 @@ export default {
       this.showAddModal = false
       this.showDesktopModal = false
       this.editingRecurring = null
+      this.selectedSuggestion = null
     },
     async handleTransactionAdded(params) {
       this.closeModal()

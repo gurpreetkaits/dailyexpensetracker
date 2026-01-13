@@ -163,15 +163,15 @@ class ExportController extends Controller
         <tr>
             <td class="income">
                 <h3>Total Income</h3>
-                <div class="amount">$' . number_format($totalIncome, 2) . '</div>
+                <div class="amount">' . number_format($totalIncome, 2) . '</div>
             </td>
             <td class="expense">
                 <h3>Total Expense</h3>
-                <div class="amount">$' . number_format($totalExpense, 2) . '</div>
+                <div class="amount">' . number_format($totalExpense, 2) . '</div>
             </td>
             <td class="net">
                 <h3>Net Balance</h3>
-                <div class="amount">$' . number_format($totalIncome - $totalExpense, 2) . '</div>
+                <div class="amount">' . number_format($totalIncome - $totalExpense, 2) . '</div>
             </td>
         </tr>
     </table>
@@ -190,8 +190,8 @@ class ExportController extends Controller
                 <td style="border-left-color: ' . $totals['color'] . ';">
                     <div class="cat-name" style="color: ' . $totals['color'] . ';">' . htmlspecialchars($categoryName) . '</div>
                     <div class="cat-stats">
-                        <span class="stat-income">+$' . number_format($totals['income'], 2) . '</span> |
-                        <span class="stat-expense">-$' . number_format($totals['expense'], 2) . '</span>
+                        <span class="stat-income">+' . number_format($totals['income'], 2) . '</span> |
+                        <span class="stat-expense">-' . number_format($totals['expense'], 2) . '</span>
                         <span style="color: #6b7280;">(' . $totals['count'] . ')</span>
                     </div>
                 </td>';
@@ -223,7 +223,7 @@ class ExportController extends Controller
         <table class="category-header-table" style="background: ' . $color . ';">
             <tr>
                 <td class="cat-title">' . htmlspecialchars($categoryName) . '</td>
-                <td class="cat-totals">Income: $' . number_format($catIncome, 2) . ' | Expense: $' . number_format($catExpense, 2) . ' | ' . $transactions->count() . ' transactions</td>
+                <td class="cat-totals">Income: ' . number_format($catIncome, 2) . ' | Expense: ' . number_format($catExpense, 2) . ' | ' . $transactions->count() . ' transactions</td>
             </tr>
         </table>
         <table class="transactions-table">
@@ -241,13 +241,12 @@ class ExportController extends Controller
             foreach ($transactions as $t) {
                 $typeClass = $t->type === 'income' ? 'type-income' : 'type-expense';
                 $amountClass = $t->type === 'income' ? 'amount-income' : 'amount-expense';
-                $amountPrefix = $t->type === 'income' ? '+' : '-';
 
                 $html .= '
                 <tr>
                     <td>' . Carbon::parse($t->transaction_date)->format('M d, Y') . '</td>
                     <td class="' . $typeClass . '">' . ucfirst($t->type) . '</td>
-                    <td class="' . $amountClass . '">' . $amountPrefix . '$' . number_format($t->amount, 2) . '</td>
+                    <td class="' . $amountClass . '">' . number_format($t->amount, 2) . '</td>
                     <td>' . htmlspecialchars($t->note ?? '-') . '</td>
                     <td>' . htmlspecialchars($t->wallet?->name ?? '-') . '</td>
                 </tr>';

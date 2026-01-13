@@ -4,37 +4,75 @@ import {
   createRecurringExpense,
   updateRecurringExpense,
   deleteRecurringExpense,
+  getRecurringSuggestions,
 } from "../services/RecurringExpense";
 
 export const useRecurringExpenseStore = defineStore("recurringExpense", {
   state: () => ({
     recurringExpenses: [],
+    grouped: {
+      subscriptions: [],
+      emis: [],
+      bills: [],
+      other: []
+    },
+    suggestions: [],
     loading: false,
+    loadingSuggestions: false,
     error: null,
-  summary: {
+    summary: {
       monthly_payment_total: 0,
       total_amount_paid: 0,
       total_interest_paid: 0,
       total_pending_payments: 0,
       total_remaining_balance: 0,
+      total_yearly_cost: 0,
       upcoming_payments: []
-  }
+    }
   }),
+
+  getters: {
+    totalYearlyCost: (state) => {
+      return state.recurringExpenses
+        .filter(e => e.is_active)
+        .reduce((sum, e) => sum + (e.yearly_cost || 0), 0);
+    },
+    activeExpensesCount: (state) => {
+      return state.recurringExpenses.filter(e => e.is_active).length;
+    }
+  },
 
   actions: {
     async fetchRecurringExpenses() {
       this.loading = true;
       try {
         const response = await getRecurringExpenses();
-        console.log('response',response)
         this.recurringExpenses = response.data.recurring_expenses;
         this.summary = response.data.total;
-        console.log('this.details',this.details)
+        this.grouped = response.data.grouped || {
+          subscriptions: [],
+          emis: [],
+          bills: [],
+          other: []
+        };
       } catch (error) {
         this.error = error.message;
         throw error;
       } finally {
         this.loading = false;
+      }
+    },
+
+    async fetchSuggestions() {
+      this.loadingSuggestions = true;
+      try {
+        const response = await getRecurringSuggestions();
+        this.suggestions = response.data.suggestions || [];
+      } catch (error) {
+        this.error = error.message;
+        this.suggestions = [];
+      } finally {
+        this.loadingSuggestions = false;
       }
     },
 

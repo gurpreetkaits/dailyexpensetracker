@@ -65,6 +65,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::resource('transactions', TransactionController::class);
     
     Route::resource('recurring-expenses', RecurringExpenseController::class);
+    Route::get('recurring-expenses-suggestions', [RecurringExpenseController::class, 'suggestions']);
     Route::get('stats', [StatsController::class, 'index']);
     Route::resource('goals', GoalsController::class);
     Route::patch('goals/{goal}/progress', [GoalsController::class, 'updateProgress']);
