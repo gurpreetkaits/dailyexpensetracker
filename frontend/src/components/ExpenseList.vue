@@ -14,7 +14,17 @@
           @load-more="handleLoadMore"
           @filter-change="handleFilterChange"
           @clear-filter="handleClearFilter"
-        />
+        >
+          <template #actions>
+            <button
+              @click="showExportModal = true"
+              class="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors"
+            >
+              <Download class="h-4 w-4" />
+              <span>Export</span>
+            </button>
+          </template>
+        </DailyBarChart>
       </div>
     </template>
       <template v-else>
@@ -358,6 +368,9 @@
         </template>
       </BottomSheet>
     </div>
+
+    <!-- Export Modal -->
+    <ExportModal :show="showExportModal" @close="showExportModal = false" @exported="showExportModal = false" />
   </div>
 </template>
 <script>
@@ -386,7 +399,8 @@ import { iconMixin } from '../mixins/iconMixin';
 import GlobalModal from './Global/GlobalModal.vue'
 import TransactionsDoubleLineBarChart from './Stats/TransactionsDoubleLineBarChart.vue'
 import DailyBarChart from './Stats/DailyBarChart.vue'
-import { Wallet, CreditCard, Banknote } from 'lucide-vue-next'
+import ExportModal from './ExportModal.vue'
+import { Wallet, CreditCard, Banknote, Download } from 'lucide-vue-next'
 export default {
   name: 'ExpenseList',
   mixins: [numberMixin,iconMixin],
@@ -406,7 +420,8 @@ export default {
     Dialog, DialogPanel, TransitionRoot, TransitionChild, RecurringExpenseForm, GlobalModal,
     TransactionsDoubleLineBarChart,
     DailyBarChart,
-    Wallet, CreditCard, Banknote
+    ExportModal,
+    Wallet, CreditCard, Banknote, Download
   },
   setup() {
     const walletStore = useWalletStore();
@@ -428,6 +443,7 @@ export default {
       editingGoal: false,
       searchTimeout: null,
       periodTab: 'W',
+      showExportModal: false,
     }
   },
   computed: {

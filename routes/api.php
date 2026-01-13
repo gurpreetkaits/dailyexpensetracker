@@ -14,6 +14,7 @@ use App\Http\Controllers\RecurringExpenseController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\StatsController;
 use App\Http\Controllers\TransactionController;
+use App\Http\Controllers\ExportController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\ServeyController;
 use App\Http\Controllers\WalletController;
@@ -51,6 +52,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('transactions/activity-bar-data-v2', [TransactionController::class, 'activityBarDataV2']);
     Route::get('transactions/daily-bar-data', [TransactionController::class, 'dailyBarData']);
+    Route::get('transactions/export', [ExportController::class, 'exportTransactions']);
     Route::delete('user-setttings/transactions/reset', [SettingsController::class, 'deleteTransactions']);
     
     // Soft delete routes for transactions

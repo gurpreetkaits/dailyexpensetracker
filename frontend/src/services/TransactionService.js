@@ -97,3 +97,36 @@ export const getDailyBarData = async (params = {}) => {
   const { data } = await axiosConf.get(url)
   return data
 }
+
+export const exportTransactions = async (params = {}) => {
+  const queryParams = new URLSearchParams()
+  queryParams.append('format', params.format || 'xlsx')
+  if (params.start_date) queryParams.append('start_date', params.start_date)
+  if (params.end_date) queryParams.append('end_date', params.end_date)
+  if (params.type) queryParams.append('type', params.type)
+
+  const response = await axiosConf.get(`/api/transactions/export?${queryParams.toString()}`, {
+    responseType: 'blob'
+  })
+
+  // Create download link
+  const url = window.URL.createObjectURL(new Blob([response.data]))
+  const link = document.createElement('a')
+  link.href = url
+
+  // Get filename from Content-Disposition header or use default
+  const contentDisposition = response.headers['content-disposition']
+  let filename = `transactions.${params.format}`
+  if (contentDisposition) {
+    const filenameMatch = contentDisposition.match(/filename="(.+)"/)
+    if (filenameMatch) {
+      filename = filenameMatch[1]
+    }
+  }
+
+  link.setAttribute('download', filename)
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
+  window.URL.revokeObjectURL(url)
+}

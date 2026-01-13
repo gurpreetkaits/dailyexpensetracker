@@ -23,8 +23,11 @@
           </svg>
         </button>
       </div>
-      <div v-if="meta?.has_more" class="text-xs text-gray-400">
-        Scroll left for older data
+      <div class="flex items-center gap-3">
+        <div v-if="meta?.has_more" class="text-xs text-gray-400">
+          Scroll left for older data
+        </div>
+        <slot name="actions"></slot>
       </div>
     </div>
 
