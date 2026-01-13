@@ -3,17 +3,13 @@
     <!-- Start New Overview Card -->
     <template v-if="getActiveTab === 'daily'">
       <div class="grid mb-4 bg-white rounded-xl shadow-sm p-4">
-        <!-- Activity Card -->
-        <div class="h-[300px] ">
-          <TransactionsDoubleLineBarChart
-            :chartData="activityBarDataV2"
-            :currencyCode="currencyCode"
-            :period="periodTab"
-            :selectedBar="selectedBar"
-            @period-change="handlePeriodChange"
-            @bar-click="handleBarClick"
-          />
-        </div>
+        <!-- Daily Bar Chart -->
+        <DailyBarChart
+          :chartData="dailyBarData"
+          :currencyCode="currencyCode"
+          :selectedDay="selectedDayBar"
+          @day-select="handleDaySelect"
+        />
       </div>
     </template>
       <template v-else>
@@ -383,6 +379,7 @@ import { useRecurringExpenseStore } from '../store/recurringExpense';
 import { iconMixin } from '../mixins/iconMixin';
 import GlobalModal from './Global/GlobalModal.vue'
 import TransactionsDoubleLineBarChart from './Stats/TransactionsDoubleLineBarChart.vue'
+import DailyBarChart from './Stats/DailyBarChart.vue'
 import { Wallet, CreditCard, Banknote } from 'lucide-vue-next'
 export default {
   name: 'ExpenseList',
@@ -402,6 +399,7 @@ export default {
     PiggyBank, RepeatIcon, CalendarClock,
     Dialog, DialogPanel, TransitionRoot, TransitionChild, RecurringExpenseForm, GlobalModal,
     TransactionsDoubleLineBarChart,
+    DailyBarChart,
     Wallet, CreditCard, Banknote
   },
   setup() {
@@ -434,7 +432,9 @@ export default {
       'getFilteredIncome',
       'getFilteredExpenses',
       'barTransactions',
-      'selectedBar'
+      'selectedBar',
+      'dailyBarData',
+      'selectedDayBar'
     ]),
     ...mapState(useSettingsStore, ['currencySymbol', 'currencyCode', 'categories']),
     ...mapState(useWalletStore, ['wallets']),
@@ -561,7 +561,9 @@ export default {
       'removeTransaction',
       'searchTransactions',
       'fetchActivityBarDataV2',
-      'fetchBarTransactions'
+      'fetchBarTransactions',
+      'fetchDailyBarData',
+      'setSelectedDayBar'
     ]),
     ...mapActions(useSettingsStore, ['fetchSettings', 'fetchCategories']),
     ...mapActions(useWalletStore, ['fetchWallets']),
@@ -803,6 +805,10 @@ export default {
     async handleBarClick(bar) {
       await this.fetchBarTransactions(this.periodTab, [bar.start, bar.end])
     },
+    async handleDaySelect(day) {
+      this.setSelectedDayBar(day);
+      await this.fetchBarTransactions('D', [day.date, day.date]);
+    },
   },
   async created() {
     try {
@@ -814,9 +820,10 @@ export default {
         this.setRecurringSummary();
       }
       const store = useTransactionStore();
-      await store.fetchActivityBarDataV2(this.periodTab);
-      if (store.selectedBar) {
-        await store.fetchBarTransactions(this.periodTab, [store.selectedBar.start, store.selectedBar.end]);
+      // Fetch daily bar data for the custom chart
+      await store.fetchDailyBarData(60);
+      if (store.selectedDayBar) {
+        await store.fetchBarTransactions('D', [store.selectedDayBar.date, store.selectedDayBar.date]);
       }
     } catch (error) {
     }

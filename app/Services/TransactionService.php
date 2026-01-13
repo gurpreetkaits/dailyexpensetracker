@@ -401,6 +401,39 @@ class TransactionService
             ->get();
     }
 
+    public function getDailyBarData($userId, $days = 60): array
+    {
+        $result = [];
+        $today = Carbon::today();
+
+        for ($i = $days - 1; $i >= 0; $i--) {
+            $date = $today->copy()->subDays($i);
+            $dayStart = $date->copy()->startOfDay();
+            $dayEnd = $date->copy()->endOfDay();
+
+            $income = Transaction::where('user_id', $userId)
+                ->whereBetween('transaction_date', [$dayStart, $dayEnd])
+                ->where('type', 'income')
+                ->sum('amount');
+
+            $expense = Transaction::where('user_id', $userId)
+                ->whereBetween('transaction_date', [$dayStart, $dayEnd])
+                ->where('type', 'expense')
+                ->sum('amount');
+
+            $result[] = [
+                'date' => $date->toDateString(),
+                'dayName' => $date->format('D'),
+                'dayNum' => $date->format('j'),
+                'month' => $date->format('M'),
+                'income' => (float) $income,
+                'expense' => (float) $expense,
+            ];
+        }
+
+        return $result;
+    }
+
     public function deleteTransaction(Transaction $transaction)
     {
         DB::transaction(function () use ($transaction) {

@@ -85,3 +85,8 @@ export const getActivityBarDataV2 = async (period, bar = null) => {
   const { data } = await axiosConf.get(url)
   return data
 }
+
+export const getDailyBarData = async (days = 60) => {
+  const { data } = await axiosConf.get(`/api/transactions/daily-bar-data?days=${days}`)
+  return data
+}

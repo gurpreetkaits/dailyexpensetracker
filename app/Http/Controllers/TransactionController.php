@@ -264,4 +264,12 @@ class TransactionController extends Controller
         }
         return response()->json(['data' => $data, 'barTransactions' => $barTransactions]);
     }
+
+    public function dailyBarData(Request $request)
+    {
+        $days = $request->query('days', 60);
+        $userId = auth()->id();
+        $data = $this->transactionService->getDailyBarData($userId, $days);
+        return response()->json(['data' => $data]);
+    }
 }

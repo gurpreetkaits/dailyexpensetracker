@@ -8,7 +8,8 @@ import {
   updateTransaction,
   getTransactionStats,
   searchTransactions,
-  getActivityBarDataV2
+  getActivityBarDataV2,
+  getDailyBarData
 } from "../services/TransactionService";
 import axios from "axios";
 
@@ -51,6 +52,8 @@ export const useTransactionStore = defineStore("transaction", {
     activityBarDataV2: [],
     barTransactions: [],
     selectedBar: null,
+    dailyBarData: [],
+    selectedDayBar: null,
   }),
   getters: {
     getFilteredIncome() {
@@ -264,6 +267,23 @@ export const useTransactionStore = defineStore("transaction", {
       } finally {
         this.loading = false;
       }
+    },
+    async fetchDailyBarData(days = 60) {
+      this.loading = true;
+      try {
+        const { data } = await getDailyBarData(days);
+        this.dailyBarData = data;
+        if (data.length > 0) {
+          this.selectedDayBar = data[data.length - 1];
+        }
+      } catch (e) {
+        console.error('fetchDailyBarData:', e);
+      } finally {
+        this.loading = false;
+      }
+    },
+    setSelectedDayBar(day) {
+      this.selectedDayBar = day;
     }
   },
 });
