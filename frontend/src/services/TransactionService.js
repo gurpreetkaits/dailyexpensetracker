@@ -116,11 +116,12 @@ export const exportTransactions = async (params = {}) => {
 
   // Get filename from Content-Disposition header or use default
   const contentDisposition = response.headers['content-disposition']
-  let filename = `transactions.${params.format}`
+  const ext = params.format === 'xlsx' ? 'xlsx' : params.format === 'csv' ? 'csv' : 'pdf'
+  let filename = `transactions.${ext}`
   if (contentDisposition) {
-    const filenameMatch = contentDisposition.match(/filename="(.+)"/)
-    if (filenameMatch) {
-      filename = filenameMatch[1]
+    const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/)
+    if (filenameMatch && filenameMatch[1]) {
+      filename = filenameMatch[1].replace(/['"]/g, '')
     }
   }
 

@@ -7,7 +7,7 @@ use App\Models\Transaction;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
-use Illuminate\Support\Facades\Response;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ExportController extends Controller
 {
@@ -86,11 +86,11 @@ class ExportController extends Controller
         // Generate HTML for PDF
         $html = $this->generatePdfHtml($groupedTransactions, $totalIncome, $totalExpense, $startDate, $endDate, $categoryTotals);
 
-        // Return as downloadable HTML (can be printed as PDF from browser)
-        return Response::make($html, 200, [
-            'Content-Type' => 'text/html',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '.html"',
-        ]);
+        // Generate PDF using dompdf
+        $pdf = Pdf::loadHTML($html);
+        $pdf->setPaper('a4', 'portrait');
+
+        return $pdf->download($filename . '.pdf');
     }
 
     protected function generatePdfHtml($groupedTransactions, $totalIncome, $totalExpense, $startDate, $endDate, $categoryTotals)
@@ -115,87 +115,100 @@ class ExportController extends Controller
     <title>Transaction Report</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; font-size: 12px; color: #333; padding: 20px; }
-        .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #10b981; padding-bottom: 20px; }
-        .header h1 { color: #10b981; font-size: 24px; margin-bottom: 5px; }
-        .header p { color: #666; }
-        .summary { display: table; width: 100%; margin-bottom: 30px; }
-        .summary-box { display: table-cell; text-align: center; padding: 15px 30px; border-radius: 8px; width: 33%; }
-        .summary-box.income { background: #dcfce7; }
-        .summary-box.expense { background: #fee2e2; }
-        .summary-box.net { background: #e0e7ff; }
-        .summary-box h3 { font-size: 11px; color: #666; margin-bottom: 5px; text-transform: uppercase; }
-        .summary-box p { font-size: 18px; font-weight: bold; }
-        .summary-box.income p { color: #16a34a; }
-        .summary-box.expense p { color: #dc2626; }
-        .summary-box.net p { color: #4f46e5; }
-        .category-summary { margin-bottom: 30px; }
-        .category-summary h2 { font-size: 16px; margin-bottom: 15px; color: #374151; }
-        .category-grid { display: flex; flex-wrap: wrap; gap: 10px; }
-        .category-card { padding: 12px 16px; border-radius: 8px; border-left: 4px solid; background: #f9fafb; min-width: 180px; }
-        .category-card h4 { font-size: 13px; margin-bottom: 8px; }
-        .category-card .stats { display: flex; gap: 15px; font-size: 11px; }
-        .category-card .stat-income { color: #16a34a; }
-        .category-card .stat-expense { color: #dc2626; }
-        .category-section { margin-bottom: 25px; page-break-inside: avoid; }
-        .category-header { padding: 10px 15px; border-radius: 8px 8px 0 0; margin-bottom: 0; display: flex; justify-content: space-between; align-items: center; }
-        .category-header h3 { font-size: 14px; color: white; }
-        .category-header .totals { font-size: 11px; color: rgba(255,255,255,0.9); }
-        table { width: 100%; border-collapse: collapse; }
-        th { background: #f1f5f9; padding: 10px 8px; text-align: left; font-weight: 600; font-size: 11px; }
-        td { padding: 8px; border-bottom: 1px solid #e2e8f0; font-size: 11px; }
-        tr:hover { background: #f8fafc; }
-        .type-income { color: #16a34a; font-weight: 500; }
-        .type-expense { color: #dc2626; font-weight: 500; }
-        .amount-income { color: #16a34a; font-weight: 600; }
-        .amount-expense { color: #dc2626; font-weight: 600; }
-        .footer { margin-top: 30px; text-align: center; color: #999; font-size: 10px; border-top: 1px solid #e2e8f0; padding-top: 20px; }
-        @media print {
-            body { padding: 0; }
-            .category-section { page-break-inside: avoid; }
-        }
+        body { font-family: DejaVu Sans, sans-serif; font-size: 10px; color: #333; padding: 20px; }
+        .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #10b981; padding-bottom: 15px; }
+        .header h1 { color: #10b981; font-size: 20px; margin-bottom: 5px; }
+        .header p { color: #666; font-size: 10px; }
+        .summary-table { width: 100%; margin-bottom: 20px; border-collapse: separate; border-spacing: 8px; }
+        .summary-table td { text-align: center; padding: 12px; border-radius: 6px; width: 33%; }
+        .summary-table .income { background: #dcfce7; }
+        .summary-table .expense { background: #fee2e2; }
+        .summary-table .net { background: #e0e7ff; }
+        .summary-table h3 { font-size: 9px; color: #666; margin-bottom: 5px; text-transform: uppercase; font-weight: normal; }
+        .summary-table .amount { font-size: 14px; font-weight: bold; }
+        .summary-table .income .amount { color: #16a34a; }
+        .summary-table .expense .amount { color: #dc2626; }
+        .summary-table .net .amount { color: #4f46e5; }
+        .category-overview { margin-bottom: 20px; }
+        .category-overview h2 { font-size: 12px; margin-bottom: 10px; color: #374151; }
+        .category-cards { width: 100%; border-collapse: separate; border-spacing: 6px; }
+        .category-cards td { padding: 8px 10px; background: #f9fafb; border-left: 3px solid; vertical-align: top; }
+        .category-cards .cat-name { font-size: 10px; font-weight: bold; margin-bottom: 4px; }
+        .category-cards .cat-stats { font-size: 9px; }
+        .category-cards .stat-income { color: #16a34a; }
+        .category-cards .stat-expense { color: #dc2626; }
+        .category-section { margin-bottom: 15px; page-break-inside: avoid; }
+        .category-header-table { width: 100%; margin-bottom: 0; }
+        .category-header-table td { padding: 8px 12px; color: white; font-size: 10px; }
+        .category-header-table .cat-title { font-size: 11px; font-weight: bold; }
+        .category-header-table .cat-totals { text-align: right; font-size: 9px; }
+        .transactions-table { width: 100%; border-collapse: collapse; }
+        .transactions-table th { background: #f1f5f9; padding: 6px 8px; text-align: left; font-weight: bold; font-size: 9px; border-bottom: 1px solid #e2e8f0; }
+        .transactions-table td { padding: 6px 8px; border-bottom: 1px solid #e2e8f0; font-size: 9px; }
+        .type-income { color: #16a34a; }
+        .type-expense { color: #dc2626; }
+        .amount-income { color: #16a34a; font-weight: bold; }
+        .amount-expense { color: #dc2626; font-weight: bold; }
+        .footer { margin-top: 20px; text-align: center; color: #999; font-size: 8px; border-top: 1px solid #e2e8f0; padding-top: 15px; }
     </style>
 </head>
 <body>
     <div class="header">
         <h1>Daily Expense Tracker</h1>
         <p>Transaction Report - ' . $dateRange . '</p>
-        <p style="font-size: 10px; margin-top: 5px;">Generated on ' . now()->format('M d, Y \a\t h:i A') . '</p>
+        <p style="margin-top: 3px;">Generated on ' . now()->format('M d, Y \a\t h:i A') . '</p>
     </div>
 
-    <div class="summary">
-        <div class="summary-box income">
-            <h3>Total Income</h3>
-            <p>$' . number_format($totalIncome, 2) . '</p>
-        </div>
-        <div class="summary-box expense">
-            <h3>Total Expense</h3>
-            <p>$' . number_format($totalExpense, 2) . '</p>
-        </div>
-        <div class="summary-box net">
-            <h3>Net Balance</h3>
-            <p>$' . number_format($totalIncome - $totalExpense, 2) . '</p>
-        </div>
-    </div>
+    <table class="summary-table">
+        <tr>
+            <td class="income">
+                <h3>Total Income</h3>
+                <div class="amount">$' . number_format($totalIncome, 2) . '</div>
+            </td>
+            <td class="expense">
+                <h3>Total Expense</h3>
+                <div class="amount">$' . number_format($totalExpense, 2) . '</div>
+            </td>
+            <td class="net">
+                <h3>Net Balance</h3>
+                <div class="amount">$' . number_format($totalIncome - $totalExpense, 2) . '</div>
+            </td>
+        </tr>
+    </table>
 
-    <div class="category-summary">
+    <div class="category-overview">
         <h2>Category Overview</h2>
-        <div class="category-grid">';
+        <table class="category-cards">
+            <tr>';
 
+        $colCount = 0;
         foreach ($categoryTotals as $categoryName => $totals) {
+            if ($colCount > 0 && $colCount % 3 === 0) {
+                $html .= '</tr><tr>';
+            }
             $html .= '
-            <div class="category-card" style="border-left-color: ' . $totals['color'] . ';">
-                <h4 style="color: ' . $totals['color'] . ';">' . $categoryName . '</h4>
-                <div class="stats">
-                    <span class="stat-income">+$' . number_format($totals['income'], 2) . '</span>
-                    <span class="stat-expense">-$' . number_format($totals['expense'], 2) . '</span>
-                    <span style="color: #6b7280;">(' . $totals['count'] . ')</span>
-                </div>
-            </div>';
+                <td style="border-left-color: ' . $totals['color'] . ';">
+                    <div class="cat-name" style="color: ' . $totals['color'] . ';">' . htmlspecialchars($categoryName) . '</div>
+                    <div class="cat-stats">
+                        <span class="stat-income">+$' . number_format($totals['income'], 2) . '</span> |
+                        <span class="stat-expense">-$' . number_format($totals['expense'], 2) . '</span>
+                        <span style="color: #6b7280;">(' . $totals['count'] . ')</span>
+                    </div>
+                </td>';
+            $colCount++;
+        }
+
+        // Fill remaining cells if needed
+        $remaining = 3 - ($colCount % 3);
+        if ($remaining < 3) {
+            for ($i = 0; $i < $remaining; $i++) {
+                $html .= '<td style="border-left-color: transparent; background: transparent;"></td>';
+            }
         }
 
         $html .= '
-        </div>
+            </tr>
+        </table>
     </div>';
 
         // Transactions grouped by category
@@ -207,20 +220,20 @@ class ExportController extends Controller
 
             $html .= '
     <div class="category-section">
-        <div class="category-header" style="background: ' . $color . ';">
-            <h3>' . $categoryName . '</h3>
-            <div class="totals">
-                Income: $' . number_format($catIncome, 2) . ' | Expense: $' . number_format($catExpense, 2) . ' | ' . $transactions->count() . ' transactions
-            </div>
-        </div>
-        <table>
+        <table class="category-header-table" style="background: ' . $color . ';">
+            <tr>
+                <td class="cat-title">' . htmlspecialchars($categoryName) . '</td>
+                <td class="cat-totals">Income: $' . number_format($catIncome, 2) . ' | Expense: $' . number_format($catExpense, 2) . ' | ' . $transactions->count() . ' transactions</td>
+            </tr>
+        </table>
+        <table class="transactions-table">
             <thead>
                 <tr>
-                    <th>Date</th>
-                    <th>Type</th>
-                    <th>Amount</th>
-                    <th>Note</th>
-                    <th>Wallet</th>
+                    <th style="width: 18%;">Date</th>
+                    <th style="width: 12%;">Type</th>
+                    <th style="width: 15%;">Amount</th>
+                    <th style="width: 35%;">Note</th>
+                    <th style="width: 20%;">Wallet</th>
                 </tr>
             </thead>
             <tbody>';
@@ -235,8 +248,8 @@ class ExportController extends Controller
                     <td>' . Carbon::parse($t->transaction_date)->format('M d, Y') . '</td>
                     <td class="' . $typeClass . '">' . ucfirst($t->type) . '</td>
                     <td class="' . $amountClass . '">' . $amountPrefix . '$' . number_format($t->amount, 2) . '</td>
-                    <td>' . ($t->note ?? '-') . '</td>
-                    <td>' . ($t->wallet?->name ?? '-') . '</td>
+                    <td>' . htmlspecialchars($t->note ?? '-') . '</td>
+                    <td>' . htmlspecialchars($t->wallet?->name ?? '-') . '</td>
                 </tr>';
             }
 
