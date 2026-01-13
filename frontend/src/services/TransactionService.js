@@ -86,7 +86,14 @@ export const getActivityBarDataV2 = async (period, bar = null) => {
   return data
 }
 
-export const getDailyBarData = async (days = 60) => {
-  const { data } = await axiosConf.get(`/api/transactions/daily-bar-data?days=${days}`)
+export const getDailyBarData = async (params = {}) => {
+  const queryParams = new URLSearchParams()
+  if (params.start_date) queryParams.append('start_date', params.start_date)
+  if (params.end_date) queryParams.append('end_date', params.end_date)
+  if (params.per_page) queryParams.append('per_page', params.per_page)
+
+  const queryString = queryParams.toString()
+  const url = `/api/transactions/daily-bar-data${queryString ? '?' + queryString : ''}`
+  const { data } = await axiosConf.get(url)
   return data
 }

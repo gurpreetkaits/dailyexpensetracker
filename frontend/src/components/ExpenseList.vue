@@ -8,7 +8,12 @@
           :chartData="dailyBarData"
           :currencyCode="currencyCode"
           :selectedDay="selectedDayBar"
+          :meta="dailyBarMeta"
+          :isLoadingMore="loading"
           @day-select="handleDaySelect"
+          @load-more="handleLoadMore"
+          @filter-change="handleFilterChange"
+          @clear-filter="handleClearFilter"
         />
       </div>
     </template>
@@ -435,7 +440,9 @@ export default {
       'barTransactions',
       'selectedBar',
       'dailyBarData',
-      'selectedDayBar'
+      'dailyBarMeta',
+      'selectedDayBar',
+      'loading'
     ]),
     ...mapState(useSettingsStore, ['currencySymbol', 'currencyCode', 'categories']),
     ...mapState(useWalletStore, ['wallets']),
@@ -564,7 +571,10 @@ export default {
       'fetchActivityBarDataV2',
       'fetchBarTransactions',
       'fetchDailyBarData',
-      'setSelectedDayBar'
+      'loadMoreDailyBarData',
+      'fetchDailyBarDataByDateRange',
+      'setSelectedDayBar',
+      'clearDailyBarFilters'
     ]),
     ...mapActions(useSettingsStore, ['fetchSettings', 'fetchCategories']),
     ...mapActions(useWalletStore, ['fetchWallets']),
@@ -804,6 +814,22 @@ export default {
       this.setSelectedDayBar(day);
       await this.fetchBarTransactions('D', [day.date, day.date]);
     },
+    async handleLoadMore() {
+      await this.loadMoreDailyBarData();
+    },
+    async handleFilterChange(filters) {
+      await this.fetchDailyBarDataByDateRange(filters.start_date, filters.end_date);
+      if (this.selectedDayBar) {
+        await this.fetchBarTransactions('D', [this.selectedDayBar.date, this.selectedDayBar.date]);
+      }
+    },
+    async handleClearFilter() {
+      this.clearDailyBarFilters();
+      await this.fetchDailyBarData();
+      if (this.selectedDayBar) {
+        await this.fetchBarTransactions('D', [this.selectedDayBar.date, this.selectedDayBar.date]);
+      }
+    },
   },
   async created() {
     const loaderStore = useLoaderStore();
@@ -819,7 +845,7 @@ export default {
       }
       const store = useTransactionStore();
       // Fetch daily bar data for the custom chart
-      await store.fetchDailyBarData(60);
+      await store.fetchDailyBarData();
       if (store.selectedDayBar) {
         await store.fetchBarTransactions('D', [store.selectedDayBar.date, store.selectedDayBar.date]);
       }

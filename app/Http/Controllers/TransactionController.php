@@ -267,9 +267,13 @@ class TransactionController extends Controller
 
     public function dailyBarData(Request $request)
     {
-        $days = $request->query('days', 60);
         $userId = auth()->id();
-        $data = $this->transactionService->getDailyBarData($userId, $days);
-        return response()->json(['data' => $data]);
+        $startDate = $request->query('start_date');
+        $endDate = $request->query('end_date');
+        $page = $request->query('page', 1);
+        $perPage = $request->query('per_page', 60);
+
+        $data = $this->transactionService->getDailyBarData($userId, $startDate, $endDate, $page, $perPage);
+        return response()->json($data);
     }
 }

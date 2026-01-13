@@ -1,5 +1,78 @@
 <template>
   <div class="daily-bar-chart w-full max-w-full overflow-hidden">
+    <!-- Date Filter Header -->
+    <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center gap-2">
+        <button
+          @click="showDateFilter = !showDateFilter"
+          class="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+          <span>{{ filterLabel }}</span>
+        </button>
+        <button
+          v-if="hasActiveFilter"
+          @click="clearFilter"
+          class="p-1.5 text-gray-400 hover:text-red-500 transition-colors"
+          title="Clear filter"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div v-if="meta?.has_more" class="text-xs text-gray-400">
+        Scroll left for older data
+      </div>
+    </div>
+
+    <!-- Date Filter Panel -->
+    <Transition name="slide">
+      <div v-if="showDateFilter" class="mb-4 p-3 bg-gray-50 rounded-lg">
+        <div class="flex flex-wrap items-end gap-3">
+          <div class="flex-1 min-w-[140px]">
+            <label class="block text-xs text-gray-500 mb-1">From</label>
+            <input
+              type="date"
+              v-model="filterStartDate"
+              :max="filterEndDate || today"
+              class="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+          <div class="flex-1 min-w-[140px]">
+            <label class="block text-xs text-gray-500 mb-1">To</label>
+            <input
+              type="date"
+              v-model="filterEndDate"
+              :min="filterStartDate"
+              :max="today"
+              class="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+          <button
+            @click="applyDateFilter"
+            :disabled="!filterStartDate || !filterEndDate"
+            class="px-4 py-1.5 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            Apply
+          </button>
+        </div>
+        <!-- Quick filters -->
+        <div class="flex flex-wrap gap-2 mt-3">
+          <button
+            v-for="quick in quickFilters"
+            :key="quick.label"
+            @click="applyQuickFilter(quick)"
+            class="px-2 py-1 text-xs bg-white border border-gray-200 rounded hover:bg-gray-100 transition-colors"
+          >
+            {{ quick.label }}
+          </button>
+        </div>
+      </div>
+    </Transition>
+
     <!-- Y-Axis Labels -->
     <div class="flex w-full">
       <div class="flex flex-col justify-between h-[180px] pr-2 text-right min-w-[45px]">
@@ -31,6 +104,11 @@
         class="flex-1 overflow-x-auto overflow-y-hidden scrollbar-hide min-w-0"
         @scroll="handleScroll"
       >
+        <!-- Loading indicator for infinite scroll -->
+        <div v-if="isLoadingMore" class="absolute left-0 top-1/2 -translate-y-1/2 z-10">
+          <div class="animate-spin h-5 w-5 border-2 border-blue-500 border-t-transparent rounded-full"></div>
+        </div>
+
         <div class="flex gap-2 pr-4" style="width: max-content;">
           <div
             v-for="(day, index) in chartData"
@@ -161,12 +239,23 @@ const props = defineProps({
   selectedDay: {
     type: Object,
     default: null
+  },
+  meta: {
+    type: Object,
+    default: null
+  },
+  isLoadingMore: {
+    type: Boolean,
+    default: false
   }
 })
 
-const emit = defineEmits(['day-select'])
+const emit = defineEmits(['day-select', 'load-more', 'filter-change', 'clear-filter'])
 
 const scrollContainer = ref(null)
+const showDateFilter = ref(false)
+const filterStartDate = ref('')
+const filterEndDate = ref('')
 const tooltip = ref({
   visible: false,
   x: 0,
@@ -174,17 +263,40 @@ const tooltip = ref({
   day: null
 })
 
+const today = computed(() => new Date().toISOString().split('T')[0])
+
+const hasActiveFilter = computed(() => {
+  return props.meta?.start_date && props.meta?.end_date
+})
+
+const filterLabel = computed(() => {
+  if (props.meta?.start_date && props.meta?.end_date) {
+    const start = new Date(props.meta.start_date)
+    const end = new Date(props.meta.end_date)
+    return `${start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${end.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
+  }
+  return 'Filter by Date'
+})
+
+const quickFilters = [
+  { label: 'Last 7 days', days: 7 },
+  { label: 'Last 30 days', days: 30 },
+  { label: 'Last 90 days', days: 90 },
+  { label: 'This Month', type: 'thisMonth' },
+  { label: 'Last Month', type: 'lastMonth' },
+  { label: 'This Year', type: 'thisYear' },
+]
+
 const maxValue = computed(() => {
   if (!props.chartData.length) return 1000
   const max = Math.max(
     ...props.chartData.map(d => Math.max(d.income || 0, d.expense || 0))
   )
-  // Add 10% padding to max value for better visual
   return max > 0 ? max * 1.1 : 1000
 })
 
 const getBarHeight = (value) => {
-  if (!value || value === 0) return 2 // Minimum visible height
+  if (!value || value === 0) return 2
   const maxHeight = 150
   const height = (value / maxValue.value) * maxHeight
   return Math.max(Math.round(height), 4)
@@ -237,8 +349,69 @@ const hideTooltip = () => {
   tooltip.value.visible = false
 }
 
+let scrollTimeout = null
 const handleScroll = () => {
   hideTooltip()
+
+  // Check if scrolled to the left edge for infinite scroll
+  if (scrollContainer.value) {
+    const { scrollLeft } = scrollContainer.value
+
+    // Clear existing timeout
+    if (scrollTimeout) clearTimeout(scrollTimeout)
+
+    // Debounce the load more call
+    scrollTimeout = setTimeout(() => {
+      if (scrollLeft < 100 && props.meta?.has_more && !props.isLoadingMore) {
+        emit('load-more')
+      }
+    }, 150)
+  }
+}
+
+const applyDateFilter = () => {
+  if (filterStartDate.value && filterEndDate.value) {
+    emit('filter-change', {
+      start_date: filterStartDate.value,
+      end_date: filterEndDate.value
+    })
+    showDateFilter.value = false
+  }
+}
+
+const applyQuickFilter = (filter) => {
+  const now = new Date()
+  let start, end
+
+  if (filter.days) {
+    end = new Date()
+    start = new Date()
+    start.setDate(start.getDate() - filter.days + 1)
+  } else if (filter.type === 'thisMonth') {
+    start = new Date(now.getFullYear(), now.getMonth(), 1)
+    end = new Date()
+  } else if (filter.type === 'lastMonth') {
+    start = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+    end = new Date(now.getFullYear(), now.getMonth(), 0)
+  } else if (filter.type === 'thisYear') {
+    start = new Date(now.getFullYear(), 0, 1)
+    end = new Date()
+  }
+
+  filterStartDate.value = start.toISOString().split('T')[0]
+  filterEndDate.value = end.toISOString().split('T')[0]
+
+  emit('filter-change', {
+    start_date: filterStartDate.value,
+    end_date: filterEndDate.value
+  })
+  showDateFilter.value = false
+}
+
+const clearFilter = () => {
+  filterStartDate.value = ''
+  filterEndDate.value = ''
+  emit('clear-filter')
 }
 
 const scrollToEnd = () => {
@@ -253,8 +426,11 @@ onMounted(() => {
   scrollToEnd()
 })
 
-watch(() => props.chartData, () => {
-  scrollToEnd()
+watch(() => props.chartData, (newData, oldData) => {
+  // Only scroll to end if it's a fresh load (not loading more)
+  if (!oldData || oldData.length === 0 || newData.length <= oldData.length) {
+    scrollToEnd()
+  }
 }, { deep: true })
 </script>
 
@@ -291,5 +467,16 @@ watch(() => props.chartData, () => {
     transform: scaleY(1);
     opacity: 1;
   }
+}
+
+.slide-enter-active,
+.slide-leave-active {
+  transition: all 0.3s ease;
+}
+
+.slide-enter-from,
+.slide-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
 }
 </style>

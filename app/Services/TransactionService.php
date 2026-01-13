@@ -400,15 +400,35 @@ class TransactionService
             ->get();
     }
 
-    public function getDailyBarData($userId, $days = 60): array
+    public function getDailyBarData($userId, $startDate = null, $endDate = null, $page = 1, $perPage = 60): array
     {
         $result = [];
         $today = Carbon::today();
 
-        // Fetch all transactions for the date range in one query for better performance
-        $startDate = $today->copy()->subDays($days - 1)->toDateString();
-        $endDate = $today->toDateString();
+        // If no dates provided, default to last 60 days
+        if (!$endDate) {
+            $endDate = $today->toDateString();
+        }
+        if (!$startDate) {
+            $startDate = Carbon::parse($endDate)->subDays($perPage - 1)->toDateString();
+        }
 
+        $start = Carbon::parse($startDate);
+        $end = Carbon::parse($endDate);
+        $totalDays = $start->diffInDays($end) + 1;
+
+        // Get the first transaction date for this user to know how far back we can go
+        $firstTransaction = Transaction::where('user_id', $userId)
+            ->orderBy('transaction_date', 'asc')
+            ->first();
+
+        $hasMore = false;
+        if ($firstTransaction) {
+            $firstTransactionDate = Carbon::parse($firstTransaction->transaction_date);
+            $hasMore = $start->greaterThan($firstTransactionDate);
+        }
+
+        // Fetch all transactions for the date range in one query
         $transactions = Transaction::where('user_id', $userId)
             ->whereDate('transaction_date', '>=', $startDate)
             ->whereDate('transaction_date', '<=', $endDate)
@@ -417,9 +437,10 @@ class TransactionService
             ->get()
             ->groupBy('date');
 
-        for ($i = $days - 1; $i >= 0; $i--) {
-            $date = $today->copy()->subDays($i);
-            $dateString = $date->toDateString();
+        // Build result array from start to end date
+        $current = $start->copy();
+        while ($current->lte($end)) {
+            $dateString = $current->toDateString();
 
             $dayData = $transactions->get($dateString);
             $income = 0;
@@ -437,15 +458,26 @@ class TransactionService
 
             $result[] = [
                 'date' => $dateString,
-                'dayName' => $date->format('D'),
-                'dayNum' => $date->format('j'),
-                'month' => $date->format('M'),
+                'dayName' => $current->format('D'),
+                'dayNum' => $current->format('j'),
+                'month' => $current->format('M'),
                 'income' => $income,
                 'expense' => $expense,
             ];
+
+            $current->addDay();
         }
 
-        return $result;
+        return [
+            'data' => $result,
+            'meta' => [
+                'start_date' => $startDate,
+                'end_date' => $endDate,
+                'total_days' => $totalDays,
+                'has_more' => $hasMore,
+                'first_transaction_date' => $firstTransaction ? $firstTransaction->transaction_date->toDateString() : null,
+            ]
+        ];
     }
 
     public function deleteTransaction(Transaction $transaction)

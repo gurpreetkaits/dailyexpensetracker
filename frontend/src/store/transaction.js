@@ -53,7 +53,12 @@ export const useTransactionStore = defineStore("transaction", {
     barTransactions: [],
     selectedBar: null,
     dailyBarData: [],
+    dailyBarMeta: null,
     selectedDayBar: null,
+    dailyBarFilters: {
+      start_date: null,
+      end_date: null,
+    },
   }),
   getters: {
     getFilteredIncome() {
@@ -268,13 +273,18 @@ export const useTransactionStore = defineStore("transaction", {
         this.loading = false;
       }
     },
-    async fetchDailyBarData(days = 60) {
+    async fetchDailyBarData(params = {}) {
       this.loading = true;
       try {
-        const { data } = await getDailyBarData(days);
-        this.dailyBarData = data;
-        if (data.length > 0) {
-          this.selectedDayBar = data[data.length - 1];
+        const response = await getDailyBarData(params);
+        this.dailyBarData = response.data;
+        this.dailyBarMeta = response.meta;
+        this.dailyBarFilters = {
+          start_date: response.meta.start_date,
+          end_date: response.meta.end_date,
+        };
+        if (response.data.length > 0 && !this.selectedDayBar) {
+          this.selectedDayBar = response.data[response.data.length - 1];
         }
       } catch (e) {
         console.error('fetchDailyBarData:', e);
@@ -282,8 +292,66 @@ export const useTransactionStore = defineStore("transaction", {
         this.loading = false;
       }
     },
+    async loadMoreDailyBarData() {
+      if (!this.dailyBarMeta?.has_more || this.loading) return;
+
+      this.loading = true;
+      try {
+        const currentStartDate = new Date(this.dailyBarMeta.start_date);
+        const newEndDate = new Date(currentStartDate);
+        newEndDate.setDate(newEndDate.getDate() - 1);
+
+        const newStartDate = new Date(newEndDate);
+        newStartDate.setDate(newStartDate.getDate() - 59);
+
+        const response = await getDailyBarData({
+          start_date: newStartDate.toISOString().split('T')[0],
+          end_date: newEndDate.toISOString().split('T')[0],
+        });
+
+        // Prepend older data to the beginning
+        this.dailyBarData = [...response.data, ...this.dailyBarData];
+        this.dailyBarMeta = {
+          ...response.meta,
+          end_date: this.dailyBarMeta.end_date, // Keep the original end date
+        };
+        this.dailyBarFilters.start_date = response.meta.start_date;
+      } catch (e) {
+        console.error('loadMoreDailyBarData:', e);
+      } finally {
+        this.loading = false;
+      }
+    },
+    async fetchDailyBarDataByDateRange(startDate, endDate) {
+      this.loading = true;
+      try {
+        const response = await getDailyBarData({
+          start_date: startDate,
+          end_date: endDate,
+        });
+        this.dailyBarData = response.data;
+        this.dailyBarMeta = response.meta;
+        this.dailyBarFilters = {
+          start_date: startDate,
+          end_date: endDate,
+        };
+        if (response.data.length > 0) {
+          this.selectedDayBar = response.data[response.data.length - 1];
+        }
+      } catch (e) {
+        console.error('fetchDailyBarDataByDateRange:', e);
+      } finally {
+        this.loading = false;
+      }
+    },
     setSelectedDayBar(day) {
       this.selectedDayBar = day;
+    },
+    clearDailyBarFilters() {
+      this.dailyBarFilters = {
+        start_date: null,
+        end_date: null,
+      };
     }
   },
 });
