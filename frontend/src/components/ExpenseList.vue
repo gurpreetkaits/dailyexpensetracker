@@ -131,7 +131,7 @@
     <!-- Switch -->
     <div class="bg-white rounded-2xl shadow-sm p-1 mb-6">
       <div class="grid grid-cols-2 gap-2">
-        <button v-for="type in ['Daily', 'Recurring']" :key="type" @click="activeTab = type.toLowerCase()"
+        <button v-for="type in ['Daily', 'Recurring']" :key="type" @click="setActiveTab(type.toLowerCase())"
           class="py-1 px-2 rounded-xl text-sm font-medium transition-all" :class="getActiveTab === type.toLowerCase()
             ? 'bg-blue-50 text-blue-600'
             : 'text-gray-500 hover:bg-gray-50'">
@@ -714,6 +714,20 @@ export default {
         this.showAddModal = true;
       }
     },
+    setActiveTab(tab) {
+      this.activeTab = tab;
+      // Update URL hash without triggering navigation
+      const newHash = tab === 'recurring' ? '#recurring' : '#daily';
+      if (window.location.hash !== newHash) {
+        history.replaceState(null, '', newHash);
+      }
+    },
+    initTabFromHash() {
+      const hash = window.location.hash.replace('#', '').toLowerCase();
+      if (hash === 'recurring' || hash === 'daily') {
+        this.activeTab = hash;
+      }
+    },
     getDayOrdinal(day) {
       if (day > 3 && day < 21) return 'th'
       switch (day % 10) {
@@ -962,6 +976,12 @@ export default {
     },
   },
   async created() {
+    // Initialize tab from URL hash
+    this.initTabFromHash();
+
+    // Listen for hash changes (browser back/forward)
+    window.addEventListener('hashchange', this.initTabFromHash);
+
     const loaderStore = useLoaderStore();
     loaderStore.showLoader();
 
@@ -972,6 +992,7 @@ export default {
       if (this.getActiveTab === 'recurring') {
         await this.fetchRecurringExpenses();
         this.setRecurringSummary();
+        this.fetchSuggestions();
       }
       const store = useTransactionStore();
       // Fetch daily bar data for the custom chart
@@ -983,6 +1004,10 @@ export default {
     } finally {
       loaderStore.hideLoader();
     }
+  },
+  beforeUnmount() {
+    // Clean up hash change listener
+    window.removeEventListener('hashchange', this.initTabFromHash);
   }
 }
 </script>
