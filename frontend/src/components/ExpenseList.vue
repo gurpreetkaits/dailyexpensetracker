@@ -376,6 +376,7 @@ import { useSettingsStore } from '../store/settings';
 import { useWalletStore } from '../store/wallet';
 import { Dialog, DialogPanel, TransitionRoot, TransitionChild } from '@headlessui/vue'
 import { useRecurringExpenseStore } from '../store/recurringExpense';
+import { useLoaderStore } from '../store/loader';
 import { iconMixin } from '../mixins/iconMixin';
 import GlobalModal from './Global/GlobalModal.vue'
 import TransactionsDoubleLineBarChart from './Stats/TransactionsDoubleLineBarChart.vue'
@@ -644,9 +645,14 @@ export default {
           return
         }
         await deleteTransaction(id)
-        await this.fetchBarTransactions(this.periodTab, [this.selectedBar.start, this.selectedBar.end])
         this.removeTransaction(id)
         this.closeModal()
+
+        // Refresh daily bar chart and transactions
+        await this.fetchDailyBarData(60)
+        if (this.selectedDayBar) {
+          await this.fetchBarTransactions('D', [this.selectedDayBar.date, this.selectedDayBar.date])
+        }
       } catch (e) {
       }
     },
@@ -683,27 +689,16 @@ export default {
           };
 
           await this.updateTransaction(transactionData)
-
-          if (this.getActiveTab === 'daily') {
-            await this.fetchBarTransactions(this.periodTab)
-          }
-        } else {
-          // For new transactions
-          await this.fetchWallets()
-
-          // Get current week's start and end dates in ISO format
-          const now = new Date()
-          const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()))
-          startOfWeek.setHours(0, 0, 0, 0)
-          const endOfWeek = new Date(startOfWeek)
-          endOfWeek.setDate(startOfWeek.getDate() + 6)
-          endOfWeek.setHours(23, 59, 59, 999)
-
-          await this.fetchBarTransactions(this.periodTab, [
-            startOfWeek.toISOString().split('T')[0],
-            endOfWeek.toISOString().split('T')[0]
-          ])
         }
+
+        // Refresh daily bar chart and transactions
+        await this.fetchWallets()
+        await this.fetchDailyBarData(60)
+
+        if (this.selectedDayBar) {
+          await this.fetchBarTransactions('D', [this.selectedDayBar.date, this.selectedDayBar.date])
+        }
+
         this.editingTransaction = null
       } catch (e) {
       } finally {
@@ -811,6 +806,9 @@ export default {
     },
   },
   async created() {
+    const loaderStore = useLoaderStore();
+    loaderStore.showLoader();
+
     try {
       await this.fetchSettings();
       await this.fetchWallets();
@@ -826,6 +824,8 @@ export default {
         await store.fetchBarTransactions('D', [store.selectedDayBar.date, store.selectedDayBar.date]);
       }
     } catch (error) {
+    } finally {
+      loaderStore.hideLoader();
     }
   }
 }

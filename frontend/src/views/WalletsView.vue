@@ -425,6 +425,7 @@ import WalletDrawer from '../components/WalletDrawer.vue'
 import { useWalletStore } from '../store/wallet'
 import { useNotifications } from '../composables/useNotifications'
 import { useSettingsStore } from '../store/settings'
+import { useLoaderStore } from '../store/loader'
 
 export default {
   name: 'WalletsView',
@@ -627,6 +628,8 @@ export default {
     }
 
     onMounted(async () => {
+      const loaderStore = useLoaderStore()
+      loaderStore.showLoader()
       loading.value = true
       try {
         await walletStore.fetchWallets()
@@ -638,6 +641,7 @@ export default {
         })
       } finally {
         loading.value = false
+        loaderStore.hideLoader()
       }
     })
 

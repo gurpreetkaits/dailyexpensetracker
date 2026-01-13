@@ -392,11 +392,10 @@ class TransactionService
 
     public function getTransactionsForBar($userId, $start, $end): \Illuminate\Database\Eloquent\Collection
     {
-        $startOfTheDay = Carbon::parse($start)->startOfDay();
-        $endOfTheDay = Carbon::parse($end)->endOfDay();
-
-        return Transaction::with('category')->where('user_id', $userId)
-            ->whereBetween('transaction_date', [$startOfTheDay, $endOfTheDay])
+        return Transaction::with(['category', 'wallet:id,name'])
+            ->where('user_id', $userId)
+            ->whereDate('transaction_date', '>=', $start)
+            ->whereDate('transaction_date', '<=', $end)
             ->orderBy('transaction_date', 'desc')
             ->get();
     }
@@ -406,28 +405,43 @@ class TransactionService
         $result = [];
         $today = Carbon::today();
 
+        // Fetch all transactions for the date range in one query for better performance
+        $startDate = $today->copy()->subDays($days - 1)->toDateString();
+        $endDate = $today->toDateString();
+
+        $transactions = Transaction::where('user_id', $userId)
+            ->whereDate('transaction_date', '>=', $startDate)
+            ->whereDate('transaction_date', '<=', $endDate)
+            ->selectRaw('DATE(transaction_date) as date, type, SUM(amount) as total')
+            ->groupBy('date', 'type')
+            ->get()
+            ->groupBy('date');
+
         for ($i = $days - 1; $i >= 0; $i--) {
             $date = $today->copy()->subDays($i);
-            $dayStart = $date->copy()->startOfDay();
-            $dayEnd = $date->copy()->endOfDay();
+            $dateString = $date->toDateString();
 
-            $income = Transaction::where('user_id', $userId)
-                ->whereBetween('transaction_date', [$dayStart, $dayEnd])
-                ->where('type', 'income')
-                ->sum('amount');
+            $dayData = $transactions->get($dateString);
+            $income = 0;
+            $expense = 0;
 
-            $expense = Transaction::where('user_id', $userId)
-                ->whereBetween('transaction_date', [$dayStart, $dayEnd])
-                ->where('type', 'expense')
-                ->sum('amount');
+            if ($dayData) {
+                foreach ($dayData as $item) {
+                    if ($item->type === 'income') {
+                        $income = (float) $item->total;
+                    } else if ($item->type === 'expense') {
+                        $expense = (float) $item->total;
+                    }
+                }
+            }
 
             $result[] = [
-                'date' => $date->toDateString(),
+                'date' => $dateString,
                 'dayName' => $date->format('D'),
                 'dayNum' => $date->format('j'),
                 'month' => $date->format('M'),
-                'income' => (float) $income,
-                'expense' => (float) $expense,
+                'income' => $income,
+                'expense' => $expense,
             ];
         }
 

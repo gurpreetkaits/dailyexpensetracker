@@ -43,6 +43,7 @@ import { numberMixin } from '../mixins/numberMixin'
 import axios from 'axios'
 import { getCategoryTransactions } from '../services/TransactionService'
 import { useNotifications } from '../composables/useNotifications'
+import { useLoaderStore } from '../store/loader'
 import CategorySpendingsByChart from '../components/Stats/CategorySpendingsByChart.vue'
 import * as echarts from 'echarts/core'
 import { LineChart } from 'echarts/charts'
@@ -307,11 +308,13 @@ export default {
     },
 
     async created() {
-        try {
+        const loaderStore = useLoaderStore()
+        loaderStore.showLoader()
 
+        try {
             // Initialize subscription status first
             await this.polarStore.fetchSubscriptionStatus(true)
-            
+
             // Then fetch stats
             await this.fetchStats(this.getFilters)
         } catch (error) {
@@ -321,6 +324,8 @@ export default {
                 message: error.response?.data?.error || 'Failed to load statistics',
                 type: 'error'
             })
+        } finally {
+            loaderStore.hideLoader()
         }
     }
 }

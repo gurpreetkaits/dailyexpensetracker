@@ -1,4 +1,5 @@
 <template>
+    <SplashLoader />
     <router-view />
     <AdCashAuto v-if="showAds" />
     <FloatingFeedbackButton v-if="showFeedbackButton" />
@@ -10,18 +11,21 @@ import { useAuthStore } from './store/auth'
 import { mapActions, mapState } from 'pinia'
 import { useSettingsStore } from './store/settings'
 import { useThemeStore } from './store/theme'
+import { useLoaderStore } from './store/loader'
 import { verifyToken } from './services/AuthService'
 import { usePolarStore } from './store/polar'
 import AdCashAuto from './components/Subscription/AdCashAuto.vue'
 import FloatingFeedbackButton from './components/FloatingFeedbackButton.vue'
 import NotificationContainer from './components/Global/NotificationContainer.vue'
+import SplashLoader from './components/Global/SplashLoader.vue'
 
 export default {
   name: 'App',
   components: {
     AdCashAuto,
     FloatingFeedbackButton,
-    NotificationContainer
+    NotificationContainer,
+    SplashLoader
   },
   data() {
     return {
@@ -40,6 +44,10 @@ export default {
   },
   async created() {
     const authStore = useAuthStore()
+    const loaderStore = useLoaderStore()
+
+    loaderStore.showLoader()
+
     if (authStore.token) {
       await this.fetchSettings()
       try {
@@ -50,14 +58,19 @@ export default {
         this.$router.push('/login')
       }
     }
-    
+
     // Initialize theme
     this.initTheme()
+
+    // Hide loader after initial setup
+    setTimeout(() => {
+      loaderStore.hideLoader()
+    }, 500)
   },
   async mounted() {
-  const polarStore = usePolarStore()
-  await polarStore.fetchSubscriptionStatus()
-  this.showAds = !polarStore.hasActiveSubscription
-}
+    const polarStore = usePolarStore()
+    await polarStore.fetchSubscriptionStatus()
+    this.showAds = !polarStore.hasActiveSubscription
+  }
 }
 </script>
