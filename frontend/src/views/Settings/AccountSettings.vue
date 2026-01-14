@@ -100,7 +100,13 @@
                   <h2 class="text-xl font-semibold text-gray-800">Feedback</h2>
                 </div>
                 <div class="p-6">
-                  <Feedback />
+                  <p class="text-sm text-gray-600 mb-4">Help us improve by sharing your thoughts and feature requests.</p>
+                  <button
+                    @click="$router.push({ name: 'feedback' })"
+                    class="w-full py-2.5 rounded-lg text-sm font-medium transition-all bg-blue-50 text-blue-600 hover:bg-blue-100 flex items-center justify-center gap-2"
+                  >
+                    Send Feedback
+                  </button>
                 </div>
               </div>
 
@@ -217,16 +223,12 @@ import { mapActions, mapState } from 'pinia'
 import { fetchCurrencies, resetUserTransactions } from '../../services/SettingsService'
 import { useSettingsStore } from '../../store/settings'
 import { useAuthStore } from '../../store/auth'
-import Feedback from '../../components/Settings/Feedback.vue'
 import { usePolarStore } from '../../store/polar'
 import { useCurrency } from '../../composables/useCurrency'
 import { useNotifications } from '../../composables/useNotifications'
 
 export default {
   name: 'AccountSettings',
-  components: {
-    Feedback
-  },
   setup() {
     const polarStore = usePolarStore()
     const { currency } = useCurrency()

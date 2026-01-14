@@ -2,7 +2,6 @@
     <SplashLoader />
     <router-view />
     <AdCashAuto v-if="showAds" />
-    <FloatingFeedbackButton v-if="showFeedbackButton" />
     <NotificationContainer />
 </template>
 
@@ -15,7 +14,6 @@ import { useLoaderStore } from './store/loader'
 import { verifyToken } from './services/AuthService'
 import { usePolarStore } from './store/polar'
 import AdCashAuto from './components/Subscription/AdCashAuto.vue'
-import FloatingFeedbackButton from './components/FloatingFeedbackButton.vue'
 import NotificationContainer from './components/Global/NotificationContainer.vue'
 import SplashLoader from './components/Global/SplashLoader.vue'
 
@@ -23,7 +21,6 @@ export default {
   name: 'App',
   components: {
     AdCashAuto,
-    FloatingFeedbackButton,
     NotificationContainer,
     SplashLoader
   },
@@ -33,10 +30,7 @@ export default {
     }
   },
   computed: {
-    ...mapState(usePolarStore, ['hasActiveSubscription']),
-    showFeedbackButton() {
-      return this.$route.path !== '/login';
-    }
+    ...mapState(usePolarStore, ['hasActiveSubscription'])
   },
   methods: {
     ...mapActions(useSettingsStore, ['fetchSettings']),

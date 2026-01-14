@@ -17,6 +17,7 @@ class RecurringExpenseController extends Controller
     {
         $expenses = auth()->user()->recurringExpenses()
             ->with(['category', 'wallet'])
+            ->latest()
             ->get();
 
         return $this->success('Recurring expenses fetched successfully', [
@@ -64,7 +65,7 @@ class RecurringExpenseController extends Controller
             // EMI specific validations
             'principal_amount' => 'required_if:type,emi|nullable|numeric|min:0',
             'interest_rate' => 'required_if:type,emi|nullable|numeric|min:0|max:100',
-            'tenure_months' => 'required_if:type,emi|nullable|integer|min:1|max:360',
+            'tenure_months' => 'required_if:type,emi|nullable|integer|min:1|max:720',
             'total_interest' => 'nullable|numeric|min:0',
             'end_date' => 'nullable|date|after:first_payment_date|required_if:type,emi',
 
@@ -100,7 +101,7 @@ class RecurringExpenseController extends Controller
             // EMI specific validations
             'principal_amount' => 'required_if:type,emi|nullable|numeric|min:0',
             'interest_rate' => 'required_if:type,emi|nullable|numeric|min:0|max:100',
-            'tenure_months' => 'required_if:type,emi|nullable|integer|min:1|max:360',
+            'tenure_months' => 'required_if:type,emi|nullable|integer|min:1|max:720',
             'total_interest' => 'nullable|numeric|min:0',
             'end_date' => 'nullable|date|after:first_payment_date|required_if:type,emi',
 

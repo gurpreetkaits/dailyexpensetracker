@@ -98,6 +98,12 @@ const routes = [
         meta: { requiresAuth: true, requiresSubscription: false }
       },
       {
+        path: "feedback",
+        component: () => import("../views/FeedbackView.vue"),
+        name: 'feedback',
+        meta: { requiresAuth: true, requiresSubscription: false }
+      },
+      {
         path: "admin-dashboard",
         component: () => import("../views/Admin/DashboardView.vue"),
         name: 'admin-dashboard',

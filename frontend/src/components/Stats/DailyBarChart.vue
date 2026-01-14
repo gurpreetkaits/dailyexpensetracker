@@ -23,10 +23,7 @@
           </svg>
         </button>
       </div>
-      <div class="flex items-center gap-3">
-        <div v-if="meta?.has_more" class="text-xs text-gray-400">
-          Scroll left for older data
-        </div>
+      <div class="flex items-center gap-2">
         <slot name="actions"></slot>
       </div>
     </div>
@@ -77,7 +74,20 @@
     </Transition>
 
     <!-- Y-Axis Labels -->
-    <div class="flex w-full">
+    <div class="flex w-full relative">
+      <!-- Load Past Button - Left Center -->
+      <button
+        @click="handleLoadMore"
+        :disabled="isLoadingMore"
+        class="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-white/90 hover:bg-gray-100 border border-gray-200 shadow-sm flex items-center justify-center transition-colors disabled:opacity-50"
+        title="Load older data"
+      >
+        <svg v-if="!isLoadingMore" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+        <div v-else class="h-3.5 w-3.5 border-2 border-gray-500 border-t-transparent rounded-full animate-spin"></div>
+      </button>
+
       <div class="flex flex-col justify-between h-[180px] pr-2 text-right min-w-[45px]">
         <div class="text-[10px] text-gray-400 flex items-center justify-end">
           <span>{{ formatAxisValue(maxValue) }}</span>
@@ -107,10 +117,6 @@
         class="flex-1 overflow-x-auto overflow-y-hidden scrollbar-hide min-w-0"
         @scroll="handleScroll"
       >
-        <!-- Loading indicator for infinite scroll -->
-        <div v-if="isLoadingMore" class="absolute left-0 top-1/2 -translate-y-1/2 z-10">
-          <div class="animate-spin h-5 w-5 border-2 border-blue-500 border-t-transparent rounded-full"></div>
-        </div>
 
         <div class="flex gap-2 pr-4" style="width: max-content;">
           <div
@@ -229,6 +235,9 @@
 
 <script setup>
 import { ref, computed, onMounted, nextTick, watch } from 'vue'
+import { useNotifications } from '../../composables/useNotifications'
+
+const { notify } = useNotifications()
 
 const props = defineProps({
   chartData: {
@@ -415,6 +424,14 @@ const clearFilter = () => {
   filterStartDate.value = ''
   filterEndDate.value = ''
   emit('clear-filter')
+}
+
+const handleLoadMore = () => {
+  if (!props.meta?.has_more) {
+    notify({ message: 'No more records available', type: 'info' })
+    return
+  }
+  emit('load-more')
 }
 
 const scrollToEnd = () => {

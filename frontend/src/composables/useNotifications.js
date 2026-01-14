@@ -5,75 +5,17 @@ const state = reactive({
 })
 let seq = 0
 
-const notificationTypes = {
-    success: {
-        icon: '✓',
-        bgColor: 'bg-emerald-200 backdrop-blur-md',
-        borderColor: 'border-emerald-200/20',
-        textColor: 'text-emerald-700',
-        iconColor: 'text-emerald-500',
-        progressColor: 'bg-emerald-500',
-        iconBg: 'bg-emerald-500/20'
-    },
-    error: {
-        icon: '!',
-        bgColor: 'bg-red-200 backdrop-blur-md',
-        borderColor: 'border-red-200/20',
-        textColor: 'text-red-700',
-        iconColor: 'text-red-500',
-        progressColor: 'bg-red-500',
-        iconBg: 'bg-red-500/20'
-    },
-    warning: {
-        icon: '⚠',
-        bgColor: 'bg-amber-200 backdrop-blur-md',
-        borderColor: 'border-amber-200/20',
-        textColor: 'text-amber-700',
-        iconColor: 'text-amber-500',
-        progressColor: 'bg-amber-500',
-        iconBg: 'bg-amber-500/20'
-    },
-    info: {
-        icon: 'ℹ',
-        bgColor: 'bg-blue-200 backdrop-blur-md',
-        borderColor: 'border-blue-200/20',
-        textColor: 'text-blue-700',
-        iconColor: 'text-blue-500',
-        progressColor: 'bg-blue-500',
-        iconBg: 'bg-blue-500/20'
-    }
-}
-
 export function useNotifications() {
-    function notify({ title, message, type = 'success', duration = 5000 }) {
+    function notify({ title, message, type = 'success', duration = 4000 }) {
         const id = seq++
-        const notificationType = notificationTypes[type] || notificationTypes.info
-        
-        state.list.push({ 
-            id, 
-            title, 
-            message, 
+
+        state.list.push({
+            id,
+            title,
+            message,
             type,
-            styles: notificationType,
-            progress: 100
+            fadeOut: false
         })
-
-        // Start progress animation
-        const startTime = Date.now()
-        const animate = () => {
-            const elapsed = Date.now() - startTime
-            const progress = Math.max(0, 100 - (elapsed / duration) * 100)
-            
-            const notification = state.list.find(n => n.id === id)
-            if (notification) {
-                notification.progress = progress
-            }
-
-            if (progress > 0) {
-                requestAnimationFrame(animate)
-            }
-        }
-        requestAnimationFrame(animate)
 
         setTimeout(() => dismiss(id), duration)
     }
@@ -82,19 +24,47 @@ export function useNotifications() {
         const i = state.list.findIndex(n => n.id === id)
         if (i !== -1) {
             // Add fade-out animation
-            const notification = state.list[i]
-            notification.fadeOut = true
+            state.list[i].fadeOut = true
             setTimeout(() => {
                 const index = state.list.findIndex(n => n.id === id)
                 if (index !== -1) state.list.splice(index, 1)
-            }, 500) // Increased fade-out duration
+            }, 300)
         }
     }
+
+    // Helper to show validation errors from Laravel
+    function showValidationErrors(errorResponse) {
+        if (errorResponse?.response?.data?.errors) {
+            const errors = errorResponse.response.data.errors
+            // Show the first error message from each field
+            Object.values(errors).forEach(fieldErrors => {
+                if (Array.isArray(fieldErrors) && fieldErrors.length > 0) {
+                    notify({ message: fieldErrors[0], type: 'error' })
+                }
+            })
+        } else if (errorResponse?.response?.data?.message) {
+            notify({ message: errorResponse.response.data.message, type: 'error' })
+        } else if (errorResponse?.message) {
+            notify({ message: errorResponse.message, type: 'error' })
+        } else {
+            notify({ message: 'An unexpected error occurred', type: 'error' })
+        }
+    }
+
+    // Shorthand methods
+    const success = (message, duration) => notify({ message, type: 'success', duration })
+    const error = (message, duration) => notify({ message, type: 'error', duration })
+    const warning = (message, duration) => notify({ message, type: 'warning', duration })
+    const info = (message, duration) => notify({ message, type: 'info', duration })
 
     return {
         list: readonly(state.list),
         notify,
         dismiss,
-        types: Object.keys(notificationTypes)
+        showValidationErrors,
+        success,
+        error,
+        warning,
+        info
     }
 }
