@@ -1,7 +1,7 @@
 <template>
     <div class="space-y-3 sm:space-y-4 pb-safe">
-        <!-- Minimal Header -->
-        <div class="flex justify-between items-center">
+        <!-- Header (shown in BottomSheet, hidden in GlobalModal) -->
+        <div v-if="showHeader" class="flex justify-between items-center">
             <h2 class="text-base sm:text-lg font-semibold text-gray-900">
                 {{ editingExpense ? 'Edit Expense' : 'New Recurring' }}
             </h2>
@@ -259,7 +259,8 @@ export default {
     props: {
         editingExpense: { type: Object, default: null },
         loading: { type: Boolean, default: false },
-        suggestion: { type: Object, default: null }
+        suggestion: { type: Object, default: null },
+        showHeader: { type: Boolean, default: true }
     },
     emits: ['save', 'delete', 'cancel'],
     data() {

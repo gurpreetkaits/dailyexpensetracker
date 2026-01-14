@@ -1,5 +1,5 @@
 <template>
-  <div class="space-y-4 relative pb-24 mx-3 overflow-x-hidden">
+  <div class="space-y-4 relative pb-24 mx-3 overflow-x-hidden max-w-full w-full">
     <!-- Start New Overview Card -->
     <template v-if="getActiveTab === 'daily'">
       <div class="grid mb-4 bg-white rounded-xl shadow-sm p-4">
@@ -64,18 +64,18 @@
               </div>
 
               <!-- Next Payment Alert -->
-              <div v-if="summary.next_payment" class="bg-white rounded-xl p-4 shadow-sm overflow-hidden">
+              <div v-if="summary.next_payment" class="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-all">
                   <div class="flex items-center gap-3">
-                      <div class="w-10 h-10 bg-red-50 rounded-full flex items-center justify-center flex-shrink-0">
-                          <AlertCircle class="w-5 h-5 text-red-500" />
+                      <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style="background-color: #fee2e2; color: #dc2626;">
+                          <AlertCircle class="h-5 w-5" />
                       </div>
                       <div class="flex-1 min-w-0">
-                          <p class="text-[10px] text-red-600 font-medium uppercase">Next Due</p>
-                          <p class="text-sm font-medium text-gray-900 truncate">{{ summary.next_payment.name }}</p>
-                          <p class="text-xs text-gray-500">{{ formatRelativeDate(summary.next_payment.date) }}</p>
+                          <h4 class="font-medium text-gray-900 truncate">{{ summary.next_payment.name }}</h4>
+                          <p class="text-xs text-gray-500 truncate">{{ formatRelativeDate(summary.next_payment.date) }}</p>
                       </div>
                       <div class="text-right flex-shrink-0">
-                          <p class="text-base font-semibold text-gray-900">{{ formatCurrency(summary.next_payment.amount, currencyCode) }}</p>
+                          <p class="font-medium text-red-600">-{{ formatCurrency(summary.next_payment.amount, currencyCode) }}</p>
+                          <p class="text-sm text-gray-400">Due</p>
                       </div>
                   </div>
               </div>
@@ -84,24 +84,24 @@
           <!-- Loan Portfolio (only if has EMIs) -->
           <div v-if="emiSummary.loans && emiSummary.loans.length > 0" class="mt-4">
               <h3 class="text-xs font-medium text-gray-900 mb-2 px-1">Active Loans</h3>
-              <div class="space-y-2">
+              <div class="space-y-3">
                   <div
                       v-for="loan in emiSummary.loans"
                       :key="loan.id"
                       @click="viewLoanDetails(loan.id)"
-                      class="bg-white rounded-xl p-4 shadow-sm overflow-hidden"
+                      class="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-all"
                   >
                       <div class="flex items-center gap-3">
-                          <div class="w-10 h-10 bg-amber-50 rounded-full flex items-center justify-center flex-shrink-0">
-                              <Landmark class="w-5 h-5 text-amber-600" />
+                          <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style="background-color: #fef3c7; color: #d97706;">
+                              <Landmark class="h-5 w-5" />
                           </div>
                           <div class="flex-1 min-w-0">
-                              <p class="text-sm font-medium text-gray-900 truncate">{{ loan.name }}</p>
-                              <p class="text-xs text-gray-500 truncate">{{ loan.payments_remaining }} EMIs left · {{ loan.interest_rate }}%</p>
+                              <h4 class="font-medium text-gray-900 truncate">{{ loan.name }}</h4>
+                              <p class="text-xs text-gray-500 truncate">{{ loan.payments_remaining }} EMIs left</p>
                           </div>
                           <div class="text-right flex-shrink-0">
-                              <p class="text-sm font-medium text-gray-900">{{ formatCurrency(loan.emi_amount, currencyCode) }}</p>
-                              <p class="text-xs text-gray-500">{{ loan.completion_percentage }}%</p>
+                              <p class="font-medium text-gray-900">{{ formatCurrency(loan.emi_amount, currencyCode) }}</p>
+                              <p class="text-sm text-gray-400">{{ loan.completion_percentage }}%</p>
                           </div>
                       </div>
                       <!-- Progress Bar -->
@@ -157,20 +157,20 @@
       <template v-else-if="getActiveTab === 'recurring'">
         <!-- Empty State -->
         <div v-if="!recurringExpenses.length"
-          class="flex flex-col items-center justify-center py-16 px-4 bg-white rounded-xl border border-gray-200">
-          <CalendarClock class="h-12 w-12 text-gray-300 mb-3" />
-          <h3 class="text-base font-medium text-gray-900 mb-1">No Recurring Expenses</h3>
-          <p class="text-gray-500 text-center text-sm max-w-sm">
+          class="flex flex-col items-center justify-center py-12 px-4 bg-white rounded-xl shadow-sm">
+          <CalendarClock class="h-16 w-16 text-gray-300 mb-4" />
+          <h3 class="text-lg font-medium text-gray-900 mb-2">No Recurring Expenses</h3>
+          <p class="text-gray-500 text-center text-sm mb-6 max-w-sm">
             Add subscriptions, bills & EMIs to track them here.
           </p>
         </div>
 
         <!-- Upcoming Payments Section -->
-        <div v-else class="w-full">
+        <div v-else>
           <!-- Section Header with Filter Tabs -->
-          <div class="mb-3">
+          <div class="mb-3 overflow-hidden">
               <div class="flex items-center justify-between mb-2">
-                  <div>
+                  <div class="min-w-0">
                       <h3 class="text-xs font-medium text-gray-900">Upcoming Payments</h3>
                       <p class="text-[10px] text-gray-500">Bills, Subscriptions & EMIs</p>
                   </div>
@@ -191,29 +191,26 @@
           </div>
 
           <!-- Payments List -->
-          <div class="space-y-2">
+          <div class="space-y-3">
               <div
                   v-for="expense in filteredExpensesByType"
                   :key="expense.id"
                   @click="editRecurringExpense(expense)"
-                  class="bg-white rounded-xl p-4 shadow-sm overflow-hidden"
+                  class="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-all"
                   :class="{ 'bg-red-50/50': isPaymentDueSoon(expense) }"
               >
                   <div class="flex items-center gap-3">
                       <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
-                           :style="{ backgroundColor: getExpenseColor(expense) + '20', color: getExpenseColor(expense) }">
-                          <component :is="getExpenseIcon(expense)" class="w-5 h-5" />
+                           :style="{ backgroundColor: getExpenseColor(expense) + '15', color: getExpenseColor(expense) }">
+                          <component :is="getExpenseIcon(expense)" class="h-5 w-5" />
                       </div>
                       <div class="flex-1 min-w-0">
-                          <div class="flex items-center gap-1">
-                              <h4 class="text-sm font-medium text-gray-900 truncate">{{ expense.name }}</h4>
-                              <div v-if="isPaymentDueSoon(expense)" class="h-1.5 w-1.5 rounded-full bg-red-500 flex-shrink-0"></div>
-                          </div>
+                          <h4 class="font-medium text-gray-900 truncate">{{ expense.name }}</h4>
                           <p class="text-xs text-gray-500 truncate">{{ expense.next_payment_date ? formatDate(expense.next_payment_date) : expense.payment_day + getDayOrdinal(expense.payment_day) + ' monthly' }}</p>
                       </div>
                       <div class="text-right flex-shrink-0">
-                          <p class="text-sm font-medium text-gray-900">{{ formatCurrency(expense.amount, currencyCode) }}</p>
-                          <p class="text-xs text-gray-400" :class="{ 'text-red-600 font-medium': isPaymentDueSoon(expense) }">
+                          <p class="font-medium text-gray-900">{{ formatCurrency(expense.amount, currencyCode) }}</p>
+                          <p class="text-sm text-gray-400" :class="{ 'text-red-600 font-medium': isPaymentDueSoon(expense) }">
                               {{ getPaymentStatus(expense) }}
                           </p>
                       </div>
@@ -221,8 +218,9 @@
               </div>
 
               <!-- Empty state -->
-              <div v-if="filteredExpensesByType.length === 0" class="bg-white rounded-xl p-6 shadow-sm text-center">
-                  <p class="text-sm text-gray-500">No {{ selectedExpenseType === 'all' ? '' : selectedExpenseType }} expenses</p>
+              <div v-if="filteredExpensesByType.length === 0"
+                class="flex flex-col items-center justify-center py-12 px-4 bg-white rounded-xl shadow-sm">
+                  <p class="text-gray-500 text-center text-sm">No {{ selectedExpenseType === 'all' ? '' : selectedExpenseType }} expenses</p>
               </div>
           </div>
         </div>
@@ -375,10 +373,10 @@
       <Plus class="h-6 w-6" />
     </button>
     <!-- Start Desktop Model -->
-    <GlobalModal v-model="showDesktopModal" :title="getActiveTab === 'daily' ? (editingTransaction ? 'Edit Transaction' : 'New Transaction') : 'Recurring Expense'" size="max-w-md">
+    <GlobalModal v-model="showDesktopModal" :title="getActiveTab === 'daily' ? (editingTransaction ? 'Edit Transaction' : 'New Transaction') : (editingRecurring ? 'Edit Recurring Expense' : 'New Recurring Expense')" size="max-w-md">
       <template #default>
         <AddTransaction v-if="getActiveTab === 'daily'" @transaction-added="handleTransactionAdded" @remove="removeItem" :item="editingTransaction" @close="closeModal" />
-        <RecurringExpenseForm v-else :editingExpense="editingRecurring" :suggestion="selectedSuggestion" :loading="saving" @save="handleRecurringExpenseSave" @delete="handleRecurringExpenseDelete" @cancel="closeModal" />
+        <RecurringExpenseForm v-else :editingExpense="editingRecurring" :suggestion="selectedSuggestion" :loading="saving" :showHeader="false" @save="handleRecurringExpenseSave" @delete="handleRecurringExpenseDelete" @cancel="closeModal" />
       </template>
     </GlobalModal>
     <!-- End Desktop Model -->

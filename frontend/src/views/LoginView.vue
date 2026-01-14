@@ -1,6 +1,7 @@
 <template>
-    <div class="min-h-screen flex items-center justify-center bg-50 py-12 px-4 sm:px-6 lg:px-8">
-        <div class="max-w-md w-full space-y-8 p-10 bg-white rounded-xl shadow-lg">
+    <div class="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+        <!-- Login Card -->
+        <div class="max-w-md w-full space-y-8 p-10 bg-white rounded-xl shadow-lg mx-auto">
             <div>
                 <!-- Placeholder for Logo -->
                 <div class="flex justify-center mb-6">
@@ -85,6 +86,154 @@
               <router-link to="/overview2" class="block w-full bg-emerald-600 text-white p-3 rounded-lg text-center hover:bg-emerald-700 transition-colors font-medium">
                 Go to Dashboard
               </router-link>
+            </div>
+        </div>
+
+        <!-- App Preview Section -->
+        <div class="max-w-5xl mx-auto mt-16 px-4">
+            <div class="text-center mb-10">
+                <span class="inline-block px-4 py-1.5 text-xs font-semibold text-blue-700 bg-blue-50 border border-blue-200 rounded-full mb-4">
+                    PREVIEW
+                </span>
+                <h2 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">See it in action</h2>
+                <p class="text-gray-500">Beautiful, intuitive interface for tracking your expenses</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8 items-center">
+                <!-- Desktop Preview -->
+                <div class="relative">
+                    <div class="bg-gray-100 rounded-2xl p-3 shadow-lg">
+                        <div class="bg-gray-800 rounded-t-lg px-3 py-2 flex items-center gap-2">
+                            <div class="flex gap-1.5">
+                                <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                                <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                                <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                            </div>
+                            <div class="flex-1 text-center">
+                                <span class="text-xs text-gray-400">Daily Expense Tracker</span>
+                            </div>
+                        </div>
+                        <img
+                            src="/images/Daily Expense Tracker Interface.png"
+                            alt="Desktop Dashboard"
+                            class="w-full rounded-b-lg"
+                        />
+                    </div>
+                    <p class="text-center text-sm text-gray-500 mt-3">Desktop Dashboard</p>
+                </div>
+
+                <!-- Mobile Preview -->
+                <div class="flex justify-center">
+                    <div class="relative">
+                        <div class="bg-gray-900 rounded-[2.5rem] p-3 shadow-xl max-w-[280px]">
+                            <div class="bg-black rounded-[2rem] overflow-hidden">
+                                <!-- Phone notch -->
+                                <div class="bg-black h-6 flex items-center justify-center">
+                                    <div class="w-20 h-4 bg-black rounded-full"></div>
+                                </div>
+                                <img
+                                    src="/images/Screenshot of a Daily Expense Tracker App.png"
+                                    alt="Mobile App"
+                                    class="w-full"
+                                />
+                            </div>
+                        </div>
+                        <p class="text-center text-sm text-gray-500 mt-3">Mobile App</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Install App Section -->
+        <div class="max-w-4xl mx-auto mt-16 px-4">
+            <div class="text-center mb-10">
+                <span class="inline-block px-4 py-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-full mb-4">
+                    INSTALL APP
+                </span>
+                <h2 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">Get the full experience</h2>
+                <p class="text-gray-500">Add to your home screen for native-like performance.</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- iOS / Safari Card -->
+                <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="w-14 h-14 bg-gray-100 rounded-xl flex items-center justify-center">
+                            <svg class="w-7 h-7 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900">iOS / Safari</h3>
+                            <p class="text-sm text-gray-500">Optimized for iPhone</p>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center">
+                                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-900">1. Tap Share</p>
+                                <p class="text-sm text-gray-500">Bottom bar icon</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center">
+                                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v16m8-8H4" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-900">2. Add to Home Screen</p>
+                                <p class="text-sm text-gray-500">Scroll down to find it</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Android / Chrome Card -->
+                <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="w-14 h-14 bg-emerald-100 rounded-xl flex items-center justify-center">
+                            <svg class="w-7 h-7 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900">Android / Chrome</h3>
+                            <p class="text-sm text-gray-500">For Pixel & Galaxy</p>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center">
+                                <svg class="w-5 h-5 text-gray-600" fill="currentColor" viewBox="0 0 24 24">
+                                    <circle cx="12" cy="5" r="2" />
+                                    <circle cx="12" cy="12" r="2" />
+                                    <circle cx="12" cy="19" r="2" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-900">1. Tap Menu</p>
+                                <p class="text-sm text-gray-500">Top right corner</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center">
+                                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-900">2. Install App</p>
+                                <p class="text-sm text-gray-500">Or "Add to Home screen"</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
