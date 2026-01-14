@@ -98,8 +98,7 @@ export default {
     Tv,
     Receipt,
     CreditCard,
-    MoreHorizontal,
-    Calendar
+    MoreHorizontal
   },
   mixins: [numberMixin],
   props: {
@@ -187,21 +186,6 @@ export default {
           }
         ]
       }
-    }
-  },
-  methods: {
-    formatNextDate(dateString) {
-      if (!dateString) return ''
-      const date = new Date(dateString)
-      const today = new Date()
-      const diffTime = date - today
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-
-      if (diffDays === 0) return 'Today'
-      if (diffDays === 1) return 'Tomorrow'
-      if (diffDays < 7) return `In ${diffDays} days`
-
-      return date.toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })
     }
   },
   async mounted() {
