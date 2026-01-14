@@ -10,7 +10,13 @@
                     :selected-filter="dateFilter"
                     @filter-change="selectQuickFilter"
                 />
-                <!-- Right: Line Chart -->
+                <!-- Right: Recurring Expense Stats -->
+                <RecurringExpenseStats
+                    :currency-code="currencyCode"
+                />
+            </div>
+            <div class="grid grid-cols-1 gap-6 mb-6">
+                <!-- Category Spending Comparison Chart -->
                 <CategorySpendingComparisonChart
                   :filter="dateFilter"
                   :get-filters="getFilters"
@@ -52,13 +58,14 @@ import { CanvasRenderer } from 'echarts/renderers'
 import { iconMixin } from '../mixins/iconMixin'
 import CategorySpendingComparisonChart from '../components/Stats/CategorySpendingComparisonChart.vue'
 import TransactionListings from '../components/Stats/TransactionListings.vue'
+import RecurringExpenseStats from '../components/Stats/RecurringExpenseStats.vue'
 
 echarts.use([LineChart, TitleComponent, TooltipComponent, GridComponent, LegendComponent, CanvasRenderer])
 
 export default {
     name: 'StatsView',
     components: {
-         BottomSheet, CategorySpendingsByChart, CategorySpendingComparisonChart, TransactionListings
+         BottomSheet, CategorySpendingsByChart, CategorySpendingComparisonChart, TransactionListings, RecurringExpenseStats
     },
     mixins: [numberMixin, iconMixin],
     setup() {

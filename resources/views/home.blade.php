@@ -33,25 +33,44 @@
                 </a>
                 <!-- Recent Users Section -->
                 <div class="mt-8">
-                    <p class="text-sm text-gray-500 mb-2">Joined by people who care about their finances</p>
-                    <div class="flex items-center">
+                    <div class="flex items-center gap-4">
                         <!-- User Profile Photos -->
-                        <div class="flex -space-x-2 overflow-hidden">
-                           
-                            @foreach($recentUsers as $user)
-                                <div class="inline-block h-8 w-8 rounded-full ring-2 ring-white bg-emerald-100 text-emerald-800 flex items-center justify-center">
+                        <div class="flex -space-x-3">
+                            @php
+                                $avatarColors = [
+                                    ['bg' => 'bg-purple-100', 'text' => 'text-purple-600'],
+                                    ['bg' => 'bg-blue-100', 'text' => 'text-blue-600'],
+                                    ['bg' => 'bg-orange-100', 'text' => 'text-orange-600'],
+                                    ['bg' => 'bg-pink-100', 'text' => 'text-pink-600'],
+                                    ['bg' => 'bg-emerald-100', 'text' => 'text-emerald-600'],
+                                ];
+                            @endphp
+                            @foreach($recentUsers->take(3) as $index => $user)
+                                <div class="inline-flex items-center justify-center h-10 w-10 rounded-full ring-2 ring-white {{ $avatarColors[$index % 5]['bg'] }} {{ $avatarColors[$index % 5]['text'] }}">
                                     @if(isset($user->avatar))
-                                        <img class="h-8 w-8 rounded-full object-cover" src="{{ $user->avatar }}" alt="{{ $user->name }}">
+                                        <img class="h-10 w-10 rounded-full object-cover" src="{{ $user->avatar }}" alt="{{ $user->name }}">
                                     @else
-                                        <span class="text-xs font-medium">{{ strtoupper(substr($user->name, 0, 2)) }}</span>
+                                        <span class="text-sm font-semibold">{{ strtoupper(substr($user->name, 0, 2)) }}</span>
                                     @endif
                                 </div>
                             @endforeach
-                            @if($remainingUsers > 0)
-                                <span class="flex items-center justify-center h-8 w-8 rounded-full bg-emerald-100 text-emerald-800 text-xs font-medium ring-2 ring-white">{{ $remainingUsers }}+</span>
+                            @if($totalUsers > 3)
+                                <div class="inline-flex items-center justify-center h-10 w-10 rounded-full ring-2 ring-white bg-gray-900 text-white">
+                                    <span class="text-xs font-semibold">+{{ number_format($totalUsers - 3) > 999 ? number_format(($totalUsers - 3) / 1000, 1) . 'k' : $totalUsers - 3 }}</span>
+                                </div>
                             @endif
                         </div>
-                        <span class="ml-2 text-sm text-gray-500">loved by</span>
+                        <!-- Stars and Text -->
+                        <div>
+                            <div class="flex gap-0.5 mb-1">
+                                @for($i = 0; $i < 5; $i++)
+                                    <svg class="w-5 h-5 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                    </svg>
+                                @endfor
+                            </div>
+                            <p class="text-sm text-gray-600">Loved by <span class="font-semibold text-gray-900">{{ number_format($totalUsers) }}+ users</span></p>
+                        </div>
                     </div>
                 </div>
             </div>
