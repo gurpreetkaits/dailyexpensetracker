@@ -1,5 +1,6 @@
 <template>
-  <div class="space-y-4 relative pb-24 mx-3 overflow-x-hidden max-w-full w-full">
+  <div class="max-w-7xl mx-auto relative">
+    <div class="space-y-4 relative pb-24 px-3 pt-2 overflow-x-hidden">
     <!-- Start New Overview Card -->
     <template v-if="getActiveTab === 'daily'">
       <div class="grid mb-4 bg-white rounded-xl shadow-sm p-4">
@@ -398,6 +399,7 @@
 
     <!-- Loan Detail Modal -->
     <LoanDetailModal v-model="showLoanDetailModal" :loanId="selectedLoanId" />
+    </div>
   </div>
 </template>
 <script>
