@@ -453,25 +453,20 @@ export default {
       return Math.min(this.currentPage * this.itemsPerPage, this.totalItems)
     },
   },
-  created() {
-    this.loadInitialData();
-  },
-  mounted() {
-    this.fetchTransactions();
+  async created() {
+    // Fetch all data in parallel for fastest load
+    const settingsStore = useSettingsStore();
+    const categoryStore = useCategoryStore();
+    const walletStore = useWalletStore();
+
+    await Promise.all([
+      settingsStore.fetchSettings(),
+      categoryStore.categories.length === 0 ? categoryStore.fetchCategories() : Promise.resolve(),
+      walletStore.wallets.length === 0 ? walletStore.fetchWallets() : Promise.resolve(),
+      this.fetchTransactions()
+    ]);
   },
   methods: {
-    async loadInitialData() {
-      await useSettingsStore().fetchSettings();
-
-      // Only fetch categories and wallets if they're not already loaded
-      if (!useCategoryStore().categories.length) {
-        await useCategoryStore().fetchCategories();
-      }
-
-      if (!useWalletStore().wallets.length) {
-        await useWalletStore().fetchWallets();
-      }
-    },
     async fetchTransactions() {
       await useTransactionStore().fetchPaginatedTransactions(this.currentPage, this.filters);
     },

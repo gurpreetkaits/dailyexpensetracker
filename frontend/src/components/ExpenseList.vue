@@ -416,7 +416,6 @@ import { useSettingsStore } from '../store/settings';
 import { useWalletStore } from '../store/wallet';
 import { Dialog, DialogPanel, TransitionRoot, TransitionChild } from '@headlessui/vue'
 import { useRecurringExpenseStore } from '../store/recurringExpense';
-import { useLoaderStore } from '../store/loader';
 import { useNotifications } from '../composables/useNotifications';
 import { iconMixin } from '../mixins/iconMixin';
 import GlobalModal from './Global/GlobalModal.vue'
@@ -622,7 +621,9 @@ export default {
       immediate: true
     },
     dateFilter: {
-      async handler(newValue) {
+      async handler(newValue, oldValue) {
+        // Skip if this is the initial load (handled in created)
+        if (oldValue === undefined) return;
         try {
           this.saving = true;
           await this.fetchTransactions(newValue);
@@ -630,8 +631,7 @@ export default {
         } finally {
           this.saving = false;
         }
-      },
-      immediate: true
+      }
     },
     async getActiveTab(newTab) {
       if (newTab === 'recurring') {
@@ -1024,42 +1024,31 @@ export default {
     // Listen for nav add button click
     window.addEventListener('nav-add-clicked', this.createNewTransaction);
 
-    const loaderStore = useLoaderStore();
-    loaderStore.showLoader();
-
     try {
-      // Run independent fetches in parallel for better performance
       const walletStore = useWalletStore();
-      await Promise.all([
-        this.fetchSettings(),
-        // Only fetch wallets if not already loaded
-        walletStore.wallets.length === 0 ? this.fetchWallets() : Promise.resolve()
-      ]);
-
       const store = useTransactionStore();
 
-      // Fetch transactions and daily bar data in parallel
+      // Fetch all essential data in parallel for fastest load
       await Promise.all([
+        this.fetchSettings(),
+        walletStore.wallets.length === 0 ? this.fetchWallets() : Promise.resolve(),
         this.fetchTransactions(this.dateFilter),
         store.fetchDailyBarData()
       ]);
 
-      // Fetch bar transactions for selected day
+      // Fetch bar transactions for selected day (non-blocking)
       if (store.selectedDayBar) {
-        await store.fetchBarTransactions('D', [store.selectedDayBar.date, store.selectedDayBar.date]);
+        store.fetchBarTransactions('D', [store.selectedDayBar.date, store.selectedDayBar.date]);
       }
 
-      // Fetch recurring expenses only if on recurring tab
+      // Fetch recurring expenses only if on recurring tab (lazy load)
       if (this.getActiveTab === 'recurring') {
         await this.fetchRecurringExpenses();
         this.setRecurringSummary();
-        // Fetch suggestions in background (non-blocking)
         this.fetchSuggestions();
       }
     } catch (error) {
       console.error('Error loading data:', error);
-    } finally {
-      loaderStore.hideLoader();
     }
   },
   beforeUnmount() {
