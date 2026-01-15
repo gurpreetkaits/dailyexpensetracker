@@ -97,7 +97,7 @@
                                 </div>
                                 <!-- Screen -->
                                 <div class="relative overflow-hidden rounded-[2.25rem]">
-                                    <img src="{{ asset('images/Screenshot of a Daily Expense Tracker App.png') }}"
+                                    <img src="{{ asset('images/app-preview.png') }}"
                                          alt="Mobile App Preview"
                                          class="w-[260px] h-[540px] object-cover object-top" />
                                     <!-- Screen shine effect -->
