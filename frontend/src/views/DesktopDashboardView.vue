@@ -1,6 +1,6 @@
 <template>
-  <div class="max-w-7xl mx-auto relative">
-    <div class="space-y-6 relative pb-24 px-3 pt-2">
+  <div class="max-w-7xl mx-auto relative overflow-x-hidden">
+    <div class="space-y-6 relative pb-24 px-3 pt-2 overflow-x-hidden">
     <!-- Add Transaction Button -->
 <!--    <button @click="openAddModal" class="fixed bottom-8 right-8 z-50 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-xl transition-all">-->
 <!--      <Plus class="h-7 w-7" />-->
@@ -64,12 +64,12 @@
 
       <!-- Expandable filters -->
       <div :class="showFilters ? 'block' : 'hidden md:block'">
-        <div class="grid grid-cols-2 md:flex md:flex-wrap gap-2 mt-3 md:mt-2">
+        <div class="grid grid-cols-2 md:flex md:flex-wrap gap-2 mt-3 md:mt-2 overflow-hidden">
           <!-- Type Filter -->
           <select
             v-model="filters.type"
             @change="applyFilters"
-            class="px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 focus:bg-white transition-all"
+            class="px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 focus:bg-white transition-all min-w-0"
           >
             <option value="all">All Types</option>
             <option value="expense">Expense</option>
@@ -80,7 +80,7 @@
           <select
             v-model="filters.category_id"
             @change="applyFilters"
-            class="px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 focus:bg-white transition-all"
+            class="px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 focus:bg-white transition-all min-w-0"
           >
             <option :value="null">All Categories</option>
             <option v-for="category in categories" :key="category.id" :value="category.id">
@@ -92,7 +92,7 @@
           <select
             v-model="filters.wallet_id"
             @change="applyFilters"
-            class="px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 focus:bg-white transition-all"
+            class="px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 focus:bg-white transition-all min-w-0"
           >
             <option :value="null">All Wallets</option>
             <option v-for="wallet in wallets" :key="wallet.id" :value="wallet.id">
@@ -104,7 +104,7 @@
           <select
             v-model="filters.filter"
             @change="applyFilters"
-            class="px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 focus:bg-white transition-all"
+            class="px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 focus:bg-white transition-all min-w-0"
           >
             <option value="all">All Time</option>
             <option value="today">Today</option>
@@ -153,13 +153,13 @@
         </div>
 
         <!-- Pagination Controls -->
-        <div v-if="paginationLinks.length > 3" class="flex items-center gap-1 overflow-x-auto">
+        <div v-if="paginationLinks.length > 3" class="flex items-center gap-1 overflow-x-auto max-w-[50%] sm:max-w-none">
           <button
             v-for="link in paginationLinks"
             :key="link.label"
             @click="handlePageChange(link.url)"
             :disabled="!link.url"
-            class="px-2 py-1.5 rounded-lg text-xs font-medium disabled:opacity-50 transition-all"
+            class="px-2 py-1.5 rounded-lg text-xs font-medium disabled:opacity-50 transition-all flex-shrink-0"
             :class="[
               link.active
                 ? 'bg-emerald-500 text-white'
