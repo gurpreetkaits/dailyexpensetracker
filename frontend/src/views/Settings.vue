@@ -1,68 +1,79 @@
 <!-- src/views/SettingsView.vue -->
 <template>
-  <div class=" mx-auto py-8">
-    <div class="flex flex-col md:flex-row gap-6">
+  <div class="max-w-7xl mx-auto relative">
+    <div class="relative pb-24 px-3 pt-2">
+      <div class="flex flex-col md:flex-row gap-6">
       <!-- Menu Items -->
-      <div class="md:w-1/4 w-full bg-white p-4 rounded-lg shadow-sm">
+      <div class="md:w-1/4 w-full bg-white p-4 rounded-xl shadow-sm border border-gray-100">
         <!-- Mobile-only navigation items -->
-        <div class="block md:hidden w-full border-b border-gray-200 pb-4 mb-4">
-          <div class="flex flex-col gap-2">
-            <button 
+        <div class="block md:hidden w-full border-b border-gray-100 pb-4 mb-4">
+          <div class="flex flex-col gap-1.5">
+            <button
               @click="navigateTo('overview2')"
-              class="w-full py-3 px-4 text-sm font-medium rounded-lg transition-all text-left bg-gray-50 text-gray-700 hover:bg-gray-100 flex items-center justify-between"
+              class="w-full py-3 px-4 text-sm font-medium rounded-xl transition-all text-left text-gray-600 hover:bg-gray-50 flex items-center justify-between"
             >
               <div class="flex items-center gap-3">
-                <span class="text-base">📊</span>
-                <span>Overview2.0</span>
+                <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
+                  <LayoutDashboard class="w-4 h-4 text-blue-500" />
+                </div>
+                <span>Overview</span>
               </div>
-              <span class="text-gray-400">›</span>
+              <ChevronRight class="w-4 h-4 text-gray-300" />
             </button>
-            <button 
+            <button
               @click="navigateTo('categories')"
-              class="w-full py-3 px-4 text-sm font-medium rounded-lg transition-all text-left bg-gray-50 text-gray-700 hover:bg-gray-100 flex items-center justify-between"
+              class="w-full py-3 px-4 text-sm font-medium rounded-xl transition-all text-left text-gray-600 hover:bg-gray-50 flex items-center justify-between"
             >
               <div class="flex items-center gap-3">
-                <span class="text-base">🏷️</span>
+                <div class="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center">
+                  <Tag class="w-4 h-4 text-purple-500" />
+                </div>
                 <span>Categories</span>
               </div>
-              <span class="text-gray-400">›</span>
+              <ChevronRight class="w-4 h-4 text-gray-300" />
             </button>
-            <button 
+            <button
               @click="navigateTo('wallets')"
-              class="w-full py-3 px-4 text-sm font-medium rounded-lg transition-all text-left bg-gray-50 text-gray-700 hover:bg-gray-100 flex items-center justify-between"
+              class="w-full py-3 px-4 text-sm font-medium rounded-xl transition-all text-left text-gray-600 hover:bg-gray-50 flex items-center justify-between"
             >
               <div class="flex items-center gap-3">
-                <span class="text-base">💳</span>
+                <div class="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center">
+                  <Wallet class="w-4 h-4 text-emerald-500" />
+                </div>
                 <span>Wallets</span>
               </div>
-              <span class="text-gray-400">›</span>
+              <ChevronRight class="w-4 h-4 text-gray-300" />
             </button>
           </div>
         </div>
-        
+
         <!-- Settings menu items -->
-        <div class="flex flex-col gap-2">
+        <div class="flex flex-col gap-1.5">
           <button
-            class="w-full py-3 px-4 text-sm font-medium rounded-lg transition-all text-left bg-gray-50 text-gray-700 hover:bg-gray-100 flex items-center justify-between"
-            :class="selectedTab === 'general' ? 'bg-green-50 text-green-600' : ''"
+            class="w-full py-3 px-4 text-sm font-medium rounded-xl transition-all text-left flex items-center justify-between"
+            :class="selectedTab === 'general' ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-50'"
             @click="selectedTab = 'general'"
           >
             <div class="flex items-center gap-3">
-              <span class="text-base">⚙️</span>
+              <div class="w-8 h-8 rounded-lg flex items-center justify-center" :class="selectedTab === 'general' ? 'bg-gray-200' : 'bg-gray-50'">
+                <SettingsIcon class="w-4 h-4" :class="selectedTab === 'general' ? 'text-gray-700' : 'text-gray-400'" />
+              </div>
               <span>General</span>
             </div>
-            <span class="text-gray-400">›</span>
+            <ChevronRight class="w-4 h-4 text-gray-300" />
           </button>
           <button
-            class="w-full py-3 px-4 text-sm font-medium rounded-lg transition-all text-left bg-gray-50 text-gray-700 hover:bg-gray-100 flex items-center justify-between"
-            :class="selectedTab === 'subscription' ? 'bg-green-50 text-green-600' : ''"
+            class="w-full py-3 px-4 text-sm font-medium rounded-xl transition-all text-left flex items-center justify-between"
+            :class="selectedTab === 'subscription' ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-50'"
             @click="selectedTab = 'subscription'"
           >
             <div class="flex items-center gap-3">
-              <span class="text-base">⭐</span>
+              <div class="w-8 h-8 rounded-lg flex items-center justify-center" :class="selectedTab === 'subscription' ? 'bg-amber-100' : 'bg-amber-50'">
+                <Crown class="w-4 h-4" :class="selectedTab === 'subscription' ? 'text-amber-600' : 'text-amber-400'" />
+              </div>
               <span>Subscription</span>
             </div>
-            <span class="text-gray-400">›</span>
+            <ChevronRight class="w-4 h-4 text-gray-300" />
           </button>
         </div>
       </div>
@@ -123,8 +134,8 @@
               <div v-if="hasActiveSubscription && polarStore.subscription" class="rounded-xl border p-6 bg-blue-50 border-blue-500 ring-1 ring-blue-500">
                 <div class="flex items-center justify-between mb-4">
                   <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                      <span class="text-xl">⭐</span>
+                    <div class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center">
+                      <Crown class="w-5 h-5 text-amber-600" />
                     </div>
                     <div>
                       <h3 class="text-lg font-semibold text-gray-900">Pro Plan</h3>
@@ -188,6 +199,7 @@
           </div>
         </div>
       </div>
+      </div>
     </div>
   </div>
 </template>
@@ -200,9 +212,18 @@ import { ref } from 'vue'
 import { usePolarStore } from '../store/polar'
 import { useCurrency } from '../composables/useCurrency'
 import { useNotifications } from '../composables/useNotifications'
+import { LayoutDashboard, Tag, Wallet, Settings as SettingsIcon, Crown, ChevronRight } from 'lucide-vue-next'
 
 export default {
-  name: 'Settings',
+  name: 'SettingsView',
+  components: {
+    LayoutDashboard,
+    Tag,
+    Wallet,
+    SettingsIcon,
+    Crown,
+    ChevronRight
+  },
   setup() {
     const polarStore = usePolarStore()
     const { currency } = useCurrency()

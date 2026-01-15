@@ -1,5 +1,6 @@
 <template>
-  <div class="mx-auto p-4 mb-10">
+  <div class="max-w-7xl mx-auto relative">
+    <div class="relative pb-24 px-3 pt-2">
     <!-- Add Transaction Button -->
 <!--    <button @click="openAddModal" class="fixed bottom-8 right-8 z-50 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-xl transition-all">-->
 <!--      <Plus class="h-7 w-7" />-->
@@ -29,69 +30,81 @@
     />
 
     <!-- Filter Bar -->
-    <div class="bg-white rounded-xl shadow-sm px-4 py-2 mb-4">
-      <div class="flex flex-wrap items-center gap-2">
-        <!-- Search Filter -->
-        <div class="flex-grow min-w-[180px] max-w-xs">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 px-3 py-3 mb-4">
+      <!-- Mobile: Collapsible filters -->
+      <div class="flex items-center gap-2 mb-3 md:mb-0">
+        <!-- Search Filter - Always visible -->
+        <div class="flex-grow">
           <div class="relative">
             <input
               type="text"
               v-model="filters.search"
               @input="debouncedSearch"
-              placeholder="Search transactions..."
-              class="w-full px-3 py-1.5 text-sm bg-gray-50/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 focus:bg-white transition-all duration-200 hover:border-gray-300 cursor-pointer"
+              placeholder="Search..."
+              class="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 focus:bg-white transition-all"
             />
-            <SearchIcon class="absolute right-2.5 top-2 h-4 w-4 text-gray-400" />
+            <SearchIcon class="absolute right-3 top-2.5 h-4 w-4 text-gray-400" />
           </div>
         </div>
+        <!-- Filter toggle for mobile -->
+        <button
+          @click="showFilters = !showFilters"
+          class="md:hidden flex items-center gap-1 px-3 py-2 text-sm bg-gray-100 rounded-xl text-gray-600"
+        >
+          <SlidersHorizontal class="h-4 w-4" />
+        </button>
+        <!-- Reset - Always visible -->
+        <button
+          @click="resetFilters"
+          class="px-3 py-2 text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-xl transition-all"
+        >
+          Reset
+        </button>
+      </div>
 
-        <!-- Type Filter -->
-        <div class="min-w-[110px]">
+      <!-- Expandable filters -->
+      <div :class="showFilters ? 'block' : 'hidden md:block'">
+        <div class="grid grid-cols-2 md:flex md:flex-wrap gap-2 mt-3 md:mt-2">
+          <!-- Type Filter -->
           <select
             v-model="filters.type"
             @change="applyFilters"
-            class="w-full px-3 py-1.5 text-sm bg-gray-50/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 focus:bg-white transition-all duration-200 hover:border-gray-300 cursor-pointer"
+            class="px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 focus:bg-white transition-all"
           >
             <option value="all">All Types</option>
             <option value="expense">Expense</option>
             <option value="income">Income</option>
           </select>
-        </div>
 
-        <!-- Category Filter -->
-        <div class="min-w-[130px]">
+          <!-- Category Filter -->
           <select
             v-model="filters.category_id"
             @change="applyFilters"
-            class="w-full px-3 py-1.5 text-sm bg-gray-50/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 focus:bg-white transition-all duration-200 hover:border-gray-300 cursor-pointer"
+            class="px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 focus:bg-white transition-all"
           >
             <option :value="null">All Categories</option>
             <option v-for="category in categories" :key="category.id" :value="category.id">
               {{ capitalizeFirstLetter(category.name) }}
             </option>
           </select>
-        </div>
 
-        <!-- Wallet Filter -->
-        <div class="min-w-[120px]">
+          <!-- Wallet Filter -->
           <select
             v-model="filters.wallet_id"
             @change="applyFilters"
-            class="w-full px-3 py-1.5 text-sm bg-gray-50/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 focus:bg-white transition-all duration-200 hover:border-gray-300 cursor-pointer"
+            class="px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 focus:bg-white transition-all"
           >
             <option :value="null">All Wallets</option>
             <option v-for="wallet in wallets" :key="wallet.id" :value="wallet.id">
               {{ wallet.name.toUpperCase() }}
             </option>
           </select>
-        </div>
 
-        <!-- Date Filter -->
-        <div class="min-w-[120px]">
+          <!-- Date Filter -->
           <select
             v-model="filters.filter"
             @change="applyFilters"
-            class="w-full px-3 py-1.5 text-sm bg-gray-50/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 focus:bg-white transition-all duration-200 hover:border-gray-300 cursor-pointer"
+            class="px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 focus:bg-white transition-all"
           >
             <option value="all">All Time</option>
             <option value="today">Today</option>
@@ -100,145 +113,184 @@
             <option value="monthly">This Month</option>
             <option value="yearly">This Year</option>
           </select>
-        </div>
 
-        <!-- Date Range Picker -->
-        <div class="flex items-center gap-1 min-w-[220px]">
-          <input
-            type="date"
-            v-model="filters.date_from"
-            @change="applyFilters"
-            class="flex-1 px-3 py-1.5 text-sm bg-gray-50/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 focus:bg-white transition-all duration-200 hover:border-gray-300 cursor-pointer"
-          />
-          <span class="text-gray-500 text-sm">-</span>
-          <input
-            type="date"
-            v-model="filters.date_to"
-            @change="applyFilters"
-            class="flex-1 px-3 py-1.5 text-sm bg-gray-50/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 focus:bg-white transition-all duration-200 hover:border-gray-300 cursor-pointer"
-          />
-        </div>
-
-        <!-- Reset Filters Button -->
-        <div>
-          <button
-            @click="resetFilters"
-            class="px-3 py-1.5 text-sm border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500"
-          >
-            Reset
-          </button>
+          <!-- Date Range Picker - Hidden on mobile -->
+          <div class="hidden md:flex items-center gap-1 col-span-2">
+            <input
+              type="date"
+              v-model="filters.date_from"
+              @change="applyFilters"
+              class="flex-1 px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 focus:bg-white transition-all"
+            />
+            <span class="text-gray-400 text-sm">to</span>
+            <input
+              type="date"
+              v-model="filters.date_to"
+              @change="applyFilters"
+              class="flex-1 px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400 focus:bg-white transition-all"
+            />
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Filter/Add/Pagination Card Bar -->
-    <div class="bg-white rounded-xl shadow-sm px-4 py-3 mb-4">
-      <div class="flex flex-wrap items-center justify-between gap-2">
+    <!-- Action Bar -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 px-3 py-3 mb-4">
+      <div class="flex items-center justify-between gap-2">
         <!-- Add Transaction Button -->
-        <div class="flex-shrink-0 mb-2 sm:mb-0 flex items-center gap-2">
-          <button @click="openAddModal" class="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-medium px-3 py-1 rounded-lg shadow transition-all">
+        <div class="flex items-center gap-2">
+          <button @click="openAddModal" class="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-medium px-3 py-2 rounded-xl shadow-sm transition-all text-sm">
             <Plus class="h-4 w-4" />
-            Add Transaction
+            <span class="hidden sm:inline">Add</span>
           </button>
-          <button @click="openImportModal" class="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white font-medium px-3 py-1 rounded-lg shadow transition-all">
+          <button @click="openImportModal" class="hidden sm:flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium px-3 py-2 rounded-xl transition-all text-sm">
             <Upload class="h-4 w-4" />
             Import
           </button>
-          <button @click="refreshTransactions" :disabled="loading" class="flex items-center justify-center bg-gray-500 hover:bg-gray-600 text-white w-8 h-8 rounded-lg shadow transition-all disabled:opacity-50 disabled:cursor-not-allowed" title="Refresh Transactions">
+          <button @click="refreshTransactions" :disabled="loading" class="flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-600 w-9 h-9 rounded-xl transition-all disabled:opacity-50" title="Refresh">
             <RefreshCcw class="h-4 w-4" :class="{'animate-spin': loading}" />
           </button>
         </div>
 
         <!-- Pagination Controls -->
-        <div class="flex-shrink-0 w-full sm:w-auto">
-          <div v-if="paginationLinks.length > 3" class="flex flex-wrap items-center justify-end gap-1">
-            <button
-              v-for="link in paginationLinks"
-              :key="link.label"
-              @click="handlePageChange(link.url)"
-              :disabled="!link.url"
-              class="px-2 py-1 rounded border text-sm disabled:opacity-50"
-              :class="[
-                link.active
-                  ? 'bg-emerald-500 text-white border-emerald-500'
-                  : 'text-gray-700 hover:bg-gray-50',
-                !link.url ? 'text-gray-400' : ''
-              ]"
-              v-html="link.label"
-            >
-            </button>
-          </div>
+        <div v-if="paginationLinks.length > 3" class="flex items-center gap-1 overflow-x-auto">
+          <button
+            v-for="link in paginationLinks"
+            :key="link.label"
+            @click="handlePageChange(link.url)"
+            :disabled="!link.url"
+            class="px-2 py-1.5 rounded-lg text-xs font-medium disabled:opacity-50 transition-all"
+            :class="[
+              link.active
+                ? 'bg-emerald-500 text-white'
+                : 'text-gray-600 hover:bg-gray-100',
+              !link.url ? 'text-gray-300' : ''
+            ]"
+            v-html="link.label"
+          >
+          </button>
         </div>
       </div>
     </div>
 
-    <!-- Transactions Table with Pagination -->
+    <!-- Transactions -->
     <div>
       <!-- Loading State -->
-      <div v-if="loading" class="bg-white rounded-xl shadow-sm p-4 flex items-center justify-center min-h-[440px]">
+      <div v-if="loading" class="bg-white rounded-xl shadow-sm border border-gray-100 p-8 flex items-center justify-center min-h-[300px]">
         <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
       </div>
 
-      <div v-else-if="transactions.length > 0" class="bg-white rounded-xl shadow-sm p-4 overflow-x-auto min-h-[440px]">
-        <table class="min-w-full text-sm">
-          <thead>
-            <tr class="text-gray-500 border-b">
-              <th class="py-2 text-left font-medium">Category</th>
-              <th class="py-2 text-left font-medium">Note</th>
-              <th class="py-2 text-left font-medium">Ref Number</th>
-              <th class="py-2 text-left font-medium">Wallet</th>
-              <th class="py-2 text-left font-medium">Amount</th>
-              <th class="py-2 text-left font-medium">Date</th>
-              <th class="py-2 text-center font-medium">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="transaction in transactions" :key="transaction.id"
-                class="border-b hover:bg-gray-50/50 transition-colors">
-              <td class="py-2 flex items-center gap-2">
-                <div class="w-7 h-7 rounded-full flex items-center justify-center" :style="{
-                  backgroundColor: (transaction.category?.color + '15') || (transaction.type === 'income' ? '#e6ffed' : '#ffeded'),
-                  color: transaction.category?.color || (transaction.type === 'income' ? '#16a34a' : '#dc2626')
-                }">
-                  <component :is="transaction.category?.icon || (transaction.type === 'income' ? 'CircleDollarSign' : 'ShoppingBag')" class="h-4 w-4" />
-                </div>
-                <span>{{ transaction.category ? capitalizeFirstLetter(transaction.category.name) : '-' }}</span>
-              </td>
-              <td class="py-2" style="max-width: 250px;">{{ transaction.note }}</td>
-              <td class="py-2">{{ transaction.reference_number || '-' }}</td>
-              <td class="py-2">
-                <span v-if="transaction.wallet">
-                  {{ transaction.wallet.name.toUpperCase() }}
-                  <span class="text-gray-500 text-xs">({{ formatCurrency(transaction.wallet.balance, currencyCode) }})</span>
-                </span>
-                <span v-else>-</span>
-              </td>
-              <td class="py-2" :class="transaction.type === 'expense' ? 'text-red-600' : 'text-green-600'">
-                {{ transaction.type === 'expense' ? '-' : '+' }}{{ formatCurrency(transaction.amount, currencyCode) }}
-              </td>
-              <td class="py-2">{{ formatDate(transaction.transaction_date) }}</td>
-              <td class="py-2 text-center">
-                <button
-                  @click="openDeleteDialog(transaction)"
-                  class="text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-50 transition-colors"
-                  title="Delete Transaction"
-                >
-                  <Trash2 class="h-4 w-4" />
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <div v-else-if="transactions.length > 0">
+        <!-- Desktop Table View -->
+        <div class="hidden md:block bg-white rounded-xl shadow-sm border border-gray-100 p-4 overflow-x-auto">
+          <table class="min-w-full text-sm">
+            <thead>
+              <tr class="text-gray-500 border-b">
+                <th class="py-2 text-left font-medium">Category</th>
+                <th class="py-2 text-left font-medium">Note</th>
+                <th class="py-2 text-left font-medium">Wallet</th>
+                <th class="py-2 text-left font-medium">Amount</th>
+                <th class="py-2 text-left font-medium">Date</th>
+                <th class="py-2 text-center font-medium">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="transaction in transactions" :key="transaction.id"
+                  class="border-b hover:bg-gray-50/50 transition-colors">
+                <td class="py-3 flex items-center gap-2">
+                  <div class="w-8 h-8 rounded-full flex items-center justify-center" :style="{
+                    backgroundColor: (transaction.category?.color + '15') || (transaction.type === 'income' ? '#e6ffed' : '#ffeded'),
+                    color: transaction.category?.color || (transaction.type === 'income' ? '#16a34a' : '#dc2626')
+                  }">
+                    <component :is="transaction.category?.icon || (transaction.type === 'income' ? 'CircleDollarSign' : 'ShoppingBag')" class="h-4 w-4" />
+                  </div>
+                  <span>{{ transaction.category ? capitalizeFirstLetter(transaction.category.name) : '-' }}</span>
+                </td>
+                <td class="py-3 max-w-[200px] truncate">{{ transaction.note || '-' }}</td>
+                <td class="py-3">
+                  <span v-if="transaction.wallet" class="text-xs bg-gray-100 px-2 py-1 rounded-lg">
+                    {{ transaction.wallet.name.toUpperCase() }}
+                  </span>
+                  <span v-else class="text-gray-400">-</span>
+                </td>
+                <td class="py-3 font-medium" :class="transaction.type === 'expense' ? 'text-red-600' : 'text-green-600'">
+                  {{ transaction.type === 'expense' ? '-' : '+' }}{{ formatCurrency(transaction.amount, currencyCode) }}
+                </td>
+                <td class="py-3 text-gray-500">{{ formatDate(transaction.transaction_date) }}</td>
+                <td class="py-3 text-center">
+                  <button
+                    @click="openDeleteDialog(transaction)"
+                    class="text-gray-400 hover:text-red-500 p-1.5 rounded-lg hover:bg-red-50 transition-colors"
+                    title="Delete"
+                  >
+                    <Trash2 class="h-4 w-4" />
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
 
-        <!-- Pagination Info -->
-        <div class="mt-4 flex justify-between items-center text-sm text-gray-500">
-          <div>
+          <!-- Pagination Info -->
+          <div class="mt-4 pt-3 border-t border-gray-100 text-xs text-gray-500">
             Showing {{ pagination.from }} to {{ pagination.to }} of {{ pagination.total }} transactions
           </div>
         </div>
+
+        <!-- Mobile Card View -->
+        <div class="md:hidden space-y-3">
+          <div
+            v-for="transaction in transactions"
+            :key="transaction.id"
+            class="bg-white rounded-xl shadow-sm border border-gray-100 p-4"
+          >
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" :style="{
+                backgroundColor: (transaction.category?.color + '15') || (transaction.type === 'income' ? '#e6ffed' : '#ffeded'),
+                color: transaction.category?.color || (transaction.type === 'income' ? '#16a34a' : '#dc2626')
+              }">
+                <component :is="transaction.category?.icon || (transaction.type === 'income' ? 'CircleDollarSign' : 'ShoppingBag')" class="h-5 w-5" />
+              </div>
+              <div class="flex-1 min-w-0">
+                <h4 class="font-medium text-gray-900 truncate">
+                  {{ transaction.category ? capitalizeFirstLetter(transaction.category.name) : '-' }}
+                </h4>
+                <p class="text-xs text-gray-500 truncate">{{ transaction.note || 'No note' }}</p>
+              </div>
+              <div class="text-right flex-shrink-0">
+                <p class="font-medium" :class="transaction.type === 'expense' ? 'text-red-600' : 'text-green-600'">
+                  {{ transaction.type === 'expense' ? '-' : '+' }}{{ formatCurrency(transaction.amount, currencyCode) }}
+                </p>
+                <p class="text-xs text-gray-400">{{ formatDate(transaction.transaction_date) }}</p>
+              </div>
+            </div>
+            <div class="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
+              <span v-if="transaction.wallet" class="text-xs bg-gray-100 px-2 py-1 rounded-lg text-gray-600">
+                {{ transaction.wallet.name.toUpperCase() }}
+              </span>
+              <span v-else></span>
+              <button
+                @click="openDeleteDialog(transaction)"
+                class="text-gray-400 hover:text-red-500 p-1.5 rounded-lg hover:bg-red-50 transition-colors"
+              >
+                <Trash2 class="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+
+          <!-- Mobile Pagination Info -->
+          <div class="text-center text-xs text-gray-500 py-2">
+            Showing {{ pagination.from }}-{{ pagination.to }} of {{ pagination.total }}
+          </div>
+        </div>
       </div>
-      <div v-else class="bg-white rounded-xl shadow-sm p-4 flex flex-col items-center justify-center min-h-[440px]">
-        <span class="text-gray-400 text-lg font-medium">No Transactions</span>
+
+      <!-- Empty State -->
+      <div v-else class="bg-white rounded-xl shadow-sm border border-gray-100 p-8 flex flex-col items-center justify-center min-h-[300px]">
+        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+          <Receipt class="h-8 w-8 text-gray-300" />
+        </div>
+        <span class="text-gray-500 font-medium">No Transactions</span>
+        <p class="text-gray-400 text-sm mt-1">Add your first transaction to get started</p>
       </div>
     </div>
 
@@ -279,6 +331,7 @@
         </div>
       </div>
     </Transition>
+    </div>
   </div>
 </template>
 
@@ -288,7 +341,7 @@ import {
   HandCoins, Wallet, ChartCandlestick, Landmark, Citrus, ShoppingBag, House, Receipt, Clapperboard, Plane, Contact,
   Cross, ShoppingCart, Book, BriefcaseBusiness, BadgeDollarSign, Dumbbell, Sparkle, SearchIcon, CircleDot, CircleX,
   TrendingUp, TrendingDown, ArrowUpCircle, ArrowDownCircle, PiggyBank, CalendarClock, RepeatIcon, ChevronLeft, ChevronRight, Upload,
-  RefreshCcw
+  RefreshCcw, SlidersHorizontal
 } from 'lucide-vue-next'
 import { Transition } from 'vue'
 import AddTransaction from '../components/AddTransaction.vue'
@@ -311,7 +364,7 @@ export default {
     Calendar, Trash2, Plus, Car, ReceiptIcon, Video, BriefcaseMedical, Gift, Circle, CircleEllipsis, Pizza, CircleDollarSign,
     HandCoins, Wallet, ChartCandlestick, Landmark, Citrus, ShoppingBag, House, Receipt, Clapperboard, Plane, Contact,
     Cross, ShoppingCart, Book, BriefcaseBusiness, BadgeDollarSign, Dumbbell, Sparkle, SearchIcon, CircleDot, CircleX,
-    TrendingUp, TrendingDown, ArrowUpCircle, ArrowDownCircle, PiggyBank, CalendarClock, RepeatIcon, ChevronLeft, ChevronRight, Upload, RefreshCcw
+    TrendingUp, TrendingDown, ArrowUpCircle, ArrowDownCircle, PiggyBank, CalendarClock, RepeatIcon, ChevronLeft, ChevronRight, Upload, RefreshCcw, SlidersHorizontal
   },
   mixins: [iconMixin],
   data() {
@@ -319,6 +372,7 @@ export default {
       showAddModal: false,
       showImportModal: false,
       showDeleteDialog: false,
+      showFilters: false,
       editingTransaction: null,
       transactionToDelete: null,
       filters: {
