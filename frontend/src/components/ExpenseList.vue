@@ -1,6 +1,6 @@
 <template>
-  <div class="max-w-7xl mx-auto relative">
-    <div class="space-y-6 relative pb-24 px-3 pt-2">
+  <div class="max-w-7xl mx-auto relative overflow-x-hidden">
+    <div class="space-y-6 relative pb-24 px-3 pt-2 overflow-x-hidden">
     <!-- Start New Overview Card -->
     <template v-if="getActiveTab === 'daily'">
       <div class="grid mb-4 bg-white rounded-xl shadow-sm p-4">
@@ -261,7 +261,7 @@
                     class="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-all cursor-pointer"
                     @click="editTransaction(transaction)">
                     <div class="flex items-center gap-3">
-                      <div class="w-10 h-10 rounded-full flex items-center justify-center" :style="{
+                      <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" :style="{
                         backgroundColor: (transaction.category?.color + '15') || '#fee2e2',
                         color: transaction.category?.color || '#dc2626'
                       }">
@@ -273,7 +273,7 @@
                         </h4>
                         <p class="text-sm text-gray-500 truncate" :title="transaction.note">{{ transaction.note }}</p>
                       </div>
-                      <div class="text-right">
+                      <div class="text-right flex-shrink-0">
                         <p class="font-medium text-red-600">
                           -{{ formatCurrency(transaction.amount, currencyCode) }}
                         </p>
@@ -293,7 +293,7 @@
                     class="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-all cursor-pointer"
                     @click="editTransaction(transaction)">
                     <div class="flex items-center gap-3">
-                      <div class="w-10 h-10 rounded-full flex items-center justify-center" :style="{
+                      <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" :style="{
                         backgroundColor: (transaction.category?.color + '15') || '#dcfce7',
                         color: transaction.category?.color || '#16a34a'
                       }">
@@ -305,7 +305,7 @@
                         </h4>
                         <p class="text-sm text-gray-500 truncate" :title="transaction.note">{{ transaction.note }}</p>
                       </div>
-                      <div class="text-right">
+                      <div class="text-right flex-shrink-0">
                         <p class="font-medium text-green-600">
                           +{{ formatCurrency(transaction.amount, currencyCode) }}
                         </p>
@@ -335,7 +335,7 @@
                 class="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-all"
                 @click="editTransaction(transaction)">
                 <div class="flex items-center gap-3">
-                  <div class="w-10 h-10 rounded-full flex items-center justify-center" :style="{
+                  <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" :style="{
                     backgroundColor: (transaction.category?.color + '15') ||
                       (transaction.type === 'income' ? '#dcfce7' : '#fee2e2'),
                     color: transaction.category?.color ||
@@ -351,7 +351,7 @@
                     </h4>
                     <p class="text-xs text-gray-500 truncate max-w-[100px]" :title="transaction.note">{{ transaction.note }}</p>
                   </div>
-                  <div class="text-right">
+                  <div class="text-right flex-shrink-0">
                     <p class="font-medium" :class="transaction.type === 'expense' ? 'text-red-600' : 'text-green-600'">
                       {{ transaction.type === 'expense' ? '-' : '+' }}{{ formatCurrency(transaction.amount,
                         currencyCode) }}
