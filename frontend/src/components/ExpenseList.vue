@@ -197,7 +197,6 @@
                   :key="expense.id"
                   @click="editRecurringExpense(expense)"
                   class="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-all"
-                  :class="{ 'bg-red-50/50': isPaymentDueSoon(expense) }"
               >
                   <div class="flex items-center gap-3">
                       <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
@@ -210,7 +209,7 @@
                       </div>
                       <div class="text-right flex-shrink-0">
                           <p class="font-medium text-gray-900">{{ formatCurrency(expense.amount, currencyCode) }}</p>
-                          <p class="text-sm text-gray-400" :class="{ 'text-red-600 font-medium': isPaymentDueSoon(expense) }">
+                          <p class="text-sm text-gray-400">
                               {{ getPaymentStatus(expense) }}
                           </p>
                       </div>
