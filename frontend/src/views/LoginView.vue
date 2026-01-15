@@ -114,7 +114,7 @@
                             </div>
                         </div>
                         <img
-                            src="/images/Daily Expense Tracker Interface.png"
+                            src="/images/daily-expense-tracker-interface.png"
                             alt="Desktop Dashboard"
                             class="w-full rounded-b-lg"
                         />
