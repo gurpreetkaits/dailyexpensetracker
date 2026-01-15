@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\DB;
 
 class TransactionService
 {
-    private $cacheTimeout = 2; // 1 hour cache
+    private $cacheTimeout = 120; // 2 minutes cache (in seconds)
 
     /**
      * Get user's transactions with caching
@@ -21,7 +21,8 @@ class TransactionService
      */
     public function getUserTransactions($userId, $filter)
     {
-        $cacheKey = "transactions_user_{$userId}_" . time();
+        $filterKey = $filter ?? 'all';
+        $cacheKey = "transactions_user_{$userId}_{$filterKey}";
 
         return Cache::remember($cacheKey, $this->cacheTimeout, function () use ($userId, $filter) {
             $query = Transaction::with(['category','wallet:id,name'])->where('user_id', $userId);
@@ -177,7 +178,13 @@ class TransactionService
      */
     public function clearUserTransactionCache($userId)
     {
-        Cache::forget("transactions_user_{$userId}_" . date('m') . "_" . date('Y'));
+        // Clear all common filter variations
+        $filters = ['all', 'today', 'weekly', 'monthly', 'yearly', 'yesterday'];
+        foreach ($filters as $filter) {
+            Cache::forget("transactions_user_{$userId}_{$filter}");
+        }
+
+        // Clear summary cache
         Cache::forget("transaction_summary_user_{$userId}_" . date('Y_m'));
     }
 

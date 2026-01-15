@@ -146,7 +146,7 @@ import posthog from 'posthog-js'
 import { usePolarStore } from '../store/polar'
 import UpgradeModal from '../components/UpgradeModal.vue'
 import {useRoute} from "vue-router";
-import { format } from 'date-fns'
+import dayjs from 'dayjs'
 import { Sparkle } from 'lucide-vue-next'
 
 const inputMessage = ref('')
@@ -272,7 +272,7 @@ const handleUpgrade = async () => {
 }
 
 const formatDate = (dateString) => {
-  return format(new Date(dateString), 'MMM d, yyyy')
+  return dayjs(dateString).format('MMM D, YYYY')
 }
 
 const formatAmount = (amount, type = null) => {

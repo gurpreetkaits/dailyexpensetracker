@@ -121,7 +121,7 @@
               </div>
               <div class="flex gap-2 overflow-x-auto pb-1 scrollbar-hide -mx-3 px-3">
                   <button
-                      v-for="suggestion in suggestions.slice(0, 4)"
+                      v-for="suggestion in topSuggestions"
                       :key="suggestion.name"
                       @click="addFromSuggestion(suggestion)"
                       class="flex-shrink-0 flex items-center gap-2 px-3 py-2 bg-white rounded-lg shadow-sm text-xs"
@@ -257,7 +257,7 @@
                     <ArrowDownCircle class="h-4 w-4 text-red-500" />
                     Expenses
                   </h3>
-                  <div v-for="transaction in barTransactions.filter(t => t.type === 'expense')" :key="transaction.id"
+                  <div v-for="transaction in expenseTransactions" :key="transaction.id"
                     class="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-all cursor-pointer"
                     @click="editTransaction(transaction)">
                     <div class="flex items-center gap-3">
@@ -289,7 +289,7 @@
                     <ArrowUpCircle class="h-4 w-4 text-green-500" />
                     Income
                   </h3>
-                  <div v-for="transaction in barTransactions.filter(t => t.type === 'income')" :key="transaction.id"
+                  <div v-for="transaction in incomeTransactions" :key="transaction.id"
                     class="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-all cursor-pointer"
                     @click="editTransaction(transaction)">
                     <div class="flex items-center gap-3">
@@ -512,6 +512,15 @@ export default {
     },
     filteredTransactions() {
       return this.transactions
+    },
+    expenseTransactions() {
+      return this.barTransactions.filter(t => t.type === 'expense')
+    },
+    incomeTransactions() {
+      return this.barTransactions.filter(t => t.type === 'income')
+    },
+    topSuggestions() {
+      return this.suggestions.slice(0, 4)
     },
     balance() {
       return this.getBalance

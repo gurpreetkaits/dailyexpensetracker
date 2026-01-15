@@ -210,12 +210,8 @@ export const useTransactionStore = defineStore("transaction", {
         );
 
         if (index !== -1) {
-          // Create a new array with the updated transaction
-          this.transactions = [
-            ...this.transactions.slice(0, index),
-            completedTransaction,
-            ...this.transactions.slice(index + 1)
-          ];
+          // Directly update the array element - Pinia handles reactivity
+          this.transactions[index] = completedTransaction;
         }
 
         return { success: true, data: completedTransaction };
