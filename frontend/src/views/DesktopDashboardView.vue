@@ -1,6 +1,6 @@
 <template>
   <div class="max-w-7xl mx-auto relative">
-    <div class="relative pb-24 px-3 pt-2">
+    <div class="space-y-6 relative pb-24 px-3 pt-2">
     <!-- Add Transaction Button -->
 <!--    <button @click="openAddModal" class="fixed bottom-8 right-8 z-50 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-xl transition-all">-->
 <!--      <Plus class="h-7 w-7" />-->
