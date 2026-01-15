@@ -1,79 +1,110 @@
 <template>
-  <div class="bg-white rounded-xl shadow-sm p-4 h-full">
-    <div class="flex items-center justify-between mb-4">
-      <div>
-        <h2 class="text-xl font-semibold text-blue-600">{{ formatCurrency(summary.this_month_total, currencyCode) }}</h2>
-        <p class="text-sm text-gray-500">Monthly Recurring</p>
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden h-full">
+    <!-- Header -->
+    <div class="p-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-gray-400 text-[10px] font-medium mb-1">Monthly Recurring</p>
+          <h2 class="text-xl font-semibold text-gray-900">{{ formatCurrency(summary.this_month_total, currencyCode) }}</h2>
+        </div>
+        <div class="h-9 w-9 bg-blue-50 rounded-lg flex items-center justify-center">
+          <RefreshCw class="h-4 w-4 text-blue-400" />
+        </div>
       </div>
-      <div class="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center">
-        <RefreshCw class="h-5 w-5 text-blue-600" />
+
+      <!-- Active count badge -->
+      <div class="mt-2 inline-flex items-center gap-1.5 bg-gray-100 rounded-full px-2.5 py-1">
+        <div class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+        <span class="text-gray-500 text-[10px] font-medium">{{ summary.active_count }} active</span>
       </div>
     </div>
 
-    <!-- Stats Grid -->
-    <div class="grid grid-cols-2 gap-3 mb-4">
-      <div class="bg-purple-50 rounded-lg p-3">
-        <div class="flex items-center gap-2 mb-1">
-          <Tv class="h-4 w-4 text-purple-600" />
-          <span class="text-xs text-gray-500">Subscriptions</span>
+    <div class="p-4">
+      <!-- Stats Grid -->
+      <div class="grid grid-cols-4 gap-2 mb-4">
+        <div class="bg-gray-50 rounded-xl p-3 text-center hover:bg-gray-100 transition-colors cursor-default">
+          <div class="w-8 h-8 mx-auto mb-2 bg-white rounded-lg flex items-center justify-center shadow-sm">
+            <Tv class="h-4 w-4 text-gray-600" />
+          </div>
+          <p class="text-xl font-bold text-gray-800">{{ summary.subscription_count }}</p>
+          <p class="text-[10px] text-gray-500 font-medium">Subscriptions</p>
         </div>
-        <p class="text-lg font-semibold text-purple-600">{{ summary.subscription_count }}</p>
-      </div>
-      <div class="bg-orange-50 rounded-lg p-3">
-        <div class="flex items-center gap-2 mb-1">
-          <Receipt class="h-4 w-4 text-orange-600" />
-          <span class="text-xs text-gray-500">Bills</span>
-        </div>
-        <p class="text-lg font-semibold text-orange-600">{{ summary.bill_count }}</p>
-      </div>
-      <div class="bg-red-50 rounded-lg p-3">
-        <div class="flex items-center gap-2 mb-1">
-          <CreditCard class="h-4 w-4 text-red-600" />
-          <span class="text-xs text-gray-500">EMIs/Loans</span>
-        </div>
-        <p class="text-lg font-semibold text-red-600">{{ summary.emi_count }}</p>
-      </div>
-      <div class="bg-gray-50 rounded-lg p-3">
-        <div class="flex items-center gap-2 mb-1">
-          <MoreHorizontal class="h-4 w-4 text-gray-600" />
-          <span class="text-xs text-gray-500">Other</span>
-        </div>
-        <p class="text-lg font-semibold text-gray-600">{{ summary.other_count }}</p>
-      </div>
-    </div>
 
-    <!-- Donut Chart -->
-    <div v-if="!loading && hasData" class="h-[250px]">
-      <v-chart :option="chartOption" autoresize />
-    </div>
-    <div v-else-if="loading" class="h-[250px] flex items-center justify-center">
-      <div class="text-gray-400">Loading...</div>
-    </div>
-    <div v-else class="h-[250px] flex items-center justify-center">
-      <div class="text-center text-gray-400">
-        <RefreshCw class="h-8 w-8 mx-auto mb-2 opacity-50" />
-        <p class="text-sm">No recurring expenses</p>
-      </div>
-    </div>
+        <div class="bg-gray-50 rounded-xl p-3 text-center hover:bg-gray-100 transition-colors cursor-default">
+          <div class="w-8 h-8 mx-auto mb-2 bg-white rounded-lg flex items-center justify-center shadow-sm">
+            <Receipt class="h-4 w-4 text-gray-600" />
+          </div>
+          <p class="text-xl font-bold text-gray-800">{{ summary.bill_count }}</p>
+          <p class="text-[10px] text-gray-500 font-medium">Bills</p>
+        </div>
 
-    <!-- EMI Progress (if any EMIs) -->
-    <div v-if="summary.emi_count > 0" class="mt-4 pt-4 border-t border-gray-100">
-      <div class="flex items-center justify-between mb-2">
-        <span class="text-sm font-medium text-gray-700">EMI Progress</span>
-        <span class="text-sm text-gray-500">{{ summary.emi_payments_made }}/{{ summary.emi_payments_total }} payments</span>
+        <div class="bg-gray-50 rounded-xl p-3 text-center hover:bg-gray-100 transition-colors cursor-default">
+          <div class="w-8 h-8 mx-auto mb-2 bg-white rounded-lg flex items-center justify-center shadow-sm">
+            <CreditCard class="h-4 w-4 text-gray-600" />
+          </div>
+          <p class="text-xl font-bold text-gray-800">{{ summary.emi_count }}</p>
+          <p class="text-[10px] text-gray-500 font-medium">EMIs</p>
+        </div>
+
+        <div class="bg-gray-50 rounded-xl p-3 text-center hover:bg-gray-100 transition-colors cursor-default">
+          <div class="w-8 h-8 mx-auto mb-2 bg-white rounded-lg flex items-center justify-center shadow-sm">
+            <MoreHorizontal class="h-4 w-4 text-gray-600" />
+          </div>
+          <p class="text-xl font-bold text-gray-800">{{ summary.other_count }}</p>
+          <p class="text-[10px] text-gray-500 font-medium">Other</p>
+        </div>
       </div>
-      <div class="w-full bg-gray-200 rounded-full h-2.5">
-        <div
-          class="bg-gradient-to-r from-blue-500 to-emerald-500 h-2.5 rounded-full transition-all duration-500"
-          :style="{ width: emiProgress + '%' }"
-        ></div>
+
+      <!-- Donut Chart -->
+      <div v-if="!loading && hasData" class="h-[200px] relative">
+        <v-chart :option="chartOption" autoresize />
       </div>
-      <div class="flex justify-between mt-2 text-xs text-gray-500">
-        <span>{{ emiProgress }}% complete</span>
-        <span>{{ formatCurrency(summary.total_remaining_balance, currencyCode) }} remaining</span>
+      <div v-else-if="loading" class="h-[200px] flex items-center justify-center">
+        <div class="flex flex-col items-center gap-2">
+          <div class="h-8 w-8 border-2 border-gray-300 border-t-transparent rounded-full animate-spin"></div>
+          <p class="text-gray-400 text-sm">Loading...</p>
+        </div>
+      </div>
+      <div v-else class="h-[200px] flex items-center justify-center">
+        <div class="text-center">
+          <div class="w-16 h-16 mx-auto mb-3 bg-gray-100 rounded-2xl flex items-center justify-center">
+            <RefreshCw class="h-8 w-8 text-gray-300" />
+          </div>
+          <p class="text-sm font-medium text-gray-400">No recurring expenses</p>
+          <p class="text-xs text-gray-300 mt-1">Add subscriptions, bills or EMIs</p>
+        </div>
+      </div>
+
+      <!-- EMI Progress (if any EMIs) -->
+      <div v-if="summary.emi_count > 0" class="mt-4 pt-4 border-t border-gray-100">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <div class="h-8 w-8 bg-gray-100 rounded-lg flex items-center justify-center">
+              <TrendingUp class="h-4 w-4 text-gray-600" />
+            </div>
+            <div>
+              <p class="text-sm font-semibold text-gray-800">EMI Progress</p>
+              <p class="text-xs text-gray-400">{{ summary.emi_payments_made }}/{{ summary.emi_payments_total }} payments</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <p class="text-lg font-bold text-gray-800">{{ emiProgress }}%</p>
+          </div>
+        </div>
+
+        <div class="relative w-full h-2.5 bg-gray-100 rounded-full overflow-hidden">
+          <div
+            class="absolute inset-y-0 left-0 bg-gray-800 rounded-full transition-all duration-700 ease-out"
+            :style="{ width: emiProgress + '%' }"
+          ></div>
+        </div>
+
+        <div class="flex justify-between mt-2">
+          <span class="text-xs text-gray-400">Paid</span>
+          <span class="text-xs font-medium text-gray-600">{{ formatCurrency(summary.total_remaining_balance, currencyCode) }} remaining</span>
+        </div>
       </div>
     </div>
-
   </div>
 </template>
 
@@ -83,7 +114,7 @@ import { CanvasRenderer } from 'echarts/renderers'
 import { PieChart } from 'echarts/charts'
 import { TooltipComponent, LegendComponent } from 'echarts/components'
 import VChart from 'vue-echarts'
-import { RefreshCw, Tv, Receipt, CreditCard, MoreHorizontal } from 'lucide-vue-next'
+import { RefreshCw, Tv, Receipt, CreditCard, MoreHorizontal, TrendingUp } from 'lucide-vue-next'
 import { numberMixin } from '../../mixins/numberMixin'
 import { mapState } from 'pinia'
 import { useRecurringExpenseStore } from '../../store/recurringExpense'
@@ -98,7 +129,8 @@ export default {
     Tv,
     Receipt,
     CreditCard,
-    MoreHorizontal
+    MoreHorizontal,
+    TrendingUp
   },
   mixins: [numberMixin],
   props: {
@@ -121,19 +153,19 @@ export default {
 
       if (this.grouped.subscriptions?.length > 0) {
         const total = this.grouped.subscriptions.reduce((sum, item) => sum + parseFloat(item.amount), 0)
-        data.push({ name: 'Subscriptions', value: total, itemStyle: { color: '#9333ea' } })
+        data.push({ name: 'Subscriptions', value: total, itemStyle: { color: '#93c5fd' } })
       }
       if (this.grouped.bills?.length > 0) {
         const total = this.grouped.bills.reduce((sum, item) => sum + parseFloat(item.amount), 0)
-        data.push({ name: 'Bills', value: total, itemStyle: { color: '#ea580c' } })
+        data.push({ name: 'Bills', value: total, itemStyle: { color: '#fcd34d' } })
       }
       if (this.grouped.emis?.length > 0) {
         const total = this.grouped.emis.reduce((sum, item) => sum + parseFloat(item.amount), 0)
-        data.push({ name: 'EMIs', value: total, itemStyle: { color: '#dc2626' } })
+        data.push({ name: 'EMIs', value: total, itemStyle: { color: '#fca5a5' } })
       }
       if (this.grouped.other?.length > 0) {
         const total = this.grouped.other.reduce((sum, item) => sum + parseFloat(item.amount), 0)
-        data.push({ name: 'Other', value: total, itemStyle: { color: '#6b7280' } })
+        data.push({ name: 'Other', value: total, itemStyle: { color: '#d1d5db' } })
       }
 
       return data
@@ -142,44 +174,49 @@ export default {
       return {
         tooltip: {
           trigger: 'item',
+          backgroundColor: 'rgba(255, 255, 255, 0.95)',
+          borderColor: '#e5e7eb',
+          borderWidth: 1,
+          textStyle: {
+            color: '#374151'
+          },
           formatter: (params) => {
-            return `${params.name}: ${this.formatCurrency(params.value, this.currencyCode)} (${params.percent}%)`
+            return `<div class="font-medium">${params.name}</div><div class="text-lg font-bold">${this.formatCurrency(params.value, this.currencyCode)}</div><div class="text-gray-500">${params.percent}%</div>`
           }
         },
         legend: {
           orient: 'horizontal',
           bottom: 0,
-          itemWidth: 12,
-          itemHeight: 12,
+          itemWidth: 10,
+          itemHeight: 10,
+          itemGap: 16,
           textStyle: {
-            fontSize: 11
+            fontSize: 11,
+            color: '#6b7280'
           }
         },
         series: [
           {
             name: 'Recurring Expenses',
             type: 'pie',
-            radius: ['45%', '70%'],
+            radius: ['50%', '75%'],
             center: ['50%', '45%'],
             avoidLabelOverlap: true,
             itemStyle: {
-              borderRadius: 6,
+              borderRadius: 8,
               borderColor: '#fff',
-              borderWidth: 2
+              borderWidth: 3
             },
             label: {
               show: false
             },
             emphasis: {
-              label: {
-                show: true,
-                fontSize: 12,
-                fontWeight: 'bold'
-              },
+              scale: true,
+              scaleSize: 8,
               itemStyle: {
-                shadowBlur: 10,
+                shadowBlur: 20,
                 shadowOffsetX: 0,
-                shadowColor: 'rgba(0, 0, 0, 0.2)'
+                shadowColor: 'rgba(0, 0, 0, 0.15)'
               }
             },
             data: this.chartData
@@ -196,3 +233,13 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+}
+</style>

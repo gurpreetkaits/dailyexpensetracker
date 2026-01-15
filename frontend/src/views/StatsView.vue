@@ -1,8 +1,42 @@
 <template>
-     <div class="max-w-7xl mx-auto relative">
-        <div class="space-y-4 relative pb-24 m-3">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <!-- Left: Category Spendings Chart -->
+    <div class="max-w-7xl mx-auto relative">
+        <div class="space-y-6 relative pb-24 px-3 pt-2">
+            <!-- Header Section -->
+            <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                <div class="flex items-start justify-between gap-3">
+                    <div class="flex-1 min-w-0">
+                        <p class="text-gray-400 text-[10px] font-medium mb-1">{{ dateFilterLabel }}</p>
+                        <p class="text-xl font-semibold text-gray-800 truncate">{{ formatCurrency(totalSpent, currencyCode) }}</p>
+                        <p class="text-gray-400 text-xs mt-0.5">Total Expenses</p>
+                    </div>
+                    <div class="flex items-center gap-1 px-2 py-1 rounded-full text-[10px]"
+                         :class="percentageChange >= 0 ? 'bg-red-50 text-red-500' : 'bg-emerald-50 text-emerald-500'">
+                        <TrendingUp v-if="percentageChange >= 0" class="h-3 w-3" />
+                        <TrendingDown v-else class="h-3 w-3" />
+                        {{ Math.abs(percentageChange).toFixed(1) }}%
+                    </div>
+                </div>
+
+                <!-- Stats Row -->
+                <div class="grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-gray-200">
+                    <div class="min-w-0">
+                        <p class="text-[9px] text-gray-400">Categories</p>
+                        <p class="text-xs font-medium text-gray-700">{{ topCategories.length }}</p>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-[9px] text-gray-400">Daily Avg</p>
+                        <p class="text-xs font-medium text-gray-700 truncate">{{ formatCurrency(averagePerDay, currencyCode) }}</p>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-[9px] text-gray-400">Health</p>
+                        <p class="text-xs font-medium" :class="getHealthColor(financialHealth)">{{ financialHealth }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Category Spendings Chart -->
                 <CategorySpendingsByChart
                     :categories="topCategories"
                     :loading="loading"
@@ -10,31 +44,21 @@
                     :selected-filter="dateFilter"
                     @filter-change="selectQuickFilter"
                 />
-                <!-- Right: Recurring Expense Stats -->
+                <!-- Recurring Expense Stats -->
                 <RecurringExpenseStats
                     :currency-code="currencyCode"
                 />
             </div>
-            <div class="grid grid-cols-1 gap-6 mb-6">
-                <!-- Category Spending Comparison Chart -->
+
+            <!-- Comparison Chart - Full Width -->
+            <div class="w-full">
                 <CategorySpendingComparisonChart
-                  :filter="dateFilter"
-                  :get-filters="getFilters"
-                  :currency-code="currencyCode"
-                  :format-currency="formatCurrency"
+                    :filter="dateFilter"
+                    :get-filters="getFilters"
+                    :currency-code="currencyCode"
+                    :format-currency="formatCurrency"
                 />
             </div>
-            <!-- Transactions Table -->
-            <!-- <div>
-                <TransactionListings
-                    :transactions="paginatedTransactions"
-                    :total-pages="totalPages"
-                    :current-page="currentPage"
-                    :displayed-pages="displayedPages"
-                    :currency-code="currencyCode"
-                    @page-change="handlePageChange"
-                />
-            </div> -->
         </div>
     </div>
 </template>
@@ -56,6 +80,7 @@ import { LineChart } from 'echarts/charts'
 import { TitleComponent, TooltipComponent, GridComponent, LegendComponent } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
 import { iconMixin } from '../mixins/iconMixin'
+import { TrendingUp, TrendingDown } from 'lucide-vue-next'
 import CategorySpendingComparisonChart from '../components/Stats/CategorySpendingComparisonChart.vue'
 import TransactionListings from '../components/Stats/TransactionListings.vue'
 import RecurringExpenseStats from '../components/Stats/RecurringExpenseStats.vue'
@@ -65,7 +90,7 @@ echarts.use([LineChart, TitleComponent, TooltipComponent, GridComponent, LegendC
 export default {
     name: 'StatsView',
     components: {
-         BottomSheet, CategorySpendingsByChart, CategorySpendingComparisonChart, TransactionListings, RecurringExpenseStats
+         BottomSheet, CategorySpendingsByChart, CategorySpendingComparisonChart, TransactionListings, RecurringExpenseStats, TrendingUp, TrendingDown
     },
     mixins: [numberMixin, iconMixin],
     setup() {
@@ -182,12 +207,12 @@ export default {
 
         getHealthColor(health) {
             const colors = {
-                'Excellent': 'text-green-500',
-                'Good': 'text-blue-500',
-                'Fair': 'text-yellow-500',
-                'Poor': 'text-red-500'
+                'Excellent': 'text-emerald-400',
+                'Good': 'text-blue-400',
+                'Fair': 'text-amber-400',
+                'Poor': 'text-red-400'
             }
-            return colors[health] || 'text-gray-500'
+            return colors[health] || 'text-gray-400'
         },
 
         selectQuickFilter(filter) {

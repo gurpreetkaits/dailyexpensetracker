@@ -1,18 +1,32 @@
 <template>
-  <div class="bg-white rounded-lg shadow-sm p-4 h-full flex flex-col mb-6 md:mb-0">
-      <h3 class="text-base font-semibold mb-2">Monthly Spendings Comparison</h3>
-      <div class="flex gap-4 mb-4 items-center justify-center mt-10">
-        <select v-model="selectedPreviousYear" class="px-3 py-1.5 rounded-full text-xs whitespace-nowrap transition-all min-w-[80px]">
-          <option v-for="year in availableYears" :key="year" :value="year">{{ year }}</option>
-        </select>
-        <span class="text-gray-400">vs</span>
-        <select v-model="selectedCurrentYear" class="px-3 py-1.5 rounded-full text-xs whitespace-nowrap transition-all min-w-[80px]">
-          <option v-for="year in availableYears" :key="year" :value="year">{{ year }}</option>
-        </select>
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+    <!-- Header -->
+    <div class="p-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-gray-400 text-[10px] font-medium mb-1">Year over Year</p>
+          <h3 class="text-base font-semibold text-gray-900">Spending Comparison</h3>
+        </div>
+
+        <!-- Year Selectors -->
+        <div class="flex items-center gap-1.5">
+          <select v-model="selectedPreviousYear"
+            class="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-gray-100 text-gray-600 border-0 focus:ring-2 focus:ring-gray-200 cursor-pointer">
+            <option v-for="year in availableYears" :key="year" :value="year">{{ year }}</option>
+          </select>
+          <span class="text-gray-300 text-xs">vs</span>
+          <select v-model="selectedCurrentYear"
+            class="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-gray-100 text-gray-600 border-0 focus:ring-2 focus:ring-gray-200 cursor-pointer">
+            <option v-for="year in availableYears" :key="year" :value="year">{{ year }}</option>
+          </select>
+        </div>
       </div>
-      <div class="mt-">
-          <v-chart :option="option" style="height: 350px;" />
-      </div>
+    </div>
+
+    <!-- Chart -->
+    <div class="p-4">
+      <v-chart :option="option" style="height: 300px;" autoresize />
+    </div>
   </div>
 </template>
 
@@ -98,18 +112,84 @@ export default {
 
       this.option = {
         title: { text: '' },
-        tooltip: { trigger: 'axis' },
-        legend: { data: [String(this.selectedPreviousYear), String(this.selectedCurrentYear)] },
-        xAxis: { type: 'category', data: months },
+        tooltip: {
+          trigger: 'axis',
+          backgroundColor: 'rgba(255, 255, 255, 0.95)',
+          borderColor: '#e5e7eb',
+          borderWidth: 1,
+          textStyle: { color: '#374151' },
+          axisPointer: {
+            type: 'cross',
+            crossStyle: { color: '#999' }
+          }
+        },
+        legend: {
+          data: [String(this.selectedPreviousYear), String(this.selectedCurrentYear)],
+          bottom: 0,
+          itemWidth: 12,
+          itemHeight: 12,
+          textStyle: { fontSize: 12, color: '#6b7280' }
+        },
+        grid: {
+          left: '3%',
+          right: '4%',
+          bottom: '15%',
+          top: '10%',
+          containLabel: true
+        },
+        xAxis: {
+          type: 'category',
+          data: months,
+          axisLine: { lineStyle: { color: '#e5e7eb' } },
+          axisLabel: { color: '#6b7280', fontSize: 11 }
+        },
         yAxis: {
           type: 'value',
+          axisLine: { show: false },
+          splitLine: { lineStyle: { color: '#f3f4f6', type: 'dashed' } },
           axisLabel: {
+            color: '#6b7280',
+            fontSize: 11,
             formatter: value => this.formatCurrency(value, this.currencyCode)
           }
         },
         series: [
-          { name: String(this.selectedPreviousYear), type: 'line', data: previousYear },
-          { name: String(this.selectedCurrentYear), type: 'line', data: currentYear }
+          {
+            name: String(this.selectedPreviousYear),
+            type: 'line',
+            data: previousYear,
+            smooth: true,
+            lineStyle: { width: 2.5, color: '#d1d5db' },
+            itemStyle: { color: '#d1d5db' },
+            areaStyle: {
+              color: {
+                type: 'linear',
+                x: 0, y: 0, x2: 0, y2: 1,
+                colorStops: [
+                  { offset: 0, color: 'rgba(209, 213, 219, 0.15)' },
+                  { offset: 1, color: 'rgba(209, 213, 219, 0)' }
+                ]
+              }
+            }
+          },
+          {
+            name: String(this.selectedCurrentYear),
+            type: 'line',
+            data: currentYear,
+            smooth: true,
+            lineStyle: { width: 2.5, color: '#374151' },
+            itemStyle: { color: '#374151' },
+            areaStyle: {
+              color: {
+                type: 'linear',
+                x: 0, y: 0, x2: 0, y2: 1,
+                colorStops: [
+                  { offset: 0, color: 'rgba(55, 65, 81, 0.1)' },
+                  { offset: 1, color: 'rgba(55, 65, 81, 0)' }
+                ]
+              }
+            }
+          }
         ]
       }
     }
