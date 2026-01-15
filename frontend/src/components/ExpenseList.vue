@@ -1,6 +1,6 @@
 <template>
   <div class="max-w-7xl mx-auto relative">
-    <div class="space-y-4 relative pb-24 px-3 pt-2 overflow-x-hidden">
+    <div class="space-y-6 relative pb-24 px-3 pt-2">
     <!-- Start New Overview Card -->
     <template v-if="getActiveTab === 'daily'">
       <div class="grid mb-4 bg-white rounded-xl shadow-sm p-4">
