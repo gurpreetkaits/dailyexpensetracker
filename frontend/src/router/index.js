@@ -64,20 +64,25 @@ const routes = [
         path: "settings",
         component: () => import("../views/Settings.vue"),
         name: 'settings',
-        meta: { requiresAuth: true, requiresSubscription: false },
-        children: [
-          {
-            path: "",
-            component: () => import("../views/Settings.vue"),
-            meta: { requiresAuth: true }
-          },
-          {
-            path: "account",
-            component: () => import("../views/Settings/AccountSettings.vue"),
-            name: 'account-settings',
-            meta: { requiresAuth: true }
-          }
-        ]
+        meta: { requiresAuth: true, requiresSubscription: false }
+      },
+      {
+        path: "settings/general",
+        component: () => import("../views/Settings/GeneralSettingsView.vue"),
+        name: 'general-settings',
+        meta: { requiresAuth: true, requiresSubscription: false }
+      },
+      {
+        path: "settings/subscription",
+        component: () => import("../views/Settings/SubscriptionView.vue"),
+        name: 'subscription',
+        meta: { requiresAuth: true, requiresSubscription: false }
+      },
+      {
+        path: "settings/account",
+        component: () => import("../views/Settings/AccountSettings.vue"),
+        name: 'account-settings',
+        meta: { requiresAuth: true, requiresSubscription: false }
       },
       {
         path: "categories",

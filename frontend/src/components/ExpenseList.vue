@@ -365,13 +365,7 @@
         </div>
       </template>
     </div>
-    <!-- Recurring Expenseses -->
-
-    <!-- Floating Action Button -->
-    <button @click="createNewTransaction"
-      class="fixed bottom-[80px] left-1/2 transform -translate-x-1/2 inline-flex items-center justify-center w-14 h-14 rounded-full bg-emerald-500 text-white shadow-xl hover:bg-emerald-600 hover:shadow-2xl transition-all">
-      <Plus class="h-6 w-6" />
-    </button>
+    <!-- Recurring Expenses -->
     <!-- Start Desktop Model -->
     <GlobalModal v-model="showDesktopModal" :title="getActiveTab === 'daily' ? (editingTransaction ? 'Edit Transaction' : 'New Transaction') : (editingRecurring ? 'Edit Recurring Expense' : 'New Recurring Expense')" size="max-w-md">
       <template #default>
@@ -1027,6 +1021,9 @@ export default {
     // Listen for hash changes (browser back/forward)
     window.addEventListener('hashchange', this.initTabFromHash);
 
+    // Listen for nav add button click
+    window.addEventListener('nav-add-clicked', this.createNewTransaction);
+
     const loaderStore = useLoaderStore();
     loaderStore.showLoader();
 
@@ -1066,8 +1063,9 @@ export default {
     }
   },
   beforeUnmount() {
-    // Clean up hash change listener
+    // Clean up listeners
     window.removeEventListener('hashchange', this.initTabFromHash);
+    window.removeEventListener('nav-add-clicked', this.createNewTransaction);
   }
 }
 </script>
