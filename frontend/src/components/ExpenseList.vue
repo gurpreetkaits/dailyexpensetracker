@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-7xl mx-auto relative flex flex-col overflow-hidden" style="height: calc(100vh - 80px);">
+  <div class="max-w-7xl mx-auto relative flex flex-col overflow-hidden" style="height: calc(100vh - 80px)">
     <!-- Fixed Header: Switch + Wallets -->
     <div class="flex-shrink-0 bg-gray-100 z-10">
       <!-- Top Tabs -->

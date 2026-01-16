@@ -1,13 +1,13 @@
 <template>
-    <div class="min-h-screen bg-gray-100">
+    <div class="h-screen bg-gray-100 overflow-hidden flex flex-col">
         <NotificationContainer />
         <ConfirmDialog />
         <Header />
 
-        <div class="min-h-[calc(100vh-4rem)]">
+        <div class="flex-1 overflow-hidden">
             <!-- Main Content Area -->
-            <main :class="showNav ? 'flex-1 bg-gray-100' : 'flex-1 flex items-center justify-center bg-gray-50'">
-                <div v-if="showNav" class="max-w-4xl mx-auto px-4 py-6">
+            <main :class="showNav ? 'h-full bg-gray-100' : 'h-full flex items-center justify-center bg-gray-50'">
+                <div v-if="showNav" class="h-full max-w-4xl mx-auto px-4 overflow-hidden">
                     <SubscriptionGuard>
                         <router-view />
                     </SubscriptionGuard>
