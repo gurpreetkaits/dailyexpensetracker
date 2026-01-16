@@ -1,11 +1,11 @@
 <template>
-    <div class="fixed bottom-20 sm:bottom-8 left-1/2 transform -translate-x-1/2 z-50 flex flex-col gap-3 pointer-events-none">
+    <div class="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 flex flex-col gap-3 pointer-events-none">
         <transition-group name="toast">
             <div
                 v-for="n in notifications"
                 :key="n.id"
                 class="pointer-events-auto px-5 py-3 bg-white text-gray-900 rounded-xl text-sm font-medium shadow-2xl border border-gray-200 flex items-center gap-2 transform transition-all duration-300"
-                :class="n.fadeOut ? 'translate-y-4 opacity-0' : 'translate-y-0 opacity-100'"
+                :class="n.fadeOut ? '-translate-y-4 opacity-0' : 'translate-y-0 opacity-100'"
             >
                 <!-- Success Icon -->
                 <svg v-if="n.type === 'success'" class="w-5 h-5 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -45,11 +45,11 @@ const { list: notifications } = useNotifications()
 
 .toast-enter-from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(-20px);
 }
 
 .toast-leave-to {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(-20px);
 }
 </style>

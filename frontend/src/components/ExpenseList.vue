@@ -1,9 +1,26 @@
 <template>
   <div class="max-w-7xl mx-auto relative overflow-x-hidden">
+    <!-- Top Tabs -->
+    <div class="flex justify-center px-3 pt-3 pb-2">
+      <div class="bg-white rounded-full shadow-lg p-1 flex relative">
+        <!-- Sliding indicator -->
+        <div
+          class="absolute top-1 bottom-1 w-[calc(50%-2px)] rounded-full bg-gray-900 transition-all duration-300 ease-out"
+          :class="getActiveTab === 'daily' ? 'left-1' : 'left-[calc(50%+1px)]'"
+        ></div>
+        <button v-for="type in ['Daily', 'Recurring']" :key="type" @click="setActiveTab(type.toLowerCase())"
+          class="relative z-10 flex-1 py-2.5 px-6 rounded-full text-sm font-medium transition-colors duration-300 active:scale-95 text-center" :class="getActiveTab === type.toLowerCase()
+            ? 'text-white'
+            : 'text-gray-500 hover:text-gray-700'">
+          {{ type }}
+        </button>
+      </div>
+    </div>
+
     <div class="space-y-6 relative pb-24 px-3 pt-2 overflow-x-hidden">
     <!-- Start New Overview Card -->
     <template v-if="getActiveTab === 'daily'">
-      <div class="grid mb-4 bg-white rounded-xl shadow-sm p-4">
+      <div class="grid mb-4 bg-white rounded-xl shadow-sm p-4 tab-content">
         <!-- Daily Bar Chart -->
         <DailyBarChart
           :chartData="dailyBarData"
@@ -30,7 +47,7 @@
     </template>
       <template v-else>
           <!-- Summary Cards -->
-          <div class="space-y-3">
+          <div class="space-y-3 tab-content">
               <!-- Total Balance Card (Dark) -->
               <div class="bg-[#0F1115] text-white rounded-xl p-4 relative overflow-hidden shadow-sm">
                   <div class="flex items-start justify-between gap-3">
@@ -135,18 +152,6 @@
       </template>
     <!-- End New Overview Card -->
 
-    <!-- Switch -->
-    <div class="bg-white rounded-xl shadow-sm p-1 w-full">
-      <div class="grid grid-cols-2 gap-1">
-        <button v-for="type in ['Daily', 'Recurring']" :key="type" @click="setActiveTab(type.toLowerCase())"
-          class="py-2 px-2 rounded-lg text-xs sm:text-sm font-medium transition-all active:scale-95" :class="getActiveTab === type.toLowerCase()
-            ? 'bg-blue-50 text-blue-600'
-            : 'text-gray-500 active:bg-gray-100'">
-          {{ type }}
-        </button>
-      </div>
-    </div>
-    <!-- End Switch -->
     <div>
       <template v-if="saving">
         <div class="flex justify-center py-4">
@@ -158,7 +163,7 @@
       <template v-else-if="getActiveTab === 'recurring'">
         <!-- Empty State -->
         <div v-if="!recurringExpenses.length"
-          class="flex flex-col items-center justify-center py-12 px-4 bg-white rounded-xl shadow-sm">
+          class="flex flex-col items-center justify-center py-12 px-4 bg-white rounded-xl shadow-sm tab-content">
           <CalendarClock class="h-16 w-16 text-gray-300 mb-4" />
           <h3 class="text-lg font-medium text-gray-900 mb-2">No Recurring Expenses</h3>
           <p class="text-gray-500 text-center text-sm mb-6 max-w-sm">
@@ -167,7 +172,7 @@
         </div>
 
         <!-- Upcoming Payments Section -->
-        <div v-else>
+        <div v-else class="tab-content">
           <!-- Section Header with Filter Tabs -->
           <div class="mb-3 overflow-hidden">
               <div class="flex items-center justify-between mb-2">
@@ -228,7 +233,7 @@
 
       <!-- Daily Transactions View -->
       <template v-else>
-        <div>
+        <div class="tab-content">
           <template v-if="saving">
             <div class="flex justify-center py-4">
               <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
@@ -1076,5 +1081,21 @@ export default {
 }
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
+}
+
+/* Tab content animation */
+.tab-content {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 </style>

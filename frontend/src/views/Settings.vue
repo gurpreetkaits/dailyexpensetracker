@@ -73,13 +73,31 @@
             <ChevronRight class="w-4 h-4 text-gray-300" />
           </button>
         </div>
+
+        <!-- Logout -->
+        <div class="border-t border-gray-100 mt-4 pt-4">
+          <button
+            @click="handleLogout"
+            class="w-full py-3 px-4 text-sm font-medium rounded-xl transition-all text-left text-red-600 hover:bg-red-50 flex items-center justify-between"
+          >
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center">
+                <LogOut class="w-4 h-4 text-red-500" />
+              </div>
+              <span>Logout</span>
+            </div>
+          </button>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { LayoutDashboard, Tag, Wallet, Settings as SettingsIcon, Crown, ChevronRight } from 'lucide-vue-next'
+import { LayoutDashboard, Tag, Wallet, Settings as SettingsIcon, Crown, ChevronRight, LogOut } from 'lucide-vue-next'
+import { useAuthStore } from '../store/auth'
+import { useConfirm } from '../composables/useConfirm'
+import { mapActions } from 'pinia'
 
 export default {
   name: 'SettingsView',
@@ -89,11 +107,35 @@ export default {
     Wallet,
     SettingsIcon,
     Crown,
-    ChevronRight
+    ChevronRight,
+    LogOut
+  },
+  setup() {
+    const { confirm } = useConfirm()
+    return { confirm }
   },
   methods: {
+    ...mapActions(useAuthStore, ['logout']),
     navigateTo(routeName) {
       this.$router.push({ name: routeName })
+    },
+    async handleLogout() {
+      const confirmed = await this.confirm({
+        title: 'Logout',
+        message: 'Are you sure you want to logout?',
+        confirmText: 'Logout',
+        cancelText: 'Cancel',
+        type: 'danger'
+      })
+
+      if (confirmed) {
+        try {
+          await this.logout()
+          this.$router.push('/login')
+        } catch (error) {
+          console.error('Logout failed:', error)
+        }
+      }
     }
   }
 }

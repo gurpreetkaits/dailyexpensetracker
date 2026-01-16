@@ -1,5 +1,5 @@
 <template v-if="token">
-    <nav class="fixed bottom-5 left-1/2 -translate-x-1/2 bg-white/95 backdrop-blur-xl border border-gray-200/50 rounded-full flex items-center py-2 px-2 lg:hidden shadow-lg shadow-gray-200/50 z-50" style="width: calc(100% - 2rem); max-width: 380px;">
+    <nav class="fixed bottom-5 left-1/2 -translate-x-1/2 bg-white/95 backdrop-blur-xl border border-gray-200/50 rounded-full flex items-center py-2 px-2 shadow-lg shadow-gray-200/50 z-50" style="width: calc(100% - 2rem); max-width: 420px;">
         <!-- Nav items -->
         <router-link
             v-for="item in navigation"
@@ -23,7 +23,7 @@
 </template>
 
 <script>
-import { Home, PieChart, MessageCircle, Wallet, Settings, Plus } from 'lucide-vue-next';
+import { Home, LayoutGrid, PieChart, MessageCircle, Wallet, Settings, Plus } from 'lucide-vue-next';
 import { useAuthStore } from '../../store/auth';
 import { mapState } from 'pinia';
 
@@ -31,6 +31,7 @@ export default {
     name: 'MobileNav',
     components: {
         Home,
+        LayoutGrid,
         PieChart,
         MessageCircle,
         Wallet,
@@ -44,6 +45,7 @@ export default {
         return {
             navigation: [
                 { path: '/overview', name: 'Home', icon: Home },
+                { path: '/overview2', name: 'Overview2', icon: LayoutGrid },
                 { path: '/stats', name: 'Stats', icon: PieChart },
                 { path: '/chat', name: 'Chat', icon: MessageCircle },
                 { path: '/wallets', name: 'Wallets', icon: Wallet },
