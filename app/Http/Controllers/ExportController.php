@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exports\TransactionsExport;
+use App\Models\ExportUsage;
 use App\Models\Transaction;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -11,6 +12,31 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class ExportController extends Controller
 {
+    public function getExportStatus()
+    {
+        $user = auth()->user();
+        $hasActiveSubscription = $user->activeSubscription !== null;
+
+        if ($hasActiveSubscription) {
+            return response()->json([
+                'unlimited' => true,
+                'remaining' => -1,
+                'used' => 0,
+                'limit' => -1,
+            ]);
+        }
+
+        $remaining = ExportUsage::getRemainingExports($user->id);
+        $used = 5 - $remaining;
+
+        return response()->json([
+            'unlimited' => false,
+            'remaining' => $remaining,
+            'used' => $used,
+            'limit' => 5,
+        ]);
+    }
+
     public function exportTransactions(Request $request)
     {
         $request->validate([
@@ -20,7 +46,24 @@ class ExportController extends Controller
             'type' => 'nullable|in:income,expense,all',
         ]);
 
-        $userId = auth()->id();
+        $user = auth()->user();
+        $userId = $user->id;
+        $hasActiveSubscription = $user->activeSubscription !== null;
+
+        // Check export limit for free users
+        if (!$hasActiveSubscription) {
+            if (!ExportUsage::canExport($userId)) {
+                return response()->json([
+                    'error' => 'Export limit reached',
+                    'message' => 'You have used all 5 exports for this year. Upgrade to Pro for unlimited exports.',
+                    'remaining' => 0,
+                ], 403);
+            }
+
+            // Increment usage
+            ExportUsage::incrementUsage($userId);
+        }
+
         $format = $request->input('format');
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');

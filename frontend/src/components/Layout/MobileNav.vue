@@ -23,7 +23,7 @@
 </template>
 
 <script>
-import { Home, LayoutGrid, PieChart, MessageCircle, Wallet, Settings, Plus } from 'lucide-vue-next';
+import { Home, LayoutGrid, PieChart, MessageCircle, Wallet, Settings, Plus, Crown } from 'lucide-vue-next';
 import { useAuthStore } from '../../store/auth';
 import { mapState } from 'pinia';
 
@@ -36,7 +36,8 @@ export default {
         MessageCircle,
         Wallet,
         Settings,
-        Plus
+        Plus,
+        Crown
     },
     computed: {
         ...mapState(useAuthStore, ['token'])
@@ -45,10 +46,9 @@ export default {
         return {
             navigation: [
                 { path: '/overview', name: 'Home', icon: Home },
-                { path: '/overview2', name: 'Overview2', icon: LayoutGrid },
                 { path: '/stats', name: 'Stats', icon: PieChart },
                 { path: '/chat', name: 'Chat', icon: MessageCircle },
-                { path: '/wallets', name: 'Wallets', icon: Wallet },
+                { path: '/plans', name: 'Plans', icon: Crown },
                 { path: '/settings', name: 'Settings', icon: Settings },
             ],
         }

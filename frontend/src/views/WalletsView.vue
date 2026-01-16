@@ -689,13 +689,13 @@ export default {
 </script>
 
 <style scoped>
-/* Add hover effects for radio buttons */
-.relative:hover {
+/* Add hover effects for wallet type radio buttons only */
+.grid-cols-3 label:hover {
   @apply transition-all duration-200;
 }
 
-.relative:hover:not(:has(input:checked)) {
-  @apply border-gray-400 shadow-md;
+.grid-cols-3 label:hover:not(:has(input:checked)) {
+  @apply border-gray-400;
 }
 
 /* Ensure the radio buttons are properly spaced in the grid */

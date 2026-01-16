@@ -2,16 +2,15 @@
   <div class="max-w-7xl mx-auto relative overflow-x-hidden">
     <!-- Top Tabs -->
     <div class="flex justify-center px-3 pt-3 pb-2">
-      <div class="bg-white rounded-full shadow-lg p-1 flex relative">
-        <!-- Sliding indicator -->
-        <div
-          class="absolute top-1 bottom-1 w-[calc(50%-2px)] rounded-full bg-gray-900 transition-all duration-300 ease-out"
-          :class="getActiveTab === 'daily' ? 'left-1' : 'left-[calc(50%+1px)]'"
-        ></div>
-        <button v-for="type in ['Daily', 'Recurring']" :key="type" @click="setActiveTab(type.toLowerCase())"
-          class="relative z-10 flex-1 py-2.5 px-6 rounded-full text-sm font-medium transition-colors duration-300 active:scale-95 text-center" :class="getActiveTab === type.toLowerCase()
-            ? 'text-white'
-            : 'text-gray-500 hover:text-gray-700'">
+      <div class="switch-container">
+        <div class="switch-indicator" :class="getActiveTab === 'recurring' ? 'switch-right' : ''"></div>
+        <button
+          v-for="type in ['Daily', 'Recurring']"
+          :key="type"
+          @click="setActiveTab(type.toLowerCase())"
+          class="switch-btn"
+          :class="getActiveTab === type.toLowerCase() ? 'active' : ''"
+        >
           {{ type }}
         </button>
       </div>
@@ -1097,5 +1096,58 @@ export default {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Switch Tabs */
+.switch-container {
+  display: inline-flex;
+  position: relative;
+  background: white;
+  border-radius: 9999px;
+  padding: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.switch-indicator {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 4px;
+  width: calc(50% - 4px);
+  background: #1f2937;
+  border-radius: 9999px;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.switch-indicator.switch-right {
+  transform: translateX(100%);
+}
+
+.switch-btn {
+  position: relative;
+  z-index: 10;
+  padding: 10px 28px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #6b7280;
+  background: transparent;
+  border: none;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  min-width: 100px;
+  text-align: center;
+}
+
+.switch-btn:active {
+  transform: scale(0.95);
+}
+
+.switch-btn.active {
+  color: white;
+}
+
+.switch-btn:not(.active):hover {
+  color: #374151;
 }
 </style>

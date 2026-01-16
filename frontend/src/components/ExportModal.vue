@@ -16,6 +16,26 @@
           </button>
         </div>
 
+        <!-- Export Status Banner -->
+        <div v-if="!exportStatus.unlimited && exportStatus.remaining !== null" class="px-4 pt-4">
+          <div
+            class="flex items-center gap-2 p-3 rounded-lg text-sm"
+            :class="exportStatus.remaining > 0
+              ? 'bg-blue-50 text-blue-700'
+              : 'bg-red-50 text-red-700'"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span v-if="exportStatus.remaining > 0">
+              <strong>{{ exportStatus.remaining }}</strong> of 5 exports remaining this year
+            </span>
+            <span v-else>
+              You've used all 5 exports this year. <router-link to="/plans" class="underline font-medium">Upgrade to Pro</router-link> for unlimited exports.
+            </span>
+          </div>
+        </div>
+
         <!-- Body -->
         <div class="p-4 space-y-4">
           <!-- Format Selection -->
@@ -107,7 +127,7 @@
           </button>
           <button
             @click="handleExport"
-            :disabled="exporting"
+            :disabled="exporting || (!exportStatus.unlimited && exportStatus.remaining === 0)"
             class="flex items-center gap-2 px-4 py-2 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             <svg v-if="exporting" class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -126,8 +146,9 @@
 </template>
 
 <script setup>
-import { ref, computed, h } from 'vue'
-import { exportTransactions } from '../services/TransactionService'
+import { ref, computed, h, watch, onMounted } from 'vue'
+import { exportTransactions, getExportStatus } from '../services/TransactionService'
+import { useNotifications } from '../composables/useNotifications'
 
 const props = defineProps({
   show: {
@@ -137,14 +158,37 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['close', 'exported'])
+const { notify } = useNotifications()
 
 const selectedFormat = ref('xlsx')
 const selectedType = ref('all')
 const startDate = ref('')
 const endDate = ref('')
 const exporting = ref(false)
+const exportStatus = ref({
+  unlimited: false,
+  remaining: null,
+  used: 0,
+  limit: 5
+})
 
 const today = computed(() => new Date().toISOString().split('T')[0])
+
+// Fetch export status when modal opens
+watch(() => props.show, async (newVal) => {
+  if (newVal) {
+    await fetchExportStatus()
+  }
+})
+
+const fetchExportStatus = async () => {
+  try {
+    const status = await getExportStatus()
+    exportStatus.value = status
+  } catch (error) {
+    console.error('Failed to fetch export status:', error)
+  }
+}
 
 // Icon components as render functions
 const ExcelIcon = {
@@ -217,6 +261,16 @@ const close = () => {
 }
 
 const handleExport = async () => {
+  // Check if user has exports remaining
+  if (!exportStatus.value.unlimited && exportStatus.value.remaining === 0) {
+    notify({
+      title: 'Export Limit Reached',
+      message: 'You have used all 5 exports this year. Upgrade to Pro for unlimited exports.',
+      type: 'error'
+    })
+    return
+  }
+
   exporting.value = true
   try {
     await exportTransactions({
@@ -225,11 +279,30 @@ const handleExport = async () => {
       end_date: endDate.value || undefined,
       type: selectedType.value,
     })
+
+    // Update remaining count after successful export
+    if (!exportStatus.value.unlimited) {
+      exportStatus.value.remaining--
+      exportStatus.value.used++
+    }
+
+    notify({
+      title: 'Export Complete',
+      message: !exportStatus.value.unlimited
+        ? `Export successful. ${exportStatus.value.remaining} exports remaining this year.`
+        : 'Your transactions have been exported.',
+      type: 'success'
+    })
+
     emit('exported')
     close()
   } catch (error) {
     console.error('Export failed:', error)
-    alert('Export failed. Please try again.')
+    notify({
+      title: 'Export Failed',
+      message: error.message || 'Failed to export transactions. Please try again.',
+      type: 'error'
+    })
   } finally {
     exporting.value = false
   }

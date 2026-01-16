@@ -98,6 +98,11 @@ export const getDailyBarData = async (params = {}) => {
   return data
 }
 
+export const getExportStatus = async () => {
+  const { data } = await axiosConf.get('/api/export/status')
+  return data
+}
+
 export const exportTransactions = async (params = {}) => {
   const queryParams = new URLSearchParams()
   queryParams.append('format', params.format || 'xlsx')
@@ -108,6 +113,14 @@ export const exportTransactions = async (params = {}) => {
   const response = await axiosConf.get(`/api/transactions/export?${queryParams.toString()}`, {
     responseType: 'blob'
   })
+
+  // Check if response is an error (JSON instead of blob)
+  const contentType = response.headers['content-type']
+  if (contentType && contentType.includes('application/json')) {
+    const text = await response.data.text()
+    const error = JSON.parse(text)
+    throw new Error(error.message || 'Export failed')
+  }
 
   // Create download link
   const url = window.URL.createObjectURL(new Blob([response.data]))

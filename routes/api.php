@@ -53,6 +53,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('transactions/activity-bar-data-v2', [TransactionController::class, 'activityBarDataV2']);
     Route::get('transactions/daily-bar-data', [TransactionController::class, 'dailyBarData']);
     Route::get('transactions/export', [ExportController::class, 'exportTransactions']);
+    Route::get('export/status', [ExportController::class, 'getExportStatus']);
     Route::delete('user-setttings/transactions/reset', [SettingsController::class, 'deleteTransactions']);
     
     // Soft delete routes for transactions
