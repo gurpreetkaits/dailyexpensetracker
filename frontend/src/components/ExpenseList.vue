@@ -1,22 +1,56 @@
 <template>
-  <div class="max-w-7xl mx-auto relative overflow-x-hidden">
-    <!-- Top Tabs -->
-    <div class="flex justify-center px-3 pt-3 pb-2">
-      <div class="switch-container">
-        <div class="switch-indicator" :class="getActiveTab === 'recurring' ? 'switch-right' : ''"></div>
-        <button
-          v-for="type in ['Daily', 'Recurring']"
-          :key="type"
-          @click="setActiveTab(type.toLowerCase())"
-          class="switch-btn"
-          :class="getActiveTab === type.toLowerCase() ? 'active' : ''"
-        >
-          {{ type }}
-        </button>
+  <div class="max-w-7xl mx-auto relative flex flex-col overflow-hidden" style="height: calc(100vh - 80px);">
+    <!-- Fixed Header: Switch + Wallets -->
+    <div class="flex-shrink-0 bg-gray-100 z-10">
+      <!-- Top Tabs -->
+      <div class="flex justify-center px-3 pt-3 pb-2">
+        <div class="switch-container">
+          <div class="switch-indicator" :class="getActiveTab === 'recurring' ? 'switch-right' : ''"></div>
+          <button
+            v-for="type in ['Daily', 'Recurring']"
+            :key="type"
+            @click="setActiveTab(type.toLowerCase())"
+            class="switch-btn"
+            :class="getActiveTab === type.toLowerCase() ? 'active' : ''"
+          >
+            {{ type }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Wallets Row -->
+      <div v-if="getActiveTab === 'daily' && wallets.length > 0" class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide px-3">
+      <router-link
+        v-for="wallet in wallets"
+        :key="wallet.id"
+        to="/wallets"
+        class="wallet-card flex-shrink-0 bg-white rounded-xl shadow-sm p-2.5 hover:shadow-md transition-shadow"
+      >
+        <div class="flex items-center gap-1.5 mb-1.5">
+          <div class="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0"
+               :class="walletIconBgClass(wallet.type)">
+            <component :is="walletIconComponent(wallet.type)" class="w-3 h-3" />
+          </div>
+          <p class="text-[10px] text-gray-500 truncate flex-1">{{ wallet.name }}</p>
+        </div>
+        <p class="text-xs font-semibold text-gray-900 mb-1.5">{{ formatCurrency(wallet.balance || 0, currencyCode) }}</p>
+        <!-- Sparkline -->
+        <svg class="w-full h-6" viewBox="0 0 100 24" preserveAspectRatio="none">
+          <path
+            :d="getSparklinePath(wallet.sparkline || [wallet.balance || 0])"
+            fill="none"
+            :stroke="getSparklineColor(wallet.sparkline)"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </router-link>
       </div>
     </div>
 
-    <div class="space-y-6 relative pb-24 px-3 pt-2 overflow-x-hidden">
+    <!-- Scrollable Content -->
+    <div class="flex-1 overflow-y-auto px-3 pt-3 pb-24 space-y-4">
     <!-- Start New Overview Card -->
     <template v-if="getActiveTab === 'daily'">
       <div class="grid mb-4 bg-white rounded-xl shadow-sm p-4 tab-content">
@@ -369,7 +403,10 @@
         </div>
       </template>
     </div>
-    <!-- Recurring Expenses -->
+    </div>
+    <!-- End Scrollable Content -->
+
+    <!-- Modals (outside scrollable area) -->
     <!-- Start Desktop Model -->
     <GlobalModal v-model="showDesktopModal" :title="getActiveTab === 'daily' ? (editingTransaction ? 'Edit Transaction' : 'New Transaction') : (editingRecurring ? 'Edit Recurring Expense' : 'New Recurring Expense')" size="max-w-md">
       <template #default>
@@ -397,7 +434,6 @@
 
     <!-- Loan Detail Modal -->
     <LoanDetailModal v-model="showLoanDetailModal" :loanId="selectedLoanId" />
-    </div>
   </div>
 </template>
 <script>
@@ -498,6 +534,9 @@ export default {
     ]),
     ...mapState(useSettingsStore, ['currencySymbol', 'currencyCode', 'categories']),
     ...mapState(useWalletStore, ['wallets']),
+    displayWallets() {
+      return this.wallets.slice(0, 5)
+    },
 
     // Recurring Expense
     ...mapState(useRecurringExpenseStore, ['recurringExpenses', 'summary', 'suggestions']),
@@ -993,6 +1032,30 @@ export default {
         default: return 'bg-gray-100 text-gray-600'
       }
     },
+    getSparklinePath(data) {
+      if (!data || data.length === 0) return 'M0,12 L100,12'
+      if (data.length === 1) return 'M0,12 L100,12'
+
+      const min = Math.min(...data)
+      const max = Math.max(...data)
+      const range = max - min || 1
+
+      const points = data.map((val, i) => {
+        const x = (i / (data.length - 1)) * 100
+        const y = 22 - ((val - min) / range) * 20
+        return `${x},${y}`
+      })
+
+      return `M${points.join(' L')}`
+    },
+    getSparklineColor(data) {
+      if (!data || data.length < 2) return '#9CA3AF'
+      const first = data[0]
+      const last = data[data.length - 1]
+      if (last > first) return '#10B981' // green - up
+      if (last < first) return '#EF4444' // red - down
+      return '#9CA3AF' // gray - flat
+    },
     async handlePeriodChange(period) {
       this.periodTab = period;
       try {
@@ -1104,16 +1167,16 @@ export default {
   position: relative;
   background: white;
   border-radius: 9999px;
-  padding: 4px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 3px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .switch-indicator {
   position: absolute;
-  top: 4px;
-  bottom: 4px;
-  left: 4px;
-  width: calc(50% - 4px);
+  top: 3px;
+  bottom: 3px;
+  left: 3px;
+  width: calc(50% - 3px);
   background: #1f2937;
   border-radius: 9999px;
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -1126,8 +1189,8 @@ export default {
 .switch-btn {
   position: relative;
   z-index: 10;
-  padding: 10px 28px;
-  font-size: 14px;
+  padding: 6px 16px;
+  font-size: 12px;
   font-weight: 500;
   color: #6b7280;
   background: transparent;
@@ -1135,7 +1198,7 @@ export default {
   border-radius: 9999px;
   cursor: pointer;
   transition: color 0.3s ease;
-  min-width: 100px;
+  min-width: 70px;
   text-align: center;
 }
 
@@ -1149,5 +1212,37 @@ export default {
 
 .switch-btn:not(.active):hover {
   color: #374151;
+}
+
+@media (min-width: 768px) {
+  .switch-container {
+    padding: 4px;
+  }
+
+  .switch-indicator {
+    top: 4px;
+    bottom: 4px;
+    left: 4px;
+    width: calc(50% - 4px);
+  }
+
+  .switch-btn {
+    padding: 8px 24px;
+    font-size: 13px;
+    min-width: 90px;
+  }
+}
+
+/* Wallet cards - 3 on mobile, 5 on desktop */
+.wallet-card {
+  width: calc((100% - 16px) / 3); /* 3 cards with 2 gaps of 8px */
+  min-width: calc((100% - 16px) / 3);
+}
+
+@media (min-width: 768px) {
+  .wallet-card {
+    width: calc((100% - 32px) / 5); /* 5 cards with 4 gaps of 8px */
+    min-width: calc((100% - 32px) / 5);
+  }
 }
 </style>

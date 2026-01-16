@@ -28,10 +28,38 @@ class WalletService
 {
     public function all(User $user): LengthAwarePaginator
     {
-        return Wallet::where('user_id', $user->id)
+        $wallets = Wallet::where('user_id', $user->id)
             ->withCount('transactions')
             ->orderBy('created_at', 'desc')
             ->paginate(10);
+
+        // Add sparkline data for each wallet
+        $wallets->getCollection()->transform(function ($wallet) {
+            $wallet->sparkline = $this->getSparklineData($wallet->id);
+            return $wallet;
+        });
+
+        return $wallets;
+    }
+
+    public function getSparklineData(int $walletId): array
+    {
+        // Get last 7 balance history points
+        $history = WalletBalanceHistory::where('wallet_id', $walletId)
+            ->orderBy('created_at', 'desc')
+            ->limit(7)
+            ->pluck('balance')
+            ->reverse()
+            ->values()
+            ->toArray();
+
+        // If no history, return current balance as single point
+        if (empty($history)) {
+            $wallet = Wallet::find($walletId);
+            return $wallet ? [(float)$wallet->balance] : [0];
+        }
+
+        return array_map(fn($val) => (float)$val, $history);
     }
 
     public function create(WalletStoreData $data): Wallet
