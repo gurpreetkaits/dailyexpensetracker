@@ -1,5 +1,5 @@
 <template v-if="token">
-    <nav class="fixed bottom-5 left-1/2 -translate-x-1/2 bg-white/95 backdrop-blur-xl border border-gray-200/50 rounded-full flex items-center py-2 px-2 shadow-lg shadow-gray-200/50 z-50" style="width: calc(100% - 2rem); max-width: 420px;">
+    <nav class="fixed bottom-5 left-1/2 -translate-x-1/2 bg-white/60 backdrop-blur-xl border border-white/30 rounded-full flex items-center py-2 px-2 shadow-lg shadow-gray-200/30 z-50" style="width: calc(100% - 2rem); max-width: 420px;">
         <!-- Nav items -->
         <router-link
             v-for="item in navigation"

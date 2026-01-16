@@ -4,7 +4,7 @@
         <ConfirmDialog />
         <Header />
 
-        <div class="flex-1 overflow-y-hidden">
+        <div class="flex-1 overflow-y-auto">
             <!-- Main Content Area -->
             <main :class="showNav ? 'h-full bg-gray-100' : 'h-full flex items-center justify-center bg-gray-50'">
                 <div v-if="showNav" class="h-full max-w-4xl mx-auto px-4">

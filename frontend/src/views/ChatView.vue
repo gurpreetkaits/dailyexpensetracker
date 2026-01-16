@@ -1,5 +1,7 @@
 <template>
-  <div class="flex flex-col bg-white rounded-xl shadow-sm overflow-hidden" style="height: calc(100vh - 180px);">
+  <div class="max-w-7xl mx-auto relative">
+    <div class="relative pb-24 px-3 pt-2">
+      <div class="flex flex-col bg-white rounded-xl shadow-sm overflow-hidden" style="height: calc(100vh - 180px);">
 
     <!-- Header -->
     <div class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 flex-shrink-0">
@@ -114,6 +116,8 @@
         </div>
       </div>
     </Transition>
+      </div>
+    </div>
   </div>
 </template>
 
