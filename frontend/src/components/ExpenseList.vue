@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-7xl mx-auto relative flex flex-col overflow-hidden" style="height: calc(100vh - 80px)">
+  <div class="max-w-7xl mx-auto relative flex flex-col overflow-y-hidden" style="height: calc(100vh - 80px)">
     <!-- Fixed Header: Switch + Wallets -->
     <div class="flex-shrink-0 bg-gray-100 z-10">
       <!-- Top Tabs -->
@@ -50,7 +50,7 @@
     </div>
 
     <!-- Scrollable Content -->
-    <div class="flex-1 overflow-y-auto px-3 pt-3 pb-24 space-y-4">
+    <div class="flex-1 overflow-y-auto px-3 pt-3 pb-24 space-y-4 scrollbar-hide">
     <!-- Start New Overview Card -->
     <template v-if="getActiveTab === 'daily'">
       <div class="grid mb-4 bg-white rounded-xl shadow-sm p-4 tab-content">
@@ -1033,20 +1033,38 @@ export default {
       }
     },
     getSparklinePath(data) {
-      if (!data || data.length === 0) return 'M0,12 L100,12'
-      if (data.length === 1) return 'M0,12 L100,12'
+      if (!data || data.length === 0) return 'M0,12 Q50,12 100,12'
+      if (data.length === 1) return 'M0,12 Q50,12 100,12'
 
       const min = Math.min(...data)
       const max = Math.max(...data)
       const range = max - min || 1
 
-      const points = data.map((val, i) => {
-        const x = (i / (data.length - 1)) * 100
-        const y = 22 - ((val - min) / range) * 20
-        return `${x},${y}`
-      })
+      const points = data.map((val, i) => ({
+        x: (i / (data.length - 1)) * 100,
+        y: 22 - ((val - min) / range) * 20
+      }))
 
-      return `M${points.join(' L')}`
+      // Create smooth curve using cubic bezier
+      let path = `M${points[0].x},${points[0].y}`
+
+      for (let i = 0; i < points.length - 1; i++) {
+        const p0 = points[Math.max(0, i - 1)]
+        const p1 = points[i]
+        const p2 = points[i + 1]
+        const p3 = points[Math.min(points.length - 1, i + 2)]
+
+        // Calculate control points for smooth curve
+        const tension = 0.3
+        const cp1x = p1.x + (p2.x - p0.x) * tension
+        const cp1y = p1.y + (p2.y - p0.y) * tension
+        const cp2x = p2.x - (p3.x - p1.x) * tension
+        const cp2y = p2.y - (p3.y - p1.y) * tension
+
+        path += ` C${cp1x},${cp1y} ${cp2x},${cp2y} ${p2.x},${p2.y}`
+      }
+
+      return path
     },
     getSparklineColor(data) {
       if (!data || data.length < 2) return '#9CA3AF'
