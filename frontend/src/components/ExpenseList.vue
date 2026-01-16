@@ -19,7 +19,39 @@
       </div>
 
       <!-- Wallets Row -->
-      <div v-if="getActiveTab === 'daily' && wallets.length > 0" class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide px-3">
+      <div
+        v-if="getActiveTab === 'daily' && wallets.length > 0"
+        class="relative group"
+        @mouseenter="showWalletArrows = true"
+        @mouseleave="showWalletArrows = false"
+      >
+        <!-- Left Arrow -->
+        <button
+          v-show="showWalletArrows && canScrollWalletsLeft"
+          @click="scrollWallets('left')"
+          class="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-white/90 hover:bg-gray-100 border border-gray-200 shadow-sm flex items-center justify-center transition-all opacity-0 group-hover:opacity-100"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+
+        <!-- Right Arrow -->
+        <button
+          v-show="showWalletArrows && canScrollWalletsRight"
+          @click="scrollWallets('right')"
+          class="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-white/90 hover:bg-gray-100 border border-gray-200 shadow-sm flex items-center justify-center transition-all opacity-0 group-hover:opacity-100"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+
+        <div
+          ref="walletsContainer"
+          class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide px-3"
+          @scroll="updateWalletScrollState"
+        >
       <router-link
         v-for="wallet in wallets"
         :key="wallet.id"
@@ -46,6 +78,7 @@
           />
         </svg>
       </router-link>
+        </div>
       </div>
     </div>
 
@@ -515,7 +548,11 @@ export default {
         { key: 'bill', label: 'Bills' },
         { key: 'emi', label: 'EMIs' },
         { key: 'other', label: 'Other' }
-      ]
+      ],
+      // Wallet scroll arrows state
+      showWalletArrows: false,
+      canScrollWalletsLeft: false,
+      canScrollWalletsRight: false
     }
   },
   computed: {
@@ -691,7 +728,15 @@ export default {
         this.setRecurringSummary()
         // Fetch suggestions in background
         this.fetchSuggestions()
+      } else if (newTab === 'daily') {
+        this.initWalletScrollState();
       }
+    },
+    wallets: {
+      handler() {
+        this.initWalletScrollState();
+      },
+      deep: true
     }
   },
   methods: {
@@ -1107,6 +1152,33 @@ export default {
         await this.fetchBarTransactions('D', [this.selectedDayBar.date, this.selectedDayBar.date]);
       }
     },
+    // Wallet scroll methods
+    scrollWallets(direction) {
+      const container = this.$refs.walletsContainer;
+      if (!container) return;
+
+      const scrollAmount = 200;
+      const targetScroll = direction === 'left'
+        ? container.scrollLeft - scrollAmount
+        : container.scrollLeft + scrollAmount;
+
+      container.scrollTo({
+        left: targetScroll,
+        behavior: 'smooth'
+      });
+    },
+    updateWalletScrollState() {
+      const container = this.$refs.walletsContainer;
+      if (!container) return;
+
+      this.canScrollWalletsLeft = container.scrollLeft > 0;
+      this.canScrollWalletsRight = container.scrollLeft < (container.scrollWidth - container.clientWidth - 1);
+    },
+    initWalletScrollState() {
+      this.$nextTick(() => {
+        this.updateWalletScrollState();
+      });
+    },
   },
   async created() {
     // Initialize tab from URL hash
@@ -1144,6 +1216,10 @@ export default {
     } catch (error) {
       console.error('Error loading data:', error);
     }
+  },
+  mounted() {
+    // Initialize wallet scroll state after DOM is ready
+    this.initWalletScrollState();
   },
   beforeUnmount() {
     // Clean up listeners
