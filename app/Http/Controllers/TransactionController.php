@@ -276,4 +276,24 @@ class TransactionController extends Controller
         $data = $this->transactionService->getDailyBarData($userId, $startDate, $endDate, $page, $perPage);
         return response()->json($data);
     }
+
+    /**
+     * Get user activity data for the contribution graph
+     * Returns a map of dates to transaction counts based on created_at
+     */
+    public function userActivity()
+    {
+        $userId = auth()->id();
+        $oneYearAgo = now()->subYear()->startOfDay();
+
+        // Count transactions per day based on when they were created (created_at)
+        $activity = Transaction::where('user_id', $userId)
+            ->where('created_at', '>=', $oneYearAgo)
+            ->selectRaw('DATE(created_at) as date, COUNT(*) as count')
+            ->groupBy('date')
+            ->pluck('count', 'date')
+            ->toArray();
+
+        return response()->json(['activity' => $activity]);
+    }
 }

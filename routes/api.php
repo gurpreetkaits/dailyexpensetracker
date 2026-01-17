@@ -26,6 +26,8 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
+Route::get('/user/activity', [TransactionController::class, 'userActivity'])->middleware('auth:sanctum');
+
 Route::middleware('auth:sanctum')->group(function () {
 
     // Logout

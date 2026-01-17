@@ -80,32 +80,11 @@ const props = defineProps({
 
 const hoveredDay = ref(null)
 
-// Calculate activity thresholds based on user's data
-const activityThresholds = computed(() => {
-  const counts = Object.values(props.activityData).filter(c => c > 0).sort((a, b) => a - b)
-
-  if (counts.length === 0) {
-    return { q1: 1, q2: 2, q3: 3, q4: 4 }
-  }
-
-  const max = Math.max(...counts)
-
-  // If max is small, use simple thresholds
-  if (max <= 4) {
-    return { q1: 1, q2: 2, q3: 3, q4: 4 }
-  }
-
-  // Calculate quartiles for dynamic thresholds
-  const q1Index = Math.floor(counts.length * 0.25)
-  const q2Index = Math.floor(counts.length * 0.5)
-  const q3Index = Math.floor(counts.length * 0.75)
-
-  return {
-    q1: counts[q1Index] || 1,      // 25th percentile - light
-    q2: counts[q2Index] || 2,      // 50th percentile - medium
-    q3: counts[q3Index] || 3,      // 75th percentile - dark
-    q4: max                         // max - darkest
-  }
+// Get the maximum count for percentage-based coloring
+const maxCount = computed(() => {
+  const counts = Object.values(props.activityData).filter(c => c > 0)
+  if (counts.length === 0) return 1
+  return Math.max(...counts)
 })
 
 const weeks = computed(() => {
@@ -221,21 +200,23 @@ function getActivityClass(day) {
   if (!day) return 'bg-transparent'
 
   const count = day.count
-  const t = activityThresholds.value
 
   // No activity = white
   if (count === 0) return 'bg-white border border-gray-200'
 
-  // Level 1: Light (1-2 or below 25th percentile)
-  if (count <= Math.max(2, t.q1)) return 'bg-emerald-200'
+  // Calculate percentage relative to max count
+  const percentage = (count / maxCount.value) * 100
 
-  // Level 2: Medium (below 50th percentile)
-  if (count <= t.q2) return 'bg-emerald-400'
+  // Level 1: 1-25% of max
+  if (percentage <= 25) return 'bg-emerald-200'
 
-  // Level 3: Dark (below 75th percentile)
-  if (count <= t.q3) return 'bg-emerald-500'
+  // Level 2: 26-50% of max
+  if (percentage <= 50) return 'bg-emerald-400'
 
-  // Level 4: Darkest (above 75th percentile)
+  // Level 3: 51-75% of max
+  if (percentage <= 75) return 'bg-emerald-500'
+
+  // Level 4: 76-100% of max
   return 'bg-emerald-600'
 }
 
