@@ -2,9 +2,28 @@
   <div class="max-w-7xl mx-auto relative flex flex-col overflow-y-hidden" style="height: calc(100vh - 80px)">
     <!-- Fixed Header: Switch + Wallets -->
     <div class="flex-shrink-0 bg-gray-100 z-10">
-      <!-- Top Tabs -->
-      <div class="flex justify-center px-3 pt-3 pb-2">
-        <div class="switch-container">
+      <!-- View Mode Toggle + Tabs -->
+      <div class="flex items-center justify-between px-3 pt-3 pb-2">
+        <!-- Grid/List Toggle -->
+        <div class="flex items-center gap-1 bg-white rounded-lg p-1 shadow-sm">
+          <button
+            @click="viewMode = 'grid'"
+            class="p-1.5 rounded-md transition-colors"
+            :class="viewMode === 'grid' ? 'bg-gray-900 text-white' : 'text-gray-400 hover:text-gray-600'"
+          >
+            <LayoutGrid class="w-4 h-4" />
+          </button>
+          <button
+            @click="viewMode = 'list'"
+            class="p-1.5 rounded-md transition-colors"
+            :class="viewMode === 'list' ? 'bg-gray-900 text-white' : 'text-gray-400 hover:text-gray-600'"
+          >
+            <List class="w-4 h-4" />
+          </button>
+        </div>
+
+        <!-- Daily/Recurring Tabs (only in grid mode) -->
+        <div v-if="viewMode === 'grid'" class="switch-container">
           <div class="switch-indicator" :class="getActiveTab === 'recurring' ? 'switch-right' : ''"></div>
           <button
             v-for="type in ['Daily', 'Recurring']"
@@ -16,11 +35,14 @@
             {{ type }}
           </button>
         </div>
+
+        <!-- Placeholder for alignment when in list mode -->
+        <div v-else class="w-20"></div>
       </div>
 
-      <!-- Wallets Row -->
+      <!-- Wallets Row (only in grid mode) -->
       <div
-        v-if="getActiveTab === 'daily' && wallets.length > 0"
+        v-if="viewMode === 'grid' && getActiveTab === 'daily' && wallets.length > 0"
         class="relative group"
         @mouseenter="showWalletArrows = true"
         @mouseleave="showWalletArrows = false"
@@ -84,6 +106,174 @@
 
     <!-- Scrollable Content -->
     <div class="flex-1 overflow-y-auto px-3 pt-3 pb-24 space-y-4 scrollbar-hide">
+
+    <!-- List View Mode -->
+    <template v-if="viewMode === 'list'">
+        <div class="space-y-3 tab-content">
+          <!-- Filter Bar -->
+          <div class="bg-white rounded-xl shadow-sm p-3">
+            <div class="flex items-center justify-between gap-2 mb-3">
+              <h3 class="text-sm font-semibold text-gray-800">Transactions</h3>
+              <div class="flex items-center gap-2">
+                <button
+                  v-if="txHasActiveFilters"
+                  @click="clearTxFilters"
+                  class="text-xs text-red-500 hover:text-red-600"
+                >
+                  Clear filters
+                </button>
+                <button
+                  @click="showTxFilters = !showTxFilters"
+                  class="flex items-center gap-1 px-3 py-1.5 text-xs bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                  :class="txHasActiveFilters ? 'text-emerald-600' : 'text-gray-600'"
+                >
+                  <SlidersHorizontal class="h-3.5 w-3.5" />
+                  <span>Filters</span>
+                  <span v-if="txHasActiveFilters" class="ml-1 w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Expandable Filters -->
+            <Transition name="slide">
+              <div v-if="showTxFilters" class="space-y-3 pt-3 border-t border-gray-100">
+                <!-- Type Filter -->
+                <div class="flex flex-wrap gap-2">
+                  <button
+                    v-for="type in [{key: 'all', label: 'All'}, {key: 'expense', label: 'Expense'}, {key: 'income', label: 'Income'}]"
+                    :key="type.key"
+                    @click="txFilters.type = type.key; txCurrentPage = 1"
+                    class="px-3 py-1.5 text-xs rounded-full transition-colors"
+                    :class="txFilters.type === type.key ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'"
+                  >
+                    {{ type.label }}
+                  </button>
+                </div>
+
+                <!-- Category & Wallet Filters -->
+                <div class="grid grid-cols-2 gap-2">
+                  <select
+                    v-model="txFilters.category"
+                    @change="txCurrentPage = 1"
+                    class="w-full px-3 py-2 text-xs bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                  >
+                    <option :value="null">All Categories</option>
+                    <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
+                  </select>
+                  <select
+                    v-model="txFilters.wallet"
+                    @change="txCurrentPage = 1"
+                    class="w-full px-3 py-2 text-xs bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                  >
+                    <option :value="null">All Wallets</option>
+                    <option v-for="wallet in wallets" :key="wallet.id" :value="wallet.id">{{ wallet.name }}</option>
+                  </select>
+                </div>
+
+                <!-- Date Range -->
+                <div class="grid grid-cols-2 gap-2">
+                  <div>
+                    <label class="block text-[10px] text-gray-500 mb-1">From</label>
+                    <input
+                      type="date"
+                      v-model="txFilters.startDate"
+                      @change="txCurrentPage = 1"
+                      class="w-full px-3 py-2 text-xs bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                    />
+                  </div>
+                  <div>
+                    <label class="block text-[10px] text-gray-500 mb-1">To</label>
+                    <input
+                      type="date"
+                      v-model="txFilters.endDate"
+                      @change="txCurrentPage = 1"
+                      class="w-full px-3 py-2 text-xs bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                    />
+                  </div>
+                </div>
+              </div>
+            </Transition>
+
+            <!-- Results count -->
+            <div class="text-[10px] text-gray-400 mt-2">
+              {{ txFilteredTransactions.length }} transactions
+            </div>
+          </div>
+
+          <!-- Transactions List -->
+          <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+            <div v-if="txPaginatedTransactions.length > 0" class="divide-y divide-gray-100">
+              <div
+                v-for="transaction in txPaginatedTransactions"
+                :key="transaction.id"
+                @click="editTransaction(transaction)"
+                class="flex items-center gap-3 p-3 hover:bg-gray-50 cursor-pointer transition-colors"
+              >
+                <!-- Category Icon -->
+                <div
+                  class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                  :style="{
+                    backgroundColor: (transaction.category?.color || '#6b7280') + '15',
+                    color: transaction.category?.color || '#6b7280'
+                  }"
+                >
+                  <component :is="transaction.category?.icon || 'ShoppingBag'" class="w-5 h-5" />
+                </div>
+
+                <!-- Details -->
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-medium text-gray-900 truncate">
+                    {{ transaction.category?.name || 'Uncategorized' }}
+                  </p>
+                  <p class="text-xs text-gray-500 truncate">{{ transaction.note || 'No note' }}</p>
+                </div>
+
+                <!-- Amount & Date -->
+                <div class="text-right flex-shrink-0">
+                  <p
+                    class="text-sm font-semibold"
+                    :class="transaction.type === 'income' ? 'text-emerald-600' : 'text-gray-900'"
+                  >
+                    {{ transaction.type === 'income' ? '+' : '-' }}{{ formatCurrency(transaction.amount, currencyCode) }}
+                  </p>
+                  <p class="text-[10px] text-gray-400">{{ formatDateShort(transaction.transaction_date) }}</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Empty State -->
+            <div v-else class="flex flex-col items-center justify-center py-12 text-center">
+              <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-3">
+                <ReceiptIcon class="w-6 h-6 text-gray-400" />
+              </div>
+              <p class="text-sm text-gray-500">No transactions found</p>
+              <p class="text-xs text-gray-400 mt-1">Try adjusting your filters</p>
+            </div>
+          </div>
+
+          <!-- Pagination -->
+          <div v-if="txTotalPages > 1" class="flex items-center justify-center gap-2 py-2">
+            <button
+              @click="setTxPage(txCurrentPage - 1)"
+              :disabled="txCurrentPage === 1"
+              class="px-3 py-1.5 text-xs bg-white border border-gray-200 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+            >
+              Previous
+            </button>
+            <span class="text-xs text-gray-500">{{ txCurrentPage }} / {{ txTotalPages }}</span>
+            <button
+              @click="setTxPage(txCurrentPage + 1)"
+              :disabled="txCurrentPage === txTotalPages"
+              class="px-3 py-1.5 text-xs bg-white border border-gray-200 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+    </template>
+
+    <!-- Grid View Mode -->
+    <template v-else>
     <!-- Start New Overview Card -->
     <template v-if="getActiveTab === 'daily'">
       <div class="grid mb-4 bg-white rounded-xl shadow-sm p-4 tab-content">
@@ -111,6 +301,7 @@
         </DailyBarChart>
       </div>
     </template>
+
       <template v-else>
           <!-- Summary Cards -->
           <div class="space-y-3 tab-content">
@@ -436,8 +627,17 @@
         </div>
       </template>
     </div>
+    </template>
     </div>
     <!-- End Scrollable Content -->
+
+    <!-- Floating Add Button (Desktop Only) -->
+    <button
+      @click="createNewTransaction"
+      class="hidden md:flex fixed bottom-8 left-[calc(50%+128px)] -translate-x-1/2 w-14 h-14 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full shadow-lg hover:shadow-xl items-center justify-center transition-all duration-200 z-40"
+    >
+      <Plus class="w-6 h-6" />
+    </button>
 
     <!-- Modals (outside scrollable area) -->
     <!-- Start Desktop Model -->
@@ -496,7 +696,7 @@ import TransactionsDoubleLineBarChart from './Stats/TransactionsDoubleLineBarCha
 import DailyBarChart from './Stats/DailyBarChart.vue'
 import ExportModal from './ExportModal.vue'
 import LoanDetailModal from './LoanDetailModal.vue'
-import { Wallet, CreditCard, Banknote, Download, ChevronRight, AlertCircle } from 'lucide-vue-next'
+import { Wallet, CreditCard, Banknote, Download, ChevronRight, AlertCircle, SlidersHorizontal, LayoutGrid, List } from 'lucide-vue-next'
 export default {
   name: 'ExpenseList',
   mixins: [numberMixin,iconMixin],
@@ -514,7 +714,7 @@ export default {
     DailyBarChart,
     ExportModal,
     LoanDetailModal,
-    Wallet, CreditCard, Banknote, Download, ChevronRight, AlertCircle
+    Wallet, CreditCard, Banknote, Download, ChevronRight, AlertCircle, SlidersHorizontal, LayoutGrid, List
   },
   setup() {
     const walletStore = useWalletStore();
@@ -533,6 +733,7 @@ export default {
       selectedItem: {},
       editingTransaction: null,
       activeTab: 'daily',
+      viewMode: 'grid',
       editingRecurring: null,
       editingGoal: false,
       searchTimeout: null,
@@ -552,7 +753,18 @@ export default {
       // Wallet scroll arrows state
       showWalletArrows: false,
       canScrollWalletsLeft: false,
-      canScrollWalletsRight: false
+      canScrollWalletsRight: false,
+      // Transactions view filters
+      txFilters: {
+        type: 'all',
+        category: null,
+        wallet: null,
+        startDate: '',
+        endDate: ''
+      },
+      txCurrentPage: 1,
+      txPerPage: 20,
+      showTxFilters: false
     }
   },
   computed: {
@@ -592,6 +804,48 @@ export default {
     },
     filteredTransactions() {
       return this.transactions
+    },
+    txFilteredTransactions() {
+      let filtered = [...this.transactions];
+
+      // Filter by type
+      if (this.txFilters.type !== 'all') {
+        filtered = filtered.filter(t => t.type === this.txFilters.type);
+      }
+
+      // Filter by category
+      if (this.txFilters.category) {
+        filtered = filtered.filter(t => t.category_id === this.txFilters.category);
+      }
+
+      // Filter by wallet
+      if (this.txFilters.wallet) {
+        filtered = filtered.filter(t => t.wallet_id === this.txFilters.wallet);
+      }
+
+      // Filter by date range
+      if (this.txFilters.startDate) {
+        filtered = filtered.filter(t => new Date(t.transaction_date) >= new Date(this.txFilters.startDate));
+      }
+      if (this.txFilters.endDate) {
+        filtered = filtered.filter(t => new Date(t.transaction_date) <= new Date(this.txFilters.endDate));
+      }
+
+      return filtered;
+    },
+    txPaginatedTransactions() {
+      const start = (this.txCurrentPage - 1) * this.txPerPage;
+      return this.txFilteredTransactions.slice(start, start + this.txPerPage);
+    },
+    txTotalPages() {
+      return Math.ceil(this.txFilteredTransactions.length / this.txPerPage);
+    },
+    txHasActiveFilters() {
+      return this.txFilters.type !== 'all' ||
+             this.txFilters.category ||
+             this.txFilters.wallet ||
+             this.txFilters.startDate ||
+             this.txFilters.endDate;
     },
     expenseTransactions() {
       return this.barTransactions.filter(t => t.type === 'expense')
@@ -767,6 +1021,11 @@ export default {
     getExpensesByType(type) {
       if (type === 'all') return this.recurringExpenses;
       return this.recurringExpenses.filter(e => e.type === type);
+    },
+    formatDateShort(dateString) {
+      if (!dateString) return '';
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     },
     getExpenseColor(expense) {
       if (expense.category?.color) return expense.category.color;
@@ -1048,16 +1307,8 @@ export default {
       async setRecurringSummary() {
           try {
               await this.fetchRecurringExpenses();
-
-              // Set the monthly payable from the current expense
-              if (this.details?.expense) {
-                  const expense = this.recurringExpenses.find(e => e.id === this.details.expense.id);
-                  this.nextMonthPayable = expense?.is_active ? parseFloat(expense.amount) : 0;
-              }
-
-              // Set total paid from details
-              this.totalPaidTillNow = this.details?.total_paid || 0;
-
+              // Computed properties (nextMonthPayable, totalPaidTillNow) will
+              // automatically update from the store's summary data
           } catch (error) {
           }
       },
@@ -1178,6 +1429,25 @@ export default {
       this.$nextTick(() => {
         this.updateWalletScrollState();
       });
+    },
+    // Transaction filter methods
+    clearTxFilters() {
+      this.txFilters = {
+        type: 'all',
+        category: null,
+        wallet: null,
+        startDate: '',
+        endDate: ''
+      };
+      this.txCurrentPage = 1;
+    },
+    setTxPage(page) {
+      if (page >= 1 && page <= this.txTotalPages) {
+        this.txCurrentPage = page;
+      }
+    },
+    async fetchAllTransactions() {
+      await this.fetchTransactions({ per_page: 100 });
     },
   },
   async created() {
@@ -1325,6 +1595,18 @@ export default {
     font-size: 13px;
     min-width: 90px;
   }
+}
+
+/* Slide transition for filters */
+.slide-enter-active,
+.slide-leave-active {
+  transition: all 0.3s ease;
+}
+
+.slide-enter-from,
+.slide-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
 }
 
 /* Wallet cards - 3 on mobile, 5 on desktop */

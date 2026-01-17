@@ -73,15 +73,15 @@ const routes = [
         meta: { requiresAuth: true, requiresSubscription: false }
       },
       {
-        path: "settings/subscription",
-        component: () => import("../views/Settings/SubscriptionView.vue"),
-        name: 'subscription',
+        path: "settings/profile",
+        component: () => import("../views/Settings/ProfileSettingsView.vue"),
+        name: 'profile-settings',
         meta: { requiresAuth: true, requiresSubscription: false }
       },
       {
-        path: "settings/account",
-        component: () => import("../views/Settings/AccountSettings.vue"),
-        name: 'account-settings',
+        path: "settings/subscription",
+        component: () => import("../views/Settings/SubscriptionView.vue"),
+        name: 'subscription',
         meta: { requiresAuth: true, requiresSubscription: false }
       },
       {

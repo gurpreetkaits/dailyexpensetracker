@@ -1,5 +1,5 @@
 <template>
-    <div class="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 flex flex-col gap-3 pointer-events-none">
+    <div class="fixed top-4 right-4 z-50 flex flex-col gap-3 pointer-events-none md:right-8">
         <transition-group name="toast">
             <div
                 v-for="n in notifications"

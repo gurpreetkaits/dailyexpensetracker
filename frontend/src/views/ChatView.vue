@@ -97,7 +97,7 @@
 
     <!-- Upgrade Popup -->
     <Transition name="fade">
-      <div v-if="showUpgradePopup" class="absolute inset-0 bg-black/40 flex items-center justify-center z-50" @click="showUpgradePopup = false">
+      <div v-if="showUpgradePopup" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50" @click="showUpgradePopup = false">
         <div class="bg-white rounded-2xl p-5 mx-4 max-w-xs text-center" @click.stop>
           <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center mx-auto mb-3">
             <Crown class="w-6 h-6 text-emerald-600" />
