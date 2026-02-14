@@ -20,10 +20,8 @@ return Application::configure(basePath: dirname(__DIR__))
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
         ]);
 
-        // Apply rate limiting to all API routes
-        $middleware->api(prepend: [
-            \Illuminate\Routing\Middleware\ThrottleRequests::class.':api',
-        ]);
+        // Rate limiting is applied via route middleware in api.php
+        // This keeps it explicit and easier to debug
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

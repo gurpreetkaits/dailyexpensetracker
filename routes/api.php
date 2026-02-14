@@ -28,7 +28,8 @@ Route::get('/user', function (Request $request) {
 
 Route::get('/user/activity', [TransactionController::class, 'userActivity'])->middleware('auth:sanctum');
 
-Route::middleware('auth:sanctum')->group(function () {
+// Authenticated routes with rate limiting (60 requests/minute per user)
+Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
 
     // Logout
     Route::post('logout', [AuthenticatedSessionController::class, 'apiLogout']);
