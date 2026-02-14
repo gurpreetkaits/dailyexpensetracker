@@ -310,8 +310,8 @@ export default {
             try {
                 const googleResponse = await googleAuthCodeLogin();
                 let googleCode = googleResponse.code;
-                // getGoogleUserInfo now returns {user, token} from backend
-                const response = await getGoogleUserInfo(googleCode);
+                const userObj = await getGoogleUserInfo(googleCode);
+                const response = await login(userObj);
                 this.authStore.setAuth(response.token, response.user);
                 await this.successfulLoginActions();
             } catch (error) {
