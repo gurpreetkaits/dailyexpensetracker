@@ -43,38 +43,21 @@ export const submitSurvey = async (surveyData) => {
 
 export const getGoogleUserInfo = async (code) => {
   try {
-    localStorage.setItem("gCode", JSON.stringify(code));
-
-    const { data } = await axios.post("https://oauth2.googleapis.com/token", {
+    // Send code to backend - token exchange happens server-side
+    // This keeps client_secret secure on the server
+    await getCsrfToken();
+    const { data } = await axiosConf.post("/api/auth/google/callback", {
       code,
-      client_id: import.meta.env.VITE_GOOGLE_CLIENT,
-      client_secret: import.meta.env.VITE_GOOGLE_SECRET,
       redirect_uri: import.meta.env.VITE_APP_URL,
-      grant_type: "authorization_code",
     });
 
-    if (data) {
-      const accessToken = data.access_token;
-
-      // Fetch user details using the access token
-      const userObj = await axios.get(
-        "https://www.googleapis.com/oauth2/v3/userinfo",
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
-
-      if (userObj && userObj.data) {
-        localStorage.setItem("user", JSON.stringify(userObj.data));
-        return userObj.data
-      } else {
-        // Handle the case where userResponse or userResponse.data is undefined
-      }
+    if (data && data.user) {
+      localStorage.setItem("user", JSON.stringify(data.user));
+      return data.user;
     }
   } catch (e) {
-    console.error("Failed to exchaange token", e);
+    console.error("Failed to exchange token", e);
+    throw e;
   }
 };
 
