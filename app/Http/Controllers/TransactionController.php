@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Data\GetTransactionFilterData;
 use App\Models\Transaction;
+use App\Models\Category;
+use App\Models\Wallet;
 use App\Services\TransactionService;
 use App\Enum\TransactionFilterEnum;
 use App\Services\WalletService;
@@ -112,9 +114,19 @@ class TransactionController extends Controller
                     }
                 }
             ],
-            'category_id' => 'nullable|int',
+            'category_id' => ['nullable', 'int', function ($attribute, $value, $fail) {
+                if ($value && !Category::where('id', $value)->where(function ($q) {
+                    $q->whereNull('user_id')->orWhere('user_id', auth()->id());
+                })->exists()) {
+                    $fail('Invalid category.');
+                }
+            }],
             'transaction_date' => 'nullable|date',
-            'wallet_id' => 'required|exists:wallets,id'
+            'wallet_id' => ['required', 'exists:wallets,id', function ($attribute, $value, $fail) {
+                if (!Wallet::where('id', $value)->where('user_id', auth()->id())->exists()) {
+                    $fail('Invalid wallet.');
+                }
+            }],
         ]);
 
         if ($validator->fails()) {
@@ -157,9 +169,19 @@ class TransactionController extends Controller
                 }
             ],
             'transaction_date' => 'nullable|date',
-            'category_id' => 'nullable|int',
+            'category_id' => ['nullable', 'int', function ($attribute, $value, $fail) {
+                if ($value && !Category::where('id', $value)->where(function ($q) {
+                    $q->whereNull('user_id')->orWhere('user_id', auth()->id());
+                })->exists()) {
+                    $fail('Invalid category.');
+                }
+            }],
             'id' => 'exists:transactions,id',
-            'wallet_id' => 'required|exists:wallets,id'
+            'wallet_id' => ['required', 'exists:wallets,id', function ($attribute, $value, $fail) {
+                if (!Wallet::where('id', $value)->where('user_id', auth()->id())->exists()) {
+                    $fail('Invalid wallet.');
+                }
+            }],
         ]);
 
         if ($validator->fails()) {
