@@ -114,17 +114,17 @@ export const useSettingsStore = defineStore("settings", {
       }
     },
 
-    async isGurpreet() {
-      let authStore = useAuthStore()
-      return (
-        (await authStore.getAuth().email) === "gurpreetkait.codes@gmail.com"
-      );
-    },
     async loadStats(page = 1) {
-      if (!this.isGurpreet()) return;
-      const { data } = await getStats(page);
-      this.stats = data;
-      return data;
+      // Admin check is done server-side in StatsController
+      try {
+        const { data } = await getStats(page);
+        this.stats = data;
+        return data;
+      } catch (error) {
+        // Will return 403 if not admin
+        console.error('Stats access denied or error:', error);
+        return null;
+      }
     },
   },
 });

@@ -130,3 +130,6 @@ Route::post('login', [AuthenticatedSessionController::class, 'store']);
 // OTP Authentication Routes
 Route::post('auth/send-otp', [AuthenticatedSessionController::class, 'sendOtp']);
 Route::post('auth/verify-otp', [AuthenticatedSessionController::class, 'verifyOtp']);
+
+// Google OAuth (token exchange happens server-side for security)
+Route::post('auth/google/callback', [\App\Http\Controllers\Auth\GoogleAuthController::class, 'callback']);
