@@ -53,7 +53,8 @@ export const getGoogleUserInfo = async (code) => {
 
     if (data && data.user) {
       localStorage.setItem("user", JSON.stringify(data.user));
-      return data.user;
+      // Return full response with user and token
+      return data;
     }
   } catch (e) {
     console.error("Failed to exchange token", e);
