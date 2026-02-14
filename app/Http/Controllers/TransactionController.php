@@ -112,9 +112,24 @@ class TransactionController extends Controller
                     }
                 }
             ],
-            'category_id' => 'nullable|int',
+            'category_id' => [
+                'nullable',
+                'integer',
+                function ($attribute, $value, $fail) {
+                    if ($value && !\App\Models\Category::where('id', $value)->where('user_id', auth()->id())->exists()) {
+                        $fail('Invalid category.');
+                    }
+                }
+            ],
             'transaction_date' => 'nullable|date',
-            'wallet_id' => 'required|exists:wallets,id'
+            'wallet_id' => [
+                'required',
+                function ($attribute, $value, $fail) {
+                    if (!\App\Models\Wallet::where('id', $value)->where('user_id', auth()->id())->exists()) {
+                        $fail('Invalid wallet.');
+                    }
+                }
+            ]
         ]);
 
         if ($validator->fails()) {
@@ -157,9 +172,24 @@ class TransactionController extends Controller
                 }
             ],
             'transaction_date' => 'nullable|date',
-            'category_id' => 'nullable|int',
+            'category_id' => [
+                'nullable',
+                'integer',
+                function ($attribute, $value, $fail) {
+                    if ($value && !\App\Models\Category::where('id', $value)->where('user_id', auth()->id())->exists()) {
+                        $fail('Invalid category.');
+                    }
+                }
+            ],
             'id' => 'exists:transactions,id',
-            'wallet_id' => 'required|exists:wallets,id'
+            'wallet_id' => [
+                'required',
+                function ($attribute, $value, $fail) {
+                    if (!\App\Models\Wallet::where('id', $value)->where('user_id', auth()->id())->exists()) {
+                        $fail('Invalid wallet.');
+                    }
+                }
+            ]
         ]);
 
         if ($validator->fails()) {
