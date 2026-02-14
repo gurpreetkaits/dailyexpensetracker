@@ -124,12 +124,15 @@ Route::middleware('auth:sanctum')->group(function () {
 // Paddle webhook route (no auth middleware)
 //Route::post('paddle/webhook', [SubscriptionController::class, 'handleWebhook']);
 
-Route::post('register', [RegisteredUserController::class, 'store']);
-Route::post('login', [AuthenticatedSessionController::class, 'store']);
+// Auth routes with stricter rate limiting (10 requests per minute per IP)
+Route::middleware('throttle:auth')->group(function () {
+    Route::post('register', [RegisteredUserController::class, 'store']);
+    Route::post('login', [AuthenticatedSessionController::class, 'store']);
 
-// OTP Authentication Routes
-Route::post('auth/send-otp', [AuthenticatedSessionController::class, 'sendOtp']);
-Route::post('auth/verify-otp', [AuthenticatedSessionController::class, 'verifyOtp']);
+    // OTP Authentication Routes
+    Route::post('auth/send-otp', [AuthenticatedSessionController::class, 'sendOtp']);
+    Route::post('auth/verify-otp', [AuthenticatedSessionController::class, 'verifyOtp']);
 
-// Google OAuth (token exchange happens server-side for security)
-Route::post('auth/google/callback', [\App\Http\Controllers\Auth\GoogleAuthController::class, 'callback']);
+    // Google OAuth (token exchange happens server-side for security)
+    Route::post('auth/google/callback', [\App\Http\Controllers\Auth\GoogleAuthController::class, 'callback']);
+});
