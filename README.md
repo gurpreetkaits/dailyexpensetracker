@@ -1,67 +1,139 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Daily Expense Tracker
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A simple, open-source expense tracking app. Use it with any AI — or just on its own.
 
-## About Laravel
+## Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- Track expenses and income
+- Multiple wallets support
+- Categories and tags
+- Stats and insights
+- Google OAuth login
+- OTP-based passwordless login
+- Works great with AI assistants via API
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Works with OpenClaw
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Connect through WhatsApp and log expenses by just messaging:
 
-## Learning Laravel
+```
+> "500 groceries"
+> done.
+```
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+[Set up OpenClaw](https://x.com/gurpreetkait/status/2022571236568821895)
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## Quick Start
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Requirements
 
-## Laravel Sponsors
+- PHP 8.2+
+- Composer
+- Node.js 18+
+- MySQL/MariaDB
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### Installation
 
-### Premium Partners
+```bash
+# Clone
+git clone https://github.com/gurpreetkaits/dailyexpensetracker.git
+cd dailyexpensetracker
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+# Backend
+composer install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate
+
+# Frontend
+cd frontend
+npm install
+cp .env.example .env
+npm run build
+```
+
+### Environment Variables
+
+Backend `.env`:
+```
+DB_CONNECTION=mariadb
+DB_HOST=127.0.0.1
+DB_DATABASE=dailyexpensetracker
+DB_USERNAME=root
+DB_PASSWORD=
+
+# Google OAuth (optional)
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+
+# Email (optional)
+MAIL_MAILER=resend
+RESEND_KEY=
+```
+
+Frontend `.env`:
+```
+VITE_BACKEND_URL=http://127.0.0.1:8000
+VITE_APP_URL=http://localhost:5173
+VITE_GOOGLE_CLIENT=
+```
+
+### Run
+
+```bash
+# Backend
+php artisan serve
+
+# Frontend (separate terminal)
+cd frontend
+npm run dev
+```
+
+Visit `http://localhost:5173`
+
+## API
+
+Authentication via Laravel Sanctum. All endpoints require `Authorization: Bearer <token>` header.
+
+### Transactions
+
+```
+GET    /api/transactions          # List transactions
+POST   /api/transactions          # Create transaction
+GET    /api/transactions/{id}     # Get transaction
+PUT    /api/transactions/{id}     # Update transaction
+DELETE /api/transactions/{id}     # Delete transaction
+```
+
+### Wallets
+
+```
+GET    /api/wallets               # List wallets
+POST   /api/wallets               # Create wallet
+```
+
+### Categories
+
+```
+GET    /api/categories            # List categories
+POST   /api/categories            # Create category
+```
+
+## Tech Stack
+
+- **Backend:** Laravel 11, PHP 8.2
+- **Frontend:** Vue 3, Vite, Tailwind CSS
+- **Database:** MySQL/MariaDB
+- **Auth:** Laravel Sanctum, Google OAuth
 
 ## Contributing
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+PRs welcome. For major changes, open an issue first.
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
-# vue-expense-tracker-be
+MIT
+
+## Author
+
+Built by [@gurpreetkait](https://x.com/gurpreetkait)
