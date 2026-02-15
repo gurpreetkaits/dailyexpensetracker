@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Mail\BulkEmail;
 use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
@@ -19,14 +20,14 @@ class SendBulkEmailCommand extends Command
                             {--offset=0 : Start from this user offset}
                             {--limit=50 : Number of users to send to}
                             {--all : Send to all users (ignores offset/limit)}
-                            {--delay=500 : Delay between emails in milliseconds}';
+                            {--sync : Send synchronously instead of queuing}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Send bulk email to users using a view template';
+    protected $description = 'Send bulk email to users using a view template (queued by default)';
 
     /**
      * Execute the console command.
@@ -38,7 +39,7 @@ class SendBulkEmailCommand extends Command
         $offset = (int) $this->option('offset');
         $limit = (int) $this->option('limit');
         $sendAll = $this->option('all');
-        $delay = (int) $this->option('delay');
+        $sync = $this->option('sync');
 
         // Check if view exists
         if (!view()->exists($view)) {
@@ -61,22 +62,27 @@ class SendBulkEmailCommand extends Command
             return 0;
         }
 
-        $this->info("Sending '{$subject}' to {$total} users...");
+        $mode = $sync ? 'synchronously' : 'via queue';
+        $this->info("Sending '{$subject}' to {$total} users {$mode}...");
         $this->newLine();
 
         $bar = $this->output->createProgressBar($total);
         $bar->start();
 
-        $sent = 0;
+        $queued = 0;
         $failed = 0;
 
         foreach ($users as $user) {
             try {
-                Mail::send($view, ['user' => $user], function ($message) use ($user, $subject) {
-                    $message->to($user->email)
-                            ->subject($subject);
-                });
-                $sent++;
+                $mailable = new BulkEmail($view, $subject, $user);
+                
+                if ($sync) {
+                    Mail::to($user->email)->send($mailable);
+                } else {
+                    Mail::to($user->email)->queue($mailable);
+                }
+                
+                $queued++;
             } catch (\Exception $e) {
                 $failed++;
                 $this->newLine();
@@ -84,17 +90,17 @@ class SendBulkEmailCommand extends Command
             }
 
             $bar->advance();
-            
-            // Delay between emails to avoid rate limiting
-            if ($delay > 0) {
-                usleep($delay * 1000);
-            }
         }
 
         $bar->finish();
         $this->newLine(2);
 
-        $this->info("Done! Sent: {$sent}, Failed: {$failed}");
+        $action = $sync ? 'Sent' : 'Queued';
+        $this->info("Done! {$action}: {$queued}, Failed: {$failed}");
+        
+        if (!$sync) {
+            $this->info("Run 'php artisan queue:work' to process the queue.");
+        }
         
         if (!$sendAll) {
             $nextOffset = $offset + $limit;
