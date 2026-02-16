@@ -65,6 +65,11 @@ return [
             'transport' => 'resend',
         ],
 
+        'unosend' => [
+            'transport' => 'unosend',
+            'api_key' => env('UNOSEND_API_KEY'),
+        ],
+
         'sendmail' => [
             'transport' => 'sendmail',
             'path' => env('MAIL_SENDMAIL_PATH', '/usr/sbin/sendmail -bs -i'),
