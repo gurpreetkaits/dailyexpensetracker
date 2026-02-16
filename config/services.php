@@ -28,6 +28,10 @@ return [
         'key' => env('RESEND_KEY'),
     ],
 
+    'unosend' => [
+        'api_key' => env('UNOSEND_API_KEY'),
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),
