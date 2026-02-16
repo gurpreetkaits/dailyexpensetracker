@@ -40,11 +40,8 @@ class UnosendTransport extends AbstractTransport
         $from = $envelope->getSender();
 
         $payload = [
-            'from' => [
-                'email' => $from->getAddress(),
-                'name' => $from->getName() ?: null,
-            ],
-            'to' => $this->formatAddresses($email->getTo()),
+            'from' => $from->getAddress(),
+            'to' => $this->formatAddressesAsStrings($email->getTo()),
             'subject' => $email->getSubject(),
         ];
 
@@ -57,30 +54,31 @@ class UnosendTransport extends AbstractTransport
         }
 
         if ($cc = $email->getCc()) {
-            $payload['cc'] = $this->formatAddresses($cc);
+            $payload['cc'] = $this->formatAddressesAsStrings($cc);
         }
 
         if ($bcc = $email->getBcc()) {
-            $payload['bcc'] = $this->formatAddresses($bcc);
+            $payload['bcc'] = $this->formatAddressesAsStrings($bcc);
         }
 
         if ($replyTo = $email->getReplyTo()) {
-            $payload['reply_to'] = $this->formatAddresses($replyTo)[0] ?? null;
+            $addresses = $this->formatAddressesAsStrings($replyTo);
+            $payload['reply_to'] = $addresses[0] ?? null;
         }
 
         return $payload;
     }
 
     /**
+     * Format addresses as simple email strings
+     * 
      * @param Address[] $addresses
+     * @return string[]
      */
-    protected function formatAddresses(array $addresses): array
+    protected function formatAddressesAsStrings(array $addresses): array
     {
         return array_map(function (Address $address) {
-            return [
-                'email' => $address->getAddress(),
-                'name' => $address->getName() ?: null,
-            ];
+            return $address->getAddress();
         }, $addresses);
     }
 
