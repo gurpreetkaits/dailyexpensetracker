@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\CategoryController;
@@ -15,13 +14,11 @@ use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\StatsController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\ExportController;
-use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\ServeyController;
 use App\Http\Controllers\WalletController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-///web routes
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
@@ -41,17 +38,6 @@ Route::middleware('auth:sanctum')->group(function () {
     //Load Stats
     Route::get('transactions/stats', [StatsController::class, 'showStats']);
     Route::get('/stats/yearly-comparison', [StatsController::class, 'yearlyComparison']);
-    // Subscription Routes
-    // Route::prefix('subscription')->group(function () {
-    //     Route::post('checkout', [SubscriptionController::class, 'createCheckoutSession']);
-    //     Route::get('status', [SubscriptionController::class, 'getSubscriptionStatus']);
-    //     Route::post('verify-session', [SubscriptionController::class, 'verifyCheckoutSession']);
-    //     Route::post('cancel', [SubscriptionController::class, 'cancelSubscription']);
-    //     Route::post('resume', [SubscriptionController::class, 'resumeSubscription']);
-    //     Route::post('payment-method', [SubscriptionController::class, 'updatePaymentMethod']);
-    //     Route::get('history', [SubscriptionController::class, 'history']);
-    // });
-
     Route::get('transactions/activity-bar-data-v2', [TransactionController::class, 'activityBarDataV2']);
     Route::get('transactions/daily-bar-data', [TransactionController::class, 'dailyBarData']);
     Route::get('transactions/export', [ExportController::class, 'exportTransactions']);
@@ -70,12 +56,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::resource('recurring-expenses', RecurringExpenseController::class);
     Route::get('recurring-expenses-suggestions', [RecurringExpenseController::class, 'suggestions']);
     Route::get('recurring-expenses/{recurringExpense}/loan-details', [RecurringExpenseController::class, 'getLoanDetails']);
-    Route::get('stats', [StatsController::class, 'index']);
     Route::resource('goals', GoalsController::class);
     Route::patch('goals/{goal}/progress', [GoalsController::class, 'updateProgress']);
-    Route::resource('feedback', FeedbackController::class);
-
-    Route::get('dashboard',DashboardController::class)->name('dashboard');
+    Route::post('feedback', [FeedbackController::class, 'store']);
 
     // Structured Routes
     Route::get('get-transactions', [TransactionController::class, 'getTransactions']);
@@ -98,7 +81,6 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     //Polar Subscription Routes
-    Route::post('polar/webhook', [PolarSubscriptionController::class, 'handleWebhook']);
     Route::prefix('polar/subscription')->group(function () {
         Route::post('verify-session', [PolarSubscriptionController::class, 'verifyCheckoutSession']);
         Route::post('cancel', [PolarSubscriptionController::class, 'cancelSubscription']);
@@ -106,8 +88,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('history', [PolarSubscriptionController::class, 'index']);
     });
 
-
-//    Route::resource('user-wallets', WalletController::class);
     Route::prefix('wallets')->group(function () {
         Route::get('/', [WalletController::class, 'index']);
         Route::post('/', [WalletController::class, 'store']);
@@ -124,8 +104,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
 });
 
-// Paddle webhook route (no auth middleware)
-//Route::post('paddle/webhook', [SubscriptionController::class, 'handleWebhook']);
+// Webhook routes (no auth middleware - called by external services)
+Route::post('polar/webhook', [PolarSubscriptionController::class, 'handleWebhook']);
 
 Route::post('register', [RegisteredUserController::class, 'store']);
 Route::post('login', [AuthenticatedSessionController::class, 'store']);

@@ -13,9 +13,7 @@
             </div>
         </div>
         @php
-        $recentUsers = \App\Models\User::latest()->take(5)->get();
         $totalUsers = \App\Models\User::count();
-        $remainingUsers = $totalUsers > 5 ? $totalUsers - 5 : 0;
     @endphp
         <div class="w-[1130px] max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between px-4 sm:px-6 lg:px-8 py-8 gap-8 relative z-10">
             <!-- Left: Headline, Description, Button -->
@@ -41,22 +39,16 @@
                                     ['bg' => 'bg-purple-100', 'text' => 'text-purple-600'],
                                     ['bg' => 'bg-blue-100', 'text' => 'text-blue-600'],
                                     ['bg' => 'bg-orange-100', 'text' => 'text-orange-600'],
-                                    ['bg' => 'bg-pink-100', 'text' => 'text-pink-600'],
-                                    ['bg' => 'bg-emerald-100', 'text' => 'text-emerald-600'],
                                 ];
                             @endphp
-                            @foreach($recentUsers->take(3) as $index => $user)
-                                <div class="inline-flex items-center justify-center h-10 w-10 rounded-full ring-2 ring-white {{ $avatarColors[$index % 5]['bg'] }} {{ $avatarColors[$index % 5]['text'] }}">
-                                    @if(isset($user->avatar))
-                                        <img class="h-10 w-10 rounded-full object-cover" src="{{ $user->avatar }}" alt="{{ $user->name }}">
-                                    @else
-                                        <span class="text-sm font-semibold">{{ strtoupper(substr($user->name, 0, 2)) }}</span>
-                                    @endif
+                            @foreach($avatarColors as $index => $color)
+                                <div class="inline-flex items-center justify-center h-10 w-10 rounded-full ring-2 ring-white {{ $color['bg'] }} {{ $color['text'] }}">
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
                                 </div>
                             @endforeach
                             @if($totalUsers > 3)
                                 <div class="inline-flex items-center justify-center h-10 w-10 rounded-full ring-2 ring-white bg-gray-900 text-white">
-                                    <span class="text-xs font-semibold">+{{ number_format($totalUsers - 3) > 999 ? number_format(($totalUsers - 3) / 1000, 1) . 'k' : $totalUsers - 3 }}</span>
+                                    <span class="text-xs font-semibold">+{{ $totalUsers - 3 > 999 ? number_format(($totalUsers - 3) / 1000, 1) . 'k' : $totalUsers - 3 }}</span>
                                 </div>
                             @endif
                         </div>

@@ -18,6 +18,10 @@ Route::get('privacy-policy', function () {
     return view('privacy');
 })->name('privacy');
 
+Route::get('docs', function () {
+    return view('docs');
+})->name('docs');
+
 Route::controller(ToolsController::class)->prefix('tools')->group(function () {
     Route::get('/', 'index')->name('tools.index');
     Route::get('/simple-interest-calculator', 'simpleInterestCalculator')->name('tools.simple-interest-calculator');

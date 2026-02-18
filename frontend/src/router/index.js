@@ -1,5 +1,3 @@
-//TODO: Only enable admin routes available after on check of admin _ROLE
-
 import { createRouter, createWebHistory } from "vue-router";
 import { requireAuth, requireGuest } from "./auth-guard";
 import { useTransactionStore } from "../store/transaction";
@@ -114,26 +112,6 @@ const routes = [
         name: 'feedback',
         meta: { requiresAuth: true, requiresSubscription: false }
       },
-      {
-        path: "admin-dashboard",
-        component: () => import("../views/Admin/DashboardView.vue"),
-        name: 'admin-dashboard',
-        meta: {
-          adminOnly: true,
-          requiresAuth: true,
-          requiresSubscription: false
-        }
-      },
-      {
-        path: "feedbacks",
-        component: () => import("../views/Admin/FeedbackView.vue"),
-        name: 'feedbacks',
-        meta: {
-          adminOnly: true,
-          requiresAuth: true,
-          requiresSubscription: false
-        }
-      }
     ]
   },
   {
