@@ -111,12 +111,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('wallets')->group(function () {
         Route::get('/', [WalletController::class, 'index']);
         Route::post('/', [WalletController::class, 'store']);
+        // Static routes BEFORE wildcard routes (Laravel matches in order)
+        Route::post('/transfer', [WalletController::class, 'transfer']);
+        Route::get('/transfers', [WalletController::class, 'transfers']);
+        // Wildcard routes AFTER static routes
         Route::get('/{wallet}', [WalletController::class, 'show']);
         Route::put('/{wallet}', [WalletController::class, 'update']);
         Route::delete('/{wallet}', [WalletController::class, 'destroy']);
         Route::get('/{wallet}/transactions', [WalletController::class, 'transactions']);
-        Route::post('/transfer', [WalletController::class, 'transfer']);
-        Route::get('/transfers', [WalletController::class, 'transfers']);
         Route::get('/{wallet}/balance-history', [WalletController::class, 'balanceHistory']);
     });
 
