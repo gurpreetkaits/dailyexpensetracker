@@ -117,7 +117,7 @@
 </template>
 
 <script>
-import { Home, PieChart, MessageCircle, Wallet, Settings, Crown, LogOut, Coffee, Twitter, ChevronDown, SlidersHorizontal, LayoutGrid, User } from 'lucide-vue-next';
+import { Home, PieChart, MessageCircle, Wallet, Settings, Crown, LogOut, Coffee, Twitter, ChevronDown, SlidersHorizontal, LayoutGrid, User, ArrowLeftRight } from 'lucide-vue-next';
 import { mapState, mapActions } from 'pinia';
 import { useAuthStore } from '../../store/auth.js';
 import { useRouter } from 'vue-router';
@@ -133,6 +133,7 @@ export default {
                 { path: '/stats', name: 'Stats', icon: PieChart },
                 { path: '/chat', name: 'Chat', icon: MessageCircle },
                 { path: '/wallets', name: 'Wallets', icon: Wallet },
+                { path: '/transfers', name: 'Transfers', icon: ArrowLeftRight },
                 { path: '/categories', name: 'Categories', icon: LayoutGrid },
                 { path: '/plans', name: 'Plans', icon: Crown },
             ],
