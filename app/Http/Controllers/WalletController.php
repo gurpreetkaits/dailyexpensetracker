@@ -12,6 +12,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Transaction;
+use App\Models\WalletTransfer;
 
 class WalletController extends Controller
 {
@@ -94,27 +95,15 @@ class WalletController extends Controller
             $fromWallet->decrement('balance', $request->amount);
             $toWallet->increment('balance', $request->amount);
 
-            $category = Category::where('name', 'Wallet Transfer')->first();
-            
-            // Transaction::create([
-            //     'user_id' => auth()->id(),
-            //     'wallet_id' => $fromWallet->id,
-            //     'amount' => $request->amount,
-            //     'type' => 'expense',
-            //     'category_id' => $category->id,
-            //     'note' => $request->note ?? "Transfer to {$toWallet->name}",
-            //     'transaction_date' => now(),
-            // ]);
-
-            // Transaction::create([
-            //     'user_id' => auth()->id(),
-            //     'wallet_id' => $toWallet->id,
-            //     'amount' => $request->amount,
-            //     'type' => 'income',
-            //     'category_id' => $category->id,
-            //     'note' => $request->note ?? "Transfer from {$fromWallet->name}",
-            //     'transaction_date' => now(),
-            // ]);
+            // Record the transfer
+            WalletTransfer::create([
+                'user_id' => auth()->id(),
+                'from_wallet_id' => $fromWallet->id,
+                'to_wallet_id' => $toWallet->id,
+                'amount' => $request->amount,
+                'note' => $request->note,
+                'transferred_at' => now(),
+            ]);
 
             $this->service->recordBalanceHistory($fromWallet->id, $fromWallet->balance);
             $this->service->recordBalanceHistory($toWallet->id, $toWallet->balance);
@@ -133,5 +122,15 @@ class WalletController extends Controller
         $history = $this->service->getBalanceHistory($wallet);
 
         return response()->json($history);
+    }
+
+    public function transfers(Request $request): JsonResponse
+    {
+        $transfers = WalletTransfer::where('user_id', auth()->id())
+            ->with(['fromWallet:id,name,type', 'toWallet:id,name,type'])
+            ->orderBy('transferred_at', 'desc')
+            ->paginate(15);
+
+        return response()->json($transfers);
     }
 }

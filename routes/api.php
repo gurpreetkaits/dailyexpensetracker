@@ -116,6 +116,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/{wallet}', [WalletController::class, 'destroy']);
         Route::get('/{wallet}/transactions', [WalletController::class, 'transactions']);
         Route::post('/transfer', [WalletController::class, 'transfer']);
+        Route::get('/transfers', [WalletController::class, 'transfers']);
         Route::get('/{wallet}/balance-history', [WalletController::class, 'balanceHistory']);
     });
 

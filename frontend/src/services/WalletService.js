@@ -69,3 +69,13 @@ export const getWalletBalanceHistory = async (walletId, period = 'month') => {
         throw error
     }
 }
+
+export const getWalletTransfers = async (page = 1) => {
+    try {
+        const response = await api.get(`/api/wallets/transfers?page=${page}`)
+        return response.data
+    } catch (error) {
+        console.error('Error in getWalletTransfers:', error)
+        throw error
+    }
+}
